@@ -1,0 +1,67 @@
+import { IEventBus, IEvent, IEventHandler, ICommand } from './interfaces/index';
+import { ObservableBus } from './utils/observable-bus';
+import { Metatype } from 'nest.js/common/interfaces';
+import { Component, ModuleRef } from 'nest.js';
+import { EventObservable } from './interfaces/event-observable.interface';
+import { Observable } from 'rxjs/Observable';
+import { CommandBus } from './command-bus';
+import { InvalidSagaException } from './exceptions/invalid-saga.exception';
+import 'rxjs/add/operator/filter';
+
+export type Saga = (events$: EventObservable<IEvent>) => any;
+
+@Component()
+export class EventBus extends ObservableBus<IEvent> implements IEventBus {
+    constructor(
+        private readonly moduleRef: ModuleRef,
+        private readonly commandBus: CommandBus) {
+        super();
+    }
+
+    publish<T extends IEvent>(event: T) {
+        this.subject$.next(event);
+    }
+
+    ofType<T extends IEvent>(event: T & { name: string }) {
+        return this.ofEventName(event.name);
+    }
+
+    bind<T extends IEvent>(handler: IEventHandler<IEvent>, name: string) {
+        const stream$ = name ? this.ofEventName(name) : this.subject$;
+        stream$.subscribe(event => handler.handle(event));
+    }
+
+    combineSagas(sagas: Saga[]) {
+        [].concat(sagas).map((saga) => this.registerSaga(saga));
+    }
+
+    register(handlers: Metatype<IEventHandler<IEvent>>[]) {
+        handlers.forEach((handler) => this.registerHandler(handler));
+    }
+
+    protected registerHandler(handler: Metatype<IEventHandler<IEvent>>) {
+        const instance = this.moduleRef.get(handler);
+        if (!instance) return;
+
+        const { name } = handler;
+        const target = name.replace('Handler', 'Event');
+        this.bind(instance as IEventHandler<IEvent>, target);
+    }
+
+    protected ofEventName(name: string) {
+        return this.subject$.filter(event => this.getEventName(event) === name);
+    }
+
+    private getEventName(event): string {
+        const { constructor } = Object.getPrototypeOf(event);
+        return constructor.name as string;
+    }
+
+    protected registerSaga(saga: Saga) {
+        const stream$ = saga(this);
+        if (!(stream$ instanceof Observable)) {
+            throw new InvalidSagaException();
+        }
+        stream$.filter((e) => !!e).subscribe((command) => this.commandBus.execute(command));
+    }
+}

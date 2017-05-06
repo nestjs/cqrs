@@ -1,0 +1,13 @@
+{
+  "name": "nest-cqrs",
+  "version": "1.0.3",
+  "description": "A lightweight CQRS and Event Sourcing module for Nest framework (Node.js)",
+  "license": "MIT",
+  "scripts": {
+    "compile": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "nest.js": "*",
+    "rxjs": "5.*"
+  }
+}
