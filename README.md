@@ -21,8 +21,7 @@ Why [CQRS](https://martinfowler.com/bliki/CQRS.html)? Let's have a look at the m
 
 Simple, most popular [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) application with layered architecture. Is it good? Yes, sure. In most cases, there is no reason to make small and medium-sized applications more complicated. So we finished with bigger part of logic in the services and models without any behaviour (btw. they are models still? I don't think so). When our application becomes larger it will be harder to maintain, improve and add new features.
 
-
-
+Is there another solution? [...]
 
 ## People
 
