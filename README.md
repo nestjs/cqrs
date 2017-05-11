@@ -70,6 +70,8 @@ export class KillDragonHandler implements ICommandHandler<KillDragonCommand> {
 
 Now, application state change has to be preceded by **Command**.
 
+TBC
+
 ## Example
 
 [Nest CQRS Example repository](https://github.com/kamilmysliwiec/nest-cqrs-example)
