@@ -19,4 +19,12 @@ export class EventPublisher {
             }
         };
     }
+
+    mergeObjectContext<T extends AggregateRoot>(object: T): T {
+        const eventBus = this.eventBus;
+        object.publish = (event: IEvent) => {
+            eventBus.publish(event);
+        };
+        return object;
+    }
 }
