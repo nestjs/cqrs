@@ -167,6 +167,48 @@ export class HeroesGameSagas {
 
 We have a rule that if any hero kills dragon - the hero should obtain the ancient item. That's it. The `DropAncientItemCommand` will be dispatched and processed by appropriate handler.
 
+### Setup
+
+The last thing, which we have to do is to set up entire mechanism.
+
+```typescript
+export const CommandHandlers = [ KillDragonHandler, DropAncientItemHandler ];
+export const EventHandlers =  [HeroKilledDragonHandler, HeroFoundItemHandler ];
+
+@Module({
+    controllers: [ HeroesGameController ],
+    components: [
+        CommandBus,
+        EventBus,
+        EventPublisher,
+        HeroesGameService,
+        HeroesGameSagas,
+        ...CommandHandlers,
+        ...EventHandlers,
+        HeroRepository
+    ]
+})
+export class HeroesGameModule implements OnModuleInit {
+    constructor(
+        private readonly command$: CommandBus,
+        private readonly event$: EventBus,
+        private readonly heroesGameSagas: HeroesGameSagas) {}
+
+    onModuleInit() {
+        this.event$.register(EventHandlers);
+        this.command$.register(CommandHandlers);
+        this.event$.combineSagas([
+            this.heroesGameSagas.dragonKilled,
+        ]);
+    }
+}
+```
+
+### Interesting facts
+
+- both `CommandBus` and `EventBus` are **Observables**, so it is possible to subscribe to entire streams (e.g. for logging),
+- each Command and Event Handler is a Component, so it can inject another components through constructor,
+
 ## Full example
 
 - [Nest CQRS module usage example repository](https://github.com/kamilmysliwiec/nest-cqrs-example)
