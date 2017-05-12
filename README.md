@@ -8,7 +8,7 @@ A lightweight **CQRS** module for [Nest](https://github.com/kamilmysliwiec/nest)
 ## Installation
 
 ```bash
-$ npm install nest-cqrs
+$ npm install --save @nestjs/cqrs
 ```
 ## Introduction & Usage
 
