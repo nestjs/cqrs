@@ -173,7 +173,7 @@ The last thing, which we have to do is to set up entire mechanism.
 
 ```typescript
 export const CommandHandlers = [ KillDragonHandler, DropAncientItemHandler ];
-export const EventHandlers =  [HeroKilledDragonHandler, HeroFoundItemHandler ];
+export const EventHandlers =  [ HeroKilledDragonHandler, HeroFoundItemHandler ];
 
 @Module({
     controllers: [ HeroesGameController ],
@@ -206,8 +206,8 @@ export class HeroesGameModule implements OnModuleInit {
 
 ### Interesting facts
 
-- both `CommandBus` and `EventBus` are **Observables**, so it is possible to subscribe to entire streams (e.g. for logging),
-- each Command and Event Handler is a Component, so it can inject another components through constructor,
+- both `CommandBus` and `EventBus` are **Observables**, so it is possible to subscribe to entire streams (e.g. for logging)
+- each Command and Event Handler is a Component, so it can inject another components through constructor
 
 ## Full example
 
