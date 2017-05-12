@@ -82,6 +82,21 @@ If we encapsulate commands in handlers, we prevent interaction between them - ap
 
 Events are asynchronous. They are dispatched by **models**. Models have to extend `AggregateRoot` class.
 
+**Events:**
+```typescript
+export class HeroFoundItemEvent implements IEvent {
+    constructor(
+        public readonly heroId: string,
+        public readonly itemId: string) {}
+}
+
+export class HeroKilledDragonEvent implements IEvent {
+    constructor(
+        public readonly heroId: string,
+        public readonly dragonId: string) {}
+}
+```
+
 **Model:**
 ```typescript
 export class Hero extends AggregateRoot {
@@ -101,21 +116,51 @@ export class Hero extends AggregateRoot {
 }
 ```
 
-**Events:**
-```typescript
-export class HeroFoundItemEvent implements IEvent {
-    constructor(
-        public readonly heroId: string,
-        public readonly itemId: string) {}
-}
+The `apply()` method does not dispatch events yet, because there is no relationship between model and `EventPublisher`. So, how to tell model about the publisher? We have to use publisher `mergeObjectContext()` method inside our command handler.
 
-export class HeroKilledDragonEvent implements IEvent {
+```typescript
+@Component()
+export class KillDragonHandler implements ICommandHandler<KillDragonCommand> {
     constructor(
-        public readonly heroId: string,
-        public readonly dragonId: string) {}
+        private readonly repository: HeroRepository,
+        private readonly publisher: EventPublisher) {}
+
+    execute(command: KillDragonCommand, resolve: (value?) => void) {
+        const { heroId, dragonId } = command;
+        const hero = this.publisher.mergeObjectContext(
+            this.repository.findOneById(+heroId)
+        );
+        hero.killEnemy(dragonId);
+        resolve();
+    }
 }
 ```
 
+Now, everything works as we expected. Of course, object do not have to exist already. We can easily merge type context also:
+
+```typescript
+const HeroModel = this.publisher.mergeContext(Hero);
+new HeroModel('id');
+```
+
+That's it. Model can publish events. We have to handle them. Each event may has a lot of **Event Handlers**. They do not have to know about each other.
+
+```
+@Component()
+export class HeroKilledDragonHandler implements IEventHandler<HeroKilledDragonEvent> {
+    constructor(private readonly repository: HeroRepository) {}
+
+    handle(event: HeroKilledDragonEvent) {
+        // logic
+    }
+}
+```
+
+At this time we can e.g. move our persistance logic into event handlers, so the command handlers will be lighter.
+
+### Sagas
+
+This kind of **Event-Driven Architecture** allows us to make our application truly reactive and scalable.
 
 ## Full example
 
