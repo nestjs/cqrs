@@ -82,14 +82,8 @@ If we encapsulate commands in handlers, we prevent interaction between them - ap
 
 Events are asynchronous. They are dispatched by **models**. Models have to extend `AggregateRoot` class.
 
-**Events:**
+**Event:**
 ```typescript
-export class HeroFoundItemEvent implements IEvent {
-    constructor(
-        public readonly heroId: string,
-        public readonly itemId: string) {}
-}
-
 export class HeroKilledDragonEvent implements IEvent {
     constructor(
         public readonly heroId: string,
