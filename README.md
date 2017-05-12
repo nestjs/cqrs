@@ -70,9 +70,9 @@ export class KillDragonHandler implements ICommandHandler<KillDragonCommand> {
 }
 ```
 
-Now, every application state change has to be preceded by **Command**. The logic is encapsulated in handlers. If we want we can simply add logging here or more - we can persist our commands in the database (e.g. for diagnostics purposes). 
+Now, every application state change is a result of **Command** occurrence. The logic is encapsulated in handlers. If we want we can simply add logging here or more - we can persist our commands in the database (e.g. for diagnostics purposes). 
 
-Why we need `resolve()` function? Sometimes we might want to return a 'message' from handler to service. Also - we can just call this function at the beginning of the `execute()` method, so our application will firstly - turn back into the service and return response to user and then asynchronously come back here.
+Why we need `resolve()` function? Sometimes we might want to return a 'message' from handler to service. Also - we can just call this function at the beginning of the `execute()` method, so our application will firstly - turn back into the service and return response to client and then asynchronously come back here.
 
 Our structure looks better, but it was only the **first step**. Sure, if you want, you can end up with it.
 
@@ -108,7 +108,7 @@ export class Hero extends AggregateRoot {
 The `apply()` method does not dispatch events yet, because there is no relationship between model and `EventPublisher`. So, how to tell model about the publisher? We have to use publisher `mergeObjectContext()` method inside our command handler.
 
 ```typescript
-@Component()
+@CommandHandler(KillDragonCommand)
 export class KillDragonHandler implements ICommandHandler<KillDragonCommand> {
     constructor(
         private readonly repository: HeroRepository,
@@ -135,7 +135,7 @@ new HeroModel('id');
 That's it. **Model can publish events**. We have to handle them. Each event may has a lot of **Event Handlers**. They do not have to know about each other.
 
 ```typescript
-@Component()
+@EventsHandler(HeroKilledDragonEvent)
 export class HeroKilledDragonHandler implements IEventHandler<HeroKilledDragonEvent> {
     constructor(private readonly repository: HeroRepository) {}
 
