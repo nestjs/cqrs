@@ -132,7 +132,7 @@ const HeroModel = this.publisher.mergeContext(Hero);
 new HeroModel('id');
 ```
 
-That's it. Model can publish events. We have to handle them. Each event may has a lot of **Event Handlers**. They do not have to know about each other.
+That's it. **Model can publish events**. We have to handle them. Each event may has a lot of **Event Handlers**. They do not have to know about each other.
 
 ```
 @Component()
@@ -145,7 +145,7 @@ export class HeroKilledDragonHandler implements IEventHandler<HeroKilledDragonEv
 }
 ```
 
-At this time we can e.g. move our persistance logic into event handlers, so the command handlers will be lighter.
+At this time we can e.g. move our **persistance logic** into event handlers, so the command handlers will be lighter.
 
 ### Sagas
 
@@ -153,7 +153,7 @@ This kind of **Event-Driven Architecture** improves application **reactiveness a
 
 The sagas are incredibly powerful feature. Single saga is listening for 1 .. * events. It can combine, merge, filter etc. events streams. [RxJS](https://github.com/Reactive-Extensions/RxJS) library is the where magic comes from. 
 
-Saga has to return **single command**. This command is dispatched **asynchronously**. 
+Saga has to return **single command** as an Observable. This command is dispatched **asynchronously**. 
 
 ```typescript
 @Component()
