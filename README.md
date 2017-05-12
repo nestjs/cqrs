@@ -160,7 +160,23 @@ At this time we can e.g. move our persistance logic into event handlers, so the 
 
 ### Sagas
 
-This kind of **Event-Driven Architecture** allows us to make our application truly reactive and scalable.
+This kind of **Event-Driven Architecture** improves application **reactiveness and scalability**. Now, when we have an events, we can simply react on them. The **Sagas** - are the last building blocks from architecture point of view.
+
+The sagas are incredibly powerful feature. Single saga is listening for 1 .. * events. It can combine, merge, filter etc. events streams. [RxJS](https://github.com/Reactive-Extensions/RxJS) library is the where magic comes from. 
+
+Saga has to return **single command**. This command is dispatched **asynchronously**. 
+
+```typescript
+@Component()
+export class HeroesGameSagas {
+    dragonKilled = (events$: EventObservable<any>): Observable<ICommand> => {
+        return events$.ofType(HeroKilledDragonEvent)
+            .map((event) => new DropAncientItemCommand(event.heroId, fakeItemID));
+    }
+}
+```
+
+We have a rule that if any hero kills dragon - the hero should obtain the ancient item. That's it. The `DropAncientItemCommand` will be dispatched and processed by appropriate handler.
 
 ## Full example
 
