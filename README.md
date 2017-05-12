@@ -19,7 +19,7 @@ Why [CQRS](https://martinfowler.com/bliki/CQRS.html)? Let's have a look at the m
 3. Services uses Repositories / DAOs to change / persist entities.
 4. Entities are our models - just containers for the values, with setters and getters.
 
-Simple, the most popular [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) application with layered architecture. Is it good? Yes, sure. In most cases, there is no reason to make small and medium-sized applications more complicated. So we end up with bigger part of logic in the services and models without any behaviour (btw. are they models still? I don't think so). When our application becomes larger it will be harder to maintain and improve.
+Simple [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) application with layered architecture. Is it good? Yes, sure. In most cases, there is no reason to make small and medium-sized applications more complicated. So, we are done with the bigger part of logic in the services and models without any behaviour (btw. are they models still? I don't think so). When our application becomes larger it will be harder to maintain and improve.
 
 Let's change our way of thinking.
 
@@ -72,15 +72,49 @@ export class KillDragonHandler implements ICommandHandler<KillDragonCommand> {
 
 Now, every application state change has to be preceded by **Command**. The logic is encapsulated in handlers. If we want we can simply add logging here or more - we can persist our commands in the database (e.g. for diagnostics purposes). 
 
-Why we need `resolve()` function? Sometimes we might want to return a 'message' from handler to service. Also - we can just call this function at the beginning of `execute()` method, so our application will firstly - turn back into the service and return response to user and then asynchronously come back here.
+Why we need `resolve()` function? Sometimes we might want to return a 'message' from handler to service. Also - we can just call this function at the beginning of the `execute()` method, so our application will firstly - turn back into the service and return response to user and then asynchronously come back here.
 
-Our structure looks better, but it was only the **first step**. Sure, if you want, we can end up with it.
+Our structure looks better, but it was only the **first step**. Sure, if you want, you can end up with it.
 
 ### Events
 
-If we encapsulate commands in handlers, we prevent interaction between them - application structure is still not flexible, not **reactive**.
+If we encapsulate commands in handlers, we prevent interaction between them - application structure is still not flexible, not **reactive**. The solution is to use **events**.
 
+Events are asynchronous. They are dispatched by **models**. Models have to extend `AggregateRoot` class.
 
+**Model:**
+```typescript
+export class Hero extends AggregateRoot {
+    constructor(private readonly id: string) {
+        super();
+    }
+
+    killEnemy(enemyId: string) {
+        // logic
+        this.apply(new HeroKilledDragonEvent(this.id, enemyId));
+    }
+
+    addItem(itemId: string) {
+        // logic
+        this.apply(new HeroFoundItemEvent(this.id, itemId));
+    }
+}
+```
+
+**Events:**
+```typescript
+export class HeroFoundItemEvent implements IEvent {
+    constructor(
+        public readonly heroId: string,
+        public readonly itemId: string) {}
+}
+
+export class HeroKilledDragonEvent implements IEvent {
+    constructor(
+        public readonly heroId: string,
+        public readonly dragonId: string) {}
+}
+```
 
 
 ## Full example
