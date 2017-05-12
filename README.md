@@ -55,7 +55,7 @@ The **Command Bus** is a commands stream. It delegates commands to equivalent ha
 Each Command has to have corresponding **Command Handler**:
 
 ```typescript
-@Component()
+@CommandHandler(KillDragonCommand)
 export class KillDragonHandler implements ICommandHandler<KillDragonCommand> {
     constructor(private readonly repository: HeroRepository) {}
 
