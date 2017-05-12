@@ -1,9 +1,12 @@
+import 'reflect-metadata';
 import { Component, ModuleRef } from 'nest.js';
 import { Subject } from 'rxjs/Subject';
 import { ICommandBus, ICommand, ICommandHandler } from './interfaces/index';
 import { CommandHandlerNotFoundException } from './exceptions/command-not-found.exception';
 import { ObservableBus } from './utils/observable-bus';
 import { Metatype } from 'nest.js/common/interfaces';
+import { COMMAND_HANDLER_METADATA } from './utils/constants';
+import { InvalidCommandHandlerException } from './index';
 
 @Component()
 export class CommandBus extends ObservableBus<ICommand> implements ICommandBus {
@@ -33,16 +36,22 @@ export class CommandBus extends ObservableBus<ICommand> implements ICommandBus {
     }
 
     protected registerHandler(handler: Metatype<ICommandHandler<ICommand>>) {
-        const { name } = handler;
         const instance = this.moduleRef.get(handler);
         if (!instance) return;
 
-        const target = name.replace('Handler', 'Command');
-        this.bind(instance as ICommandHandler<ICommand>, target);
+        const target = this.reflectCommandName(handler);
+        if (!target) {
+            throw new InvalidCommandHandlerException();
+        }
+        this.bind(instance as ICommandHandler<ICommand>, target.name);
     }
 
     private getCommandName(command): string {
         const { constructor } = Object.getPrototypeOf(command);
         return constructor.name as string;
+    }
+
+    private reflectCommandName(handler: Metatype<ICommandHandler<ICommand>>): FunctionConstructor {
+        return Reflect.getMetadata(COMMAND_HANDLER_METADATA, handler);
     }
 }

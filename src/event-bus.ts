@@ -6,6 +6,7 @@ import { EventObservable } from './interfaces/event-observable.interface';
 import { Observable } from 'rxjs/Observable';
 import { CommandBus } from './command-bus';
 import { InvalidSagaException } from './exceptions/invalid-saga.exception';
+import { EVENTS_HANDLER_METADATA } from './utils/constants';
 import 'rxjs/add/operator/filter';
 
 export type Saga = (events$: EventObservable<IEvent>) => any;
@@ -43,9 +44,8 @@ export class EventBus extends ObservableBus<IEvent> implements IEventBus {
         const instance = this.moduleRef.get(handler);
         if (!instance) return;
 
-        const { name } = handler;
-        const target = name.replace('Handler', 'Event');
-        this.bind(instance as IEventHandler<IEvent>, target);
+        const eventsNames = this.reflectEventsNames(handler);
+        eventsNames.map((event) => this.bind(instance as IEventHandler<IEvent>, event.name));
     }
 
     protected ofEventName(name: string) {
@@ -63,5 +63,9 @@ export class EventBus extends ObservableBus<IEvent> implements IEventBus {
             throw new InvalidSagaException();
         }
         stream$.filter((e) => !!e).subscribe((command) => this.commandBus.execute(command));
+    }
+
+    private reflectEventsNames(handler: Metatype<IEventHandler<IEvent>>): FunctionConstructor[] {
+        return Reflect.getMetadata(EVENTS_HANDLER_METADATA, handler);
     }
 }
