@@ -134,7 +134,7 @@ new HeroModel('id');
 
 That's it. **Model can publish events**. We have to handle them. Each event may has a lot of **Event Handlers**. They do not have to know about each other.
 
-```
+```typescript
 @Component()
 export class HeroKilledDragonHandler implements IEventHandler<HeroKilledDragonEvent> {
     constructor(private readonly repository: HeroRepository) {}
