@@ -19,9 +19,11 @@ Why [CQRS](https://martinfowler.com/bliki/CQRS.html)? Let's have a look at the m
 3. Services uses Repositories / DAOs to change / persist entities.
 4. Entities are our models - just containers for the values, with setters and getters.
 
-Simple, most popular [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) application with layered architecture. Is it good? Yes, sure. In most cases, there is no reason to make small and medium-sized applications more complicated. So we finished with bigger part of logic in the services and models without any behaviour (btw. they are models still? I don't think so). When our application becomes larger it will be harder to maintain and improve.
+Simple, the most popular [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) application with layered architecture. Is it good? Yes, sure. In most cases, there is no reason to make small and medium-sized applications more complicated. So we end up with bigger part of logic in the services and models without any behaviour (btw. are they models still? I don't think so). When our application becomes larger it will be harder to maintain and improve.
 
 Let's change our way of thinking.
+
+### Commands
 
 To make our application easier to understand, each change has to be preceded by **Command**. If any command is dispatched - application react on it. Commands are dispatched from the services and consumed in appropriate **Command Handlers**.
 
@@ -48,7 +50,7 @@ export class KillDragonCommand implements ICommand {
 }
 ```
 
-The **Command Bus** is a commands stream.
+The **Command Bus** is a commands stream. It delegates commands to equivalent handlers.
 
 Each Command has to have corresponding **Command Handler**:
 
@@ -68,13 +70,22 @@ export class KillDragonHandler implements ICommandHandler<KillDragonCommand> {
 }
 ```
 
-Now, application state change has to be preceded by **Command**.
+Now, every application state change has to be preceded by **Command**. The logic is encapsulated in handlers. If we want we can simply add logging here or more - we can persist our commands in the database (e.g. for diagnostics purposes). 
 
-TBC
+Why we need `resolve()` function? Sometimes we might want to return a 'message' from handler to service. Also - we can just call this function at the beginning of `execute()` method, so our application will firstly - turn back into the service and return response to user and then asynchronously come back here.
 
-## Example
+Our structure looks better, but it was only the **first step**. Sure, if you want, we can end up with it.
 
-[Nest CQRS Example repository](https://github.com/kamilmysliwiec/nest-cqrs-example)
+### Events
+
+If we encapsulate commands in handlers, we prevent interaction between them - application structure is still not flexible, not **reactive**.
+
+
+
+
+## Full example
+
+- [Nest CQRS module usage example repository](https://github.com/kamilmysliwiec/nest-cqrs-example)
 
 ## People
 
