@@ -1,19 +1,22 @@
 import 'reflect-metadata';
-import { Component, ModuleRef } from 'nest.js';
+import { Component } from '@nestjs/common';
 import { Subject } from 'rxjs/Subject';
 import { ICommandBus, ICommand, ICommandHandler } from './interfaces/index';
 import { CommandHandlerNotFoundException } from './exceptions/command-not-found.exception';
 import { ObservableBus } from './utils/observable-bus';
-import { Metatype } from 'nest.js/common/interfaces';
+import { Metatype } from '@nestjs/common/interfaces';
 import { COMMAND_HANDLER_METADATA } from './utils/constants';
-import { InvalidCommandHandlerException } from './index';
+import { InvalidCommandHandlerException, InvalidModuleRefException } from './index';
+
+export type CommandHandlerMetatype = Metatype<ICommandHandler<ICommand>>;
 
 @Component()
 export class CommandBus extends ObservableBus<ICommand> implements ICommandBus {
     private handlers = new Map<string, ICommandHandler<ICommand>>();
+    private moduleRef = null;
 
-    constructor(private readonly moduleRef: ModuleRef) {
-        super();
+    setModuleRef(moduleRef) {
+        this.moduleRef = moduleRef;
     }
 
     execute<T extends ICommand>(command: T): Promise<any> {
@@ -31,11 +34,14 @@ export class CommandBus extends ObservableBus<ICommand> implements ICommandBus {
         this.handlers.set(name, handler);
     }
 
-    register(handlers: Metatype<ICommandHandler<ICommand>>[]) {
+    register(handlers: CommandHandlerMetatype[]) {
         handlers.forEach((handler) => this.registerHandler(handler));
     }
 
-    protected registerHandler(handler: Metatype<ICommandHandler<ICommand>>) {
+    protected registerHandler(handler: CommandHandlerMetatype) {
+        if (!this.moduleRef) {
+            throw new InvalidModuleRefException();
+        }
         const instance = this.moduleRef.get(handler);
         if (!instance) return;
 
@@ -51,7 +57,7 @@ export class CommandBus extends ObservableBus<ICommand> implements ICommandBus {
         return constructor.name as string;
     }
 
-    private reflectCommandName(handler: Metatype<ICommandHandler<ICommand>>): FunctionConstructor {
+    private reflectCommandName(handler: CommandHandlerMetatype): FunctionConstructor {
         return Reflect.getMetadata(COMMAND_HANDLER_METADATA, handler);
     }
 }

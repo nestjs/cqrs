@@ -1,22 +1,28 @@
 import { IEventBus, IEvent, IEventHandler, ICommand } from './interfaces/index';
 import { ObservableBus } from './utils/observable-bus';
-import { Metatype } from 'nest.js/common/interfaces';
-import { Component, ModuleRef } from 'nest.js';
+import { Metatype } from '@nestjs/common/interfaces';
+import { Component } from '@nestjs/common';
 import { EventObservable } from './interfaces/event-observable.interface';
 import { Observable } from 'rxjs/Observable';
 import { CommandBus } from './command-bus';
 import { InvalidSagaException } from './exceptions/invalid-saga.exception';
 import { EVENTS_HANDLER_METADATA } from './utils/constants';
+import { InvalidModuleRefException } from './index';
 import 'rxjs/add/operator/filter';
 
+export type EventHandlerMetatype = Metatype<IEventHandler<IEvent>>;
 export type Saga = (events$: EventObservable<IEvent>) => any;
 
 @Component()
 export class EventBus extends ObservableBus<IEvent> implements IEventBus {
-    constructor(
-        private readonly moduleRef: ModuleRef,
-        private readonly commandBus: CommandBus) {
+    private moduleRef = null;
+
+    constructor(private readonly commandBus: CommandBus) {
         super();
+    }
+
+    setModuleRef(moduleRef) {
+        this.moduleRef = moduleRef;
     }
 
     publish<T extends IEvent>(event: T) {
@@ -36,11 +42,15 @@ export class EventBus extends ObservableBus<IEvent> implements IEventBus {
         [].concat(sagas).map((saga) => this.registerSaga(saga));
     }
 
-    register(handlers: Metatype<IEventHandler<IEvent>>[]) {
+    register(handlers: EventHandlerMetatype[]) {
         handlers.forEach((handler) => this.registerHandler(handler));
     }
 
-    protected registerHandler(handler: Metatype<IEventHandler<IEvent>>) {
+    protected registerHandler(handler: EventHandlerMetatype) {
+        if (!this.moduleRef) {
+            throw new InvalidModuleRefException();
+        }
+
         const instance = this.moduleRef.get(handler);
         if (!instance) return;
 
@@ -65,7 +75,7 @@ export class EventBus extends ObservableBus<IEvent> implements IEventBus {
         stream$.filter((e) => !!e).subscribe((command) => this.commandBus.execute(command));
     }
 
-    private reflectEventsNames(handler: Metatype<IEventHandler<IEvent>>): FunctionConstructor[] {
+    private reflectEventsNames(handler: EventHandlerMetatype): FunctionConstructor[] {
         return Reflect.getMetadata(EVENTS_HANDLER_METADATA, handler);
     }
 }

@@ -1,4 +1,4 @@
-import { Component } from 'nest.js';
+import { Component } from '@nestjs/common';
 import { EventBus } from './event-bus';
 import { AggregateRoot } from './aggregate-root';
 import { IEvent } from './interfaces/index';

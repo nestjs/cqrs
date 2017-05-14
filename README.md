@@ -176,11 +176,9 @@ export const CommandHandlers = [ KillDragonHandler, DropAncientItemHandler ];
 export const EventHandlers =  [ HeroKilledDragonHandler, HeroFoundItemHandler ];
 
 @Module({
+    modules: [ CQRSModule ],
     controllers: [ HeroesGameController ],
     components: [
-        CommandBus,
-        EventBus,
-        EventPublisher,
         HeroesGameService,
         HeroesGameSagas,
         ...CommandHandlers,
@@ -190,11 +188,15 @@ export const EventHandlers =  [ HeroKilledDragonHandler, HeroFoundItemHandler ];
 })
 export class HeroesGameModule implements OnModuleInit {
     constructor(
+        private readonly moduleRef: ModuleRef,
         private readonly command$: CommandBus,
         private readonly event$: EventBus,
         private readonly heroesGameSagas: HeroesGameSagas) {}
 
     onModuleInit() {
+        this.command$.setModuleRef(this.moduleRef);
+        this.event$.setModuleRef(this.moduleRef);
+
         this.event$.register(EventHandlers);
         this.command$.register(CommandHandlers);
         this.event$.combineSagas([
