@@ -223,7 +223,7 @@ Author - [Kamil Myśliwiec](http://kamilmysliwiec.com)
 
 [MIT](LICENSE)
 
-[npm-image]: https://badge.fury.io/js/nest-cqrs.svg
-[npm-url]: https://npmjs.org/package/nest-cqrs
-[downloads-image]: https://img.shields.io/npm/dm/nest-cqrs.svg
-[downloads-url]: https://npmjs.org/package/nest-cqrs
+[npm-image]: https://badge.fury.io/js/%40nestjs%2Fcqrs.svg
+[npm-url]: https://npmjs.org/package/%40nestjs%2Fcqrs
+[downloads-image]: https://img.shields.io/npm/dm/%40nestjs%2Fcqrs.svg
+[downloads-url]: https://npmjs.org/package/%40nestjs%2Fcqrs
