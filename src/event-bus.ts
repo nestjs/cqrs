@@ -7,11 +7,10 @@ import { Observable } from 'rxjs/Observable';
 import { CommandBus } from './command-bus';
 import { InvalidSagaException } from './exceptions/invalid-saga.exception';
 import { EVENTS_HANDLER_METADATA } from './utils/constants';
-import { InvalidModuleRefException } from './index';
+import { InvalidModuleRefException, Saga } from './index';
 import 'rxjs/add/operator/filter';
 
 export type EventHandlerMetatype = Metatype<IEventHandler<IEvent>>;
-export type Saga = (events$: EventObservable<IEvent>) => any;
 
 @Component()
 export class EventBus extends ObservableBus<IEvent> implements IEventBus {
@@ -59,7 +58,7 @@ export class EventBus extends ObservableBus<IEvent> implements IEventBus {
     }
 
     protected ofEventName(name: string) {
-        return this.subject$.filter(event => this.getEventName(event) === name);
+        return (this.subject$ as any).filter(event => this.getEventName(event) === name);
     }
 
     private getEventName(event): string {

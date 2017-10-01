@@ -1,38 +1,45 @@
 import { IEvent } from './interfaces/index';
 
 export abstract class AggregateRoot {
-    private readonly changes: IEvent[] = [];
-    publish(event: IEvent) {}
+  private readonly events: IEvent[] = [];
+  public autoCommit = false;
 
-    uncommitChanges() {
-        this.changes.length = 0;
+  publish(event: IEvent) {}
+
+  commit() {
+    this.events.forEach((event) => this.publish(event));
+    this.events.length = 0;
+  }
+
+  uncommit() {
+    this.events.length = 0;
+  }
+
+  getUncommittedEvents(): IEvent[] {
+    return this.events;
+  }
+
+  loadFromHistory(history: IEvent[]) {
+    history.forEach(event => this.apply(event, true));
+  }
+
+  apply(event: IEvent, isFromHistory = false) {
+    if (!isFromHistory && !this.autoCommit) {
+      this.events.push(event);
     }
+    this.autoCommit && this.publish(event);
 
-    getUncommittedChanges(): IEvent[] {
-        return this.changes;
-    }
+    const handler = this.getEventHandler(event);
+    handler && handler(event);
+  }
 
-    loadFromHistory(history: IEvent[]) {
-        history.forEach((event) => this.apply(event, true));
-    }
+  private getEventHandler(event: IEvent) {
+    const handler = `on${this.getEventName(event)}`;
+    return this[handler];
+  }
 
-    apply(event: IEvent, isFromHistory = false) {
-        if (!isFromHistory) {
-            this.changes.push(event);
-        }
-        this.publish(event);
-
-        const handler = this.getEventHandler(event);
-        handler && handler(event);
-    }
-
-    private getEventHandler(event: IEvent) {
-        const handler = `on${this.getEventName(event)}`;
-        return this[handler];
-    }
-
-    private getEventName(event): string {
-        const { constructor } = Object.getPrototypeOf(event);
-        return constructor.name as string;
-    }
+  private getEventName(event): string {
+    const { constructor } = Object.getPrototypeOf(event);
+    return constructor.name as string;
+  }
 }

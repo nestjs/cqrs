@@ -10,7 +10,7 @@ export class ObservableBus<T> extends Observable<T> implements EventObservable<T
 
     constructor() {
         super();
-        this.source = this.subject$;
+        this.source = this.subject$ as any;
     }
 
     ofType(...metatypes): Observable<T> {
