@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 var __decorate =
   (this && this.__decorate) ||
   function(decorators, target, key, desc) {
@@ -10,7 +10,7 @@ var __decorate =
             ? (desc = Object.getOwnPropertyDescriptor(target, key))
             : desc,
       d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function")
+    if (typeof Reflect === 'object' && typeof Reflect.decorate === 'function')
       r = Reflect.decorate(decorators, target, key, desc);
     else
       for (var i = decorators.length - 1; i >= 0; i--)
@@ -21,18 +21,18 @@ var __decorate =
 var __metadata =
   (this && this.__metadata) ||
   function(k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function")
+    if (typeof Reflect === 'object' && typeof Reflect.metadata === 'function')
       return Reflect.metadata(k, v);
   };
-Object.defineProperty(exports, "__esModule", { value: true });
-const observable_bus_1 = require("./utils/observable-bus");
-const common_1 = require("@nestjs/common");
-const Observable_1 = require("rxjs/Observable");
-const command_bus_1 = require("./command-bus");
-const invalid_saga_exception_1 = require("./exceptions/invalid-saga.exception");
-const constants_1 = require("./utils/constants");
-const index_1 = require("./index");
-require("rxjs/add/operator/filter");
+Object.defineProperty(exports, '__esModule', { value: true });
+const observable_bus_1 = require('./utils/observable-bus');
+const common_1 = require('@nestjs/common');
+const Observable_1 = require('rxjs/Observable');
+const command_bus_1 = require('./command-bus');
+const invalid_saga_exception_1 = require('./exceptions/invalid-saga.exception');
+const constants_1 = require('./utils/constants');
+const index_1 = require('./index');
+require('rxjs/add/operator/filter');
 let EventBus = class EventBus extends observable_bus_1.ObservableBus {
   constructor(commandBus) {
     super();
@@ -89,9 +89,9 @@ let EventBus = class EventBus extends observable_bus_1.ObservableBus {
 };
 EventBus = __decorate(
   [
-    common_1.Component(),
-    __metadata("design:paramtypes", [command_bus_1.CommandBus])
+    common_1.Injectable(),
+    __metadata('design:paramtypes', [command_bus_1.CommandBus]),
   ],
-  EventBus
+  EventBus,
 );
 exports.EventBus = EventBus;

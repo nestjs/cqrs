@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 var __decorate =
   (this && this.__decorate) ||
   function(decorators, target, key, desc) {
@@ -10,7 +10,7 @@ var __decorate =
             ? (desc = Object.getOwnPropertyDescriptor(target, key))
             : desc,
       d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function")
+    if (typeof Reflect === 'object' && typeof Reflect.decorate === 'function')
       r = Reflect.decorate(decorators, target, key, desc);
     else
       for (var i = decorators.length - 1; i >= 0; i--)
@@ -21,12 +21,12 @@ var __decorate =
 var __metadata =
   (this && this.__metadata) ||
   function(k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function")
+    if (typeof Reflect === 'object' && typeof Reflect.metadata === 'function')
       return Reflect.metadata(k, v);
   };
-Object.defineProperty(exports, "__esModule", { value: true });
-const common_1 = require("@nestjs/common");
-const event_bus_1 = require("./event-bus");
+Object.defineProperty(exports, '__esModule', { value: true });
+const common_1 = require('@nestjs/common');
+const event_bus_1 = require('./event-bus');
 let EventPublisher = class EventPublisher {
   constructor(eventBus) {
     this.eventBus = eventBus;
@@ -49,9 +49,9 @@ let EventPublisher = class EventPublisher {
 };
 EventPublisher = __decorate(
   [
-    common_1.Component(),
-    __metadata("design:paramtypes", [event_bus_1.EventBus])
+    common_1.Injectable(),
+    __metadata('design:paramtypes', [event_bus_1.EventBus]),
   ],
-  EventPublisher
+  EventPublisher,
 );
 exports.EventPublisher = EventPublisher;
