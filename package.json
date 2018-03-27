@@ -5,7 +5,8 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "prettier": "prettier */**/*.ts --write && git status"
   },
   "dependencies": {
     "@nestjs/common": "^4.*",
