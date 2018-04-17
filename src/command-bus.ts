@@ -25,8 +25,8 @@ export class CommandBus extends ObservableBus<ICommand> implements ICommandBus {
             throw new CommandHandlerNotFoundException();
         }
         this.subject$.next(command);
-        return new Promise((resolve) => {
-            handler.execute(command, resolve);
+        return new Promise((resolve, reject) => {
+            handler.execute(command, resolve, reject);
         });
     }
 
