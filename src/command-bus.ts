@@ -1,63 +1,67 @@
 import 'reflect-metadata';
-import { Component } from '@nestjs/common';
-import { Subject } from 'rxjs/Subject';
+import { Injectable, Type } from '@nestjs/common';
+import { Subject } from 'rxjs';
 import { ICommandBus, ICommand, ICommandHandler } from './interfaces/index';
 import { CommandHandlerNotFoundException } from './exceptions/command-not-found.exception';
 import { ObservableBus } from './utils/observable-bus';
-import { Metatype } from '@nestjs/common/interfaces';
 import { COMMAND_HANDLER_METADATA } from './utils/constants';
-import { InvalidCommandHandlerException, InvalidModuleRefException } from './index';
+import {
+  InvalidCommandHandlerException,
+  InvalidModuleRefException,
+} from './index';
 
-export type CommandHandlerMetatype = Metatype<ICommandHandler<ICommand>>;
+export type CommandHandlerMetatype = Type<ICommandHandler<ICommand>>;
 
-@Component()
+@Injectable()
 export class CommandBus extends ObservableBus<ICommand> implements ICommandBus {
-    private handlers = new Map<string, ICommandHandler<ICommand>>();
-    private moduleRef = null;
+  private handlers = new Map<string, ICommandHandler<ICommand>>();
+  private moduleRef = null;
 
-    setModuleRef(moduleRef) {
-        this.moduleRef = moduleRef;
+  setModuleRef(moduleRef) {
+    this.moduleRef = moduleRef;
+  }
+
+  execute<T extends ICommand>(command: T): Promise<any> {
+    const handler = this.handlers.get(this.getCommandName(command));
+    if (!handler) {
+      throw new CommandHandlerNotFoundException();
     }
+    this.subject$.next(command);
+    return new Promise(resolve => {
+      handler.execute(command, resolve);
+    });
+  }
 
-    execute<T extends ICommand>(command: T): Promise<any> {
-        const handler = this.handlers.get(this.getCommandName(command));
-        if (!handler) {
-            throw new CommandHandlerNotFoundException();
-        }
-        this.subject$.next(command);
-        return new Promise((resolve) => {
-            handler.execute(command, resolve);
-        });
+  bind<T extends ICommand>(handler: ICommandHandler<T>, name: string) {
+    this.handlers.set(name, handler);
+  }
+
+  register(handlers: CommandHandlerMetatype[]) {
+    handlers.forEach(handler => this.registerHandler(handler));
+  }
+
+  protected registerHandler(handler: CommandHandlerMetatype) {
+    if (!this.moduleRef) {
+      throw new InvalidModuleRefException();
     }
+    const instance = this.moduleRef.get(handler);
+    if (!instance) return;
 
-    bind<T extends ICommand>(handler: ICommandHandler<T>, name: string) {
-        this.handlers.set(name, handler);
+    const target = this.reflectCommandName(handler);
+    if (!target) {
+      throw new InvalidCommandHandlerException();
     }
+    this.bind(instance as ICommandHandler<ICommand>, target.name);
+  }
 
-    register(handlers: CommandHandlerMetatype[]) {
-        handlers.forEach((handler) => this.registerHandler(handler));
-    }
+  private getCommandName(command): string {
+    const { constructor } = Object.getPrototypeOf(command);
+    return constructor.name as string;
+  }
 
-    protected registerHandler(handler: CommandHandlerMetatype) {
-        if (!this.moduleRef) {
-            throw new InvalidModuleRefException();
-        }
-        const instance = this.moduleRef.get(handler);
-        if (!instance) return;
-
-        const target = this.reflectCommandName(handler);
-        if (!target) {
-            throw new InvalidCommandHandlerException();
-        }
-        this.bind(instance as ICommandHandler<ICommand>, target.name);
-    }
-
-    private getCommandName(command): string {
-        const { constructor } = Object.getPrototypeOf(command);
-        return constructor.name as string;
-    }
-
-    private reflectCommandName(handler: CommandHandlerMetatype): FunctionConstructor {
-        return Reflect.getMetadata(COMMAND_HANDLER_METADATA, handler);
-    }
+  private reflectCommandName(
+    handler: CommandHandlerMetatype,
+  ): FunctionConstructor {
+    return Reflect.getMetadata(COMMAND_HANDLER_METADATA, handler);
+  }
 }

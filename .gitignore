@@ -14,5 +14,5 @@ npm-debug.log
 /coverage
 /.nyc_output
 
-# output
-/dist
+# dist
+dist
