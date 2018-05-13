@@ -59,8 +59,8 @@ export class EventBus extends ObservableBus<IEvent> implements IEventBus {
   }
 
   protected ofEventName(name: string) {
-    return (this.subject$ as any).filter(
-      event => this.getEventName(event) === name,
+    return this.subject$.pipe(
+      filter(event => this.getEventName(event) === name),
     );
   }
 
