@@ -1,16 +1,15 @@
 import { IEventBus, IEvent, IEventHandler, ICommand } from './interfaces/index';
 import { ObservableBus } from './utils/observable-bus';
-import { Metatype } from '@nestjs/common/interfaces';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Type } from '@nestjs/common';
 import { EventObservable } from './interfaces/event-observable.interface';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import { CommandBus } from './command-bus';
 import { InvalidSagaException } from './exceptions/invalid-saga.exception';
 import { EVENTS_HANDLER_METADATA } from './utils/constants';
 import { InvalidModuleRefException, Saga } from './index';
-import 'rxjs/add/operator/filter';
+import { filter } from 'rxjs/operators';
 
-export type EventHandlerMetatype = Metatype<IEventHandler<IEvent>>;
+export type EventHandlerMetatype = Type<IEventHandler<IEvent>>;
 
 @Injectable()
 export class EventBus extends ObservableBus<IEvent> implements IEventBus {
@@ -76,7 +75,7 @@ export class EventBus extends ObservableBus<IEvent> implements IEventBus {
       throw new InvalidSagaException();
     }
     stream$
-      .filter(e => !!e)
+      .pipe(filter(e => e))
       .subscribe(command => this.commandBus.execute(command));
   }
 

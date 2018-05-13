@@ -1,6 +1,6 @@
 {
   "name": "@nestjs/cqrs",
-  "version": "4.1.0",
+  "version": "5.0.0",
   "description": "A lightweight CQRS module for Nest framework (node.js)",
   "license": "MIT",
   "scripts": {
@@ -23,6 +23,14 @@
     "rxjs": "^6.0.0"
   },
   "lint-staged": {
-    "*.ts": ["prettier --write", "git add"]
+    "*.ts": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "dependencies": {
+    "@nestjs/common": "^5.0.0",
+    "reflect-metadata": "^0.1.12",
+    "rxjs": "^6.1.0"
   }
 }

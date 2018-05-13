@@ -1,7 +1,6 @@
-import { Subject } from 'rxjs/Subject';
-import { Observable } from 'rxjs/Observable';
+import { Subject, Observable } from 'rxjs';
 import { EventObservable } from '../interfaces/event-observable.interface';
-import 'rxjs/add/operator/filter';
+import { filter } from 'rxjs/operators';
 
 const isEmpty = array => !(array && array.length > 0);
 
@@ -15,9 +14,11 @@ export class ObservableBus<T> extends Observable<T>
   }
 
   ofType(...metatypes): Observable<T> {
-    return this.filter(
-      event =>
-        !isEmpty(metatypes.filter(metatype => event instanceof metatype)),
+    return this.pipe(
+      filter(
+        event =>
+          !isEmpty(metatypes.filter(metatype => event instanceof metatype)),
+      ),
     );
   }
 }

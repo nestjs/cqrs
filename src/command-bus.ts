@@ -1,17 +1,16 @@
 import 'reflect-metadata';
-import { Injectable } from '@nestjs/common';
-import { Subject } from 'rxjs/Subject';
+import { Injectable, Type } from '@nestjs/common';
+import { Subject } from 'rxjs';
 import { ICommandBus, ICommand, ICommandHandler } from './interfaces/index';
 import { CommandHandlerNotFoundException } from './exceptions/command-not-found.exception';
 import { ObservableBus } from './utils/observable-bus';
-import { Metatype } from '@nestjs/common/interfaces';
 import { COMMAND_HANDLER_METADATA } from './utils/constants';
 import {
   InvalidCommandHandlerException,
   InvalidModuleRefException,
 } from './index';
 
-export type CommandHandlerMetatype = Metatype<ICommandHandler<ICommand>>;
+export type CommandHandlerMetatype = Type<ICommandHandler<ICommand>>;
 
 @Injectable()
 export class CommandBus extends ObservableBus<ICommand> implements ICommandBus {
