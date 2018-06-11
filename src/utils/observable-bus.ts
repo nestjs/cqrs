@@ -1,19 +1,22 @@
-import { Subject } from 'rxjs/Subject';
-import { Observable } from 'rxjs/Observable';
+import { Subject, Observable } from 'rxjs';
 import { EventObservable } from '../interfaces/event-observable.interface';
-import 'rxjs/add/operator/filter';
+import { filter } from 'rxjs/operators';
+import { Type } from '@nestjs/common';
 
-const isEmpty = (array) => !(array && array.length > 0);
+const isEmpty = array => !(array && array.length > 0);
 
-export class ObservableBus<T> extends Observable<T> implements EventObservable<T> {
-    protected subject$ = new Subject<T>();
+export class ObservableBus<T> extends Observable<T>
+  implements EventObservable<T> {
+  protected subject$ = new Subject<T>();
 
-    constructor() {
-        super();
-        this.source = this.subject$ as any;
-    }
+  constructor() {
+    super();
+    this.source = this.subject$ as any;
+  }
 
-    ofType(...metatypes): Observable<T> {
-        return this.filter(event => !isEmpty(metatypes.filter(metatype => event instanceof metatype)));
-    }
+  ofType(...types: Type<any>[]): Observable<T> {
+    return this.pipe(
+      filter(event => !isEmpty(types.filter(type => event instanceof type))),
+    );
+  }
 }
