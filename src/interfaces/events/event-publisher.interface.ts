@@ -1,6 +1,5 @@
-import {IEvent} from "./event.interface";
-import {Subject} from "rxjs/Subject";
+import { IEvent } from './event.interface';
 
 export interface IEventPublisher {
-    publish<T extends IEvent>(event: T);
+  publish<T extends IEvent>(event: T);
 }

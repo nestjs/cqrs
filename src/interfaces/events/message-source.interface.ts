@@ -1,6 +1,6 @@
-import {IEvent} from "./event.interface";
-import {Subject} from "rxjs/Subject";
+import { Subject } from 'rxjs';
+import { IEvent } from './event.interface';
 
 export interface IMessageSource {
-    bridgeEventsTo<T extends IEvent>(subject: Subject<T>);
+  bridgeEventsTo<T extends IEvent>(subject: Subject<T>);
 }
