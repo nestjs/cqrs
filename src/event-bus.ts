@@ -1,22 +1,31 @@
-import { IEventBus, IEvent, IEventHandler, ICommand } from './interfaces/index';
-import { ObservableBus } from './utils/observable-bus';
 import { Injectable, Type } from '@nestjs/common';
-import { EventObservable } from './interfaces/event-observable.interface';
 import { Observable } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { CommandBus } from './command-bus';
 import { InvalidSagaException } from './exceptions/invalid-saga.exception';
-import { EVENTS_HANDLER_METADATA } from './utils/constants';
 import { InvalidModuleRefException, Saga } from './index';
-import { filter } from 'rxjs/operators';
+import { IEventPublisher } from './interfaces/events/event-publisher.interface';
+import { IEvent, IEventBus, IEventHandler } from './interfaces/index';
+import { EVENTS_HANDLER_METADATA } from './utils/constants';
+import { DefaultPubSub } from './utils/default-pubsub';
+import { ObservableBus } from './utils/observable-bus';
 
 export type EventHandlerMetatype = Type<IEventHandler<IEvent>>;
 
 @Injectable()
 export class EventBus extends ObservableBus<IEvent> implements IEventBus {
   private moduleRef = null;
+  private _publisher: IEventPublisher;
 
   constructor(private readonly commandBus: CommandBus) {
     super();
+    this.useDefaultPublisher();
+  }
+
+  private useDefaultPublisher() {
+    const pubSub = new DefaultPubSub();
+    pubSub.bridgeEventsTo(this.subject$);
+    this._publisher = pubSub;
   }
 
   setModuleRef(moduleRef) {
@@ -24,7 +33,7 @@ export class EventBus extends ObservableBus<IEvent> implements IEventBus {
   }
 
   publish<T extends IEvent>(event: T) {
-    this.subject$.next(event);
+    this._publisher.publish(event);
   }
 
   ofType<T extends IEvent>(event: T & { name: string }) {
@@ -83,5 +92,13 @@ export class EventBus extends ObservableBus<IEvent> implements IEventBus {
     handler: EventHandlerMetatype,
   ): FunctionConstructor[] {
     return Reflect.getMetadata(EVENTS_HANDLER_METADATA, handler);
+  }
+
+  get publisher(): IEventPublisher {
+    return this._publisher;
+  }
+
+  set publisher(_publisher: IEventPublisher) {
+    this._publisher = _publisher;
   }
 }
