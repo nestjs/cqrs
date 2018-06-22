@@ -8,15 +8,25 @@ import { InvalidSagaException } from './exceptions/invalid-saga.exception';
 import { EVENTS_HANDLER_METADATA } from './utils/constants';
 import { InvalidModuleRefException, Saga } from './index';
 import { filter } from 'rxjs/operators';
+import { IEventPublisher } from './interfaces/events/event-publisher.interface';
+import { DefaultPubSub } from './utils/default-pubsub';
 
 export type EventHandlerMetatype = Type<IEventHandler<IEvent>>;
 
 @Injectable()
 export class EventBus extends ObservableBus<IEvent> implements IEventBus {
   private moduleRef = null;
+  private _publisher: IEventPublisher;
 
   constructor(private readonly commandBus: CommandBus) {
     super();
+    this.useDefaultPublisher();
+  }
+
+  private useDefaultPublisher() {
+    const pubSub = new DefaultPubSub();
+    pubSub.bridgeEventsTo(this.subject$);
+    this._publisher = pubSub;
   }
 
   setModuleRef(moduleRef) {
@@ -24,7 +34,7 @@ export class EventBus extends ObservableBus<IEvent> implements IEventBus {
   }
 
   publish<T extends IEvent>(event: T) {
-    this.subject$.next(event);
+    this._publisher.publish(event);
   }
 
   ofType<T extends IEvent>(event: T & { name: string }) {
@@ -83,5 +93,13 @@ export class EventBus extends ObservableBus<IEvent> implements IEventBus {
     handler: EventHandlerMetatype,
   ): FunctionConstructor[] {
     return Reflect.getMetadata(EVENTS_HANDLER_METADATA, handler);
+  }
+
+  get publisher(): IEventPublisher {
+    return this._publisher;
+  }
+
+  set publisher(thePublisher: IEventPublisher) {
+    this._publisher = thePublisher;
   }
 }
