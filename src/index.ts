@@ -11,5 +11,6 @@ export * from './interfaces';
 export * from './exceptions';
 export * from './cqrs.module';
 export * from './command-bus';
+export * from './query-bus';
 export * from './event-bus';
 export * from './event-publisher';
