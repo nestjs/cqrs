@@ -21,15 +21,13 @@ export class CommandBus extends ObservableBus<ICommand> implements ICommandBus {
     this.moduleRef = moduleRef;
   }
 
-  execute<T extends ICommand>(command: T): Promise<any> {
+  execute<T extends ICommand>(command: T): any | Promise<any> {
     const handler = this.handlers.get(this.getCommandName(command));
     if (!handler) {
       throw new CommandHandlerNotFoundException();
     }
     this.subject$.next(command);
-    return new Promise(resolve => {
-      handler.execute(command, resolve);
-    });
+    return handler.execute(command);
   }
 
   bind<T extends ICommand>(handler: ICommandHandler<T>, name: string) {
