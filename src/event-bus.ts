@@ -84,7 +84,7 @@ export class EventBus extends ObservableBus<IEvent> implements IEventBus {
       throw new InvalidSagaException();
     }
     stream$
-      .pipe(filter(e => e))
+      .pipe(filter(e => !!e))
       .subscribe(command => this.commandBus.execute(command));
   }
 
