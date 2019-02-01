@@ -1,5 +1,5 @@
-import { Injectable, Type } from '@nestjs/common';
 import 'reflect-metadata';
+import { Injectable, Type } from '@nestjs/common';
 import { CommandHandlerNotFoundException } from './exceptions/command-not-found.exception';
 import {
   InvalidCommandHandlerException,

@@ -8,5 +8,4 @@ export * from './queries/query-result.interface';
 export * from './events/event-bus.interface';
 export * from './events/event-handler.interface';
 export * from './events/event.interface';
-export * from './event-observable.interface';
 export * from './saga.type';
