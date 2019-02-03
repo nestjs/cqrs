@@ -14,3 +14,4 @@ export * from './command-bus';
 export * from './query-bus';
 export * from './event-bus';
 export * from './event-publisher';
+export * from './operators';
