@@ -1,13 +1,13 @@
-import 'reflect-metadata';
 import { Injectable, Type } from '@nestjs/common';
-import { ICommandBus, ICommand, ICommandHandler } from './interfaces/index';
+import 'reflect-metadata';
 import { CommandHandlerNotFoundException } from './exceptions/command-not-found.exception';
-import { ObservableBus } from './utils/observable-bus';
-import { COMMAND_HANDLER_METADATA } from './utils/constants';
 import {
   InvalidCommandHandlerException,
   InvalidModuleRefException,
 } from './index';
+import { ICommand, ICommandBus, ICommandHandler } from './interfaces/index';
+import { COMMAND_HANDLER_METADATA } from './utils/constants';
+import { ObservableBus } from './utils/observable-bus';
 
 export type CommandHandlerMetatype = Type<ICommandHandler<ICommand>>;
 
@@ -20,7 +20,7 @@ export class CommandBus extends ObservableBus<ICommand> implements ICommandBus {
     this.moduleRef = moduleRef;
   }
 
-  execute<T extends ICommand>(command: T): Promise<void> {
+  execute<T extends ICommand>(command: T): Promise<any> {
     const handler = this.handlers.get(this.getCommandName(command));
     if (!handler) {
       throw new CommandHandlerNotFoundException();
