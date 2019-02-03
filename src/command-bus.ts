@@ -1,14 +1,13 @@
-import 'reflect-metadata';
 import { Injectable, Type } from '@nestjs/common';
-import { Subject } from 'rxjs';
-import { ICommandBus, ICommand, ICommandHandler } from './interfaces/index';
+import 'reflect-metadata';
 import { CommandHandlerNotFoundException } from './exceptions/command-not-found.exception';
-import { ObservableBus } from './utils/observable-bus';
-import { COMMAND_HANDLER_METADATA } from './utils/constants';
 import {
   InvalidCommandHandlerException,
   InvalidModuleRefException,
 } from './index';
+import { ICommand, ICommandBus, ICommandHandler } from './interfaces/index';
+import { COMMAND_HANDLER_METADATA } from './utils/constants';
+import { ObservableBus } from './utils/observable-bus';
 
 export type CommandHandlerMetatype = Type<ICommandHandler<ICommand>>;
 
@@ -27,9 +26,7 @@ export class CommandBus extends ObservableBus<ICommand> implements ICommandBus {
       throw new CommandHandlerNotFoundException();
     }
     this.subject$.next(command);
-    return new Promise(resolve => {
-      handler.execute(command, resolve);
-    });
+    return handler.execute(command);
   }
 
   bind<T extends ICommand>(handler: ICommandHandler<T>, name: string) {
