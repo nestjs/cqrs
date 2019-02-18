@@ -36,13 +36,9 @@ export class EventBus extends ObservableBus<IEvent> implements IEventBus {
     this._publisher.publish(event);
   }
 
-  ofType<T extends IEvent>(event: T & { name: string }) {
-    return this.ofEventName(event.name);
-  }
-
-  bind<T extends IEvent>(handler: IEventHandler<T>, name: string) {
+  bind(handler: IEventHandler<IEvent>, name: string) {
     const stream$ = name ? this.ofEventName(name) : this.subject$;
-    stream$.subscribe(event => handler.handle(event as T));
+    stream$.subscribe(event => handler.handle(event));
   }
 
   combineSagas(sagas: Saga[]) {
@@ -84,7 +80,7 @@ export class EventBus extends ObservableBus<IEvent> implements IEventBus {
       throw new InvalidSagaException();
     }
     stream$
-      .pipe(filter(e => e))
+      .pipe(filter(e => !!e))
       .subscribe(command => this.commandBus.execute(command));
   }
 
