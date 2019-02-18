@@ -1,12 +1,12 @@
-import 'reflect-metadata';
 import { Injectable, Type } from '@nestjs/common';
-import { IQueryBus, IQuery, IQueryHandler, IQueryResult } from './interfaces';
+import 'reflect-metadata';
+import { InvalidModuleRefException, InvalidQueryHandlerException } from '.';
 import { QueryHandlerNotFoundException } from './exceptions';
-import { ObservableBus } from './utils/observable-bus';
+import { IQuery, IQueryBus, IQueryHandler, IQueryResult } from './interfaces';
 import { QUERY_HANDLER_METADATA } from './utils/constants';
-import { InvalidQueryHandlerException, InvalidModuleRefException } from '.';
+import { ObservableBus } from './utils/observable-bus';
 
-export type QueryHandlerMetatype = Type<
+export type QueryHandlerType = Type<
   IQueryHandler<IQuery<IQueryResult>, IQueryResult>
 >;
 
@@ -41,11 +41,11 @@ export class QueryBus extends ObservableBus<IQuery<IQueryResult>>
     this.handlers.set(name, handler);
   }
 
-  register(handlers: QueryHandlerMetatype[]) {
+  register(handlers: QueryHandlerType[]) {
     handlers.forEach(handler => this.registerHandler(handler));
   }
 
-  protected registerHandler(handler: QueryHandlerMetatype) {
+  protected registerHandler(handler: QueryHandlerType) {
     if (!this.moduleRef) {
       throw new InvalidModuleRefException();
     }
@@ -67,7 +67,7 @@ export class QueryBus extends ObservableBus<IQuery<IQueryResult>>
     return constructor.name as string;
   }
 
-  private reflectQueryName(handler: QueryHandlerMetatype): FunctionConstructor {
+  private reflectQueryName(handler: QueryHandlerType): FunctionConstructor {
     return Reflect.getMetadata(QUERY_HANDLER_METADATA, handler);
   }
 }

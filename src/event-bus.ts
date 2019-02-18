@@ -10,7 +10,7 @@ import { EVENTS_HANDLER_METADATA } from './utils/constants';
 import { DefaultPubSub } from './utils/default-pubsub';
 import { ObservableBus } from './utils/observable-bus';
 
-export type EventHandlerMetatype = Type<IEventHandler<IEvent>>;
+export type EventHandlerType = Type<IEventHandler<IEvent>>;
 
 @Injectable()
 export class EventBus extends ObservableBus<IEvent> implements IEventBus {
@@ -40,20 +40,20 @@ export class EventBus extends ObservableBus<IEvent> implements IEventBus {
     return this.ofEventName(event.name);
   }
 
-  bind<T extends IEvent>(handler: IEventHandler<IEvent>, name: string) {
+  bind<T extends IEvent>(handler: IEventHandler<T>, name: string) {
     const stream$ = name ? this.ofEventName(name) : this.subject$;
-    stream$.subscribe(event => handler.handle(event));
+    stream$.subscribe(event => handler.handle(event as T));
   }
 
   combineSagas(sagas: Saga[]) {
     [].concat(sagas).map(saga => this.registerSaga(saga));
   }
 
-  register(handlers: EventHandlerMetatype[]) {
+  register(handlers: EventHandlerType[]) {
     handlers.forEach(handler => this.registerHandler(handler));
   }
 
-  protected registerHandler(handler: EventHandlerMetatype) {
+  protected registerHandler(handler: EventHandlerType) {
     if (!this.moduleRef) {
       throw new InvalidModuleRefException();
     }
@@ -88,9 +88,7 @@ export class EventBus extends ObservableBus<IEvent> implements IEventBus {
       .subscribe(command => this.commandBus.execute(command));
   }
 
-  private reflectEventsNames(
-    handler: EventHandlerMetatype,
-  ): FunctionConstructor[] {
+  private reflectEventsNames(handler: EventHandlerType): FunctionConstructor[] {
     return Reflect.getMetadata(EVENTS_HANDLER_METADATA, handler);
   }
 

@@ -9,7 +9,7 @@ import { ICommand, ICommandBus, ICommandHandler } from './interfaces/index';
 import { COMMAND_HANDLER_METADATA } from './utils/constants';
 import { ObservableBus } from './utils/observable-bus';
 
-export type CommandHandlerMetatype = Type<ICommandHandler<ICommand>>;
+export type CommandHandlerType = Type<ICommandHandler<ICommand>>;
 
 @Injectable()
 export class CommandBus extends ObservableBus<ICommand> implements ICommandBus {
@@ -33,11 +33,11 @@ export class CommandBus extends ObservableBus<ICommand> implements ICommandBus {
     this.handlers.set(name, handler);
   }
 
-  register(handlers: CommandHandlerMetatype[]) {
+  register(handlers: CommandHandlerType[]) {
     handlers.forEach(handler => this.registerHandler(handler));
   }
 
-  protected registerHandler(handler: CommandHandlerMetatype) {
+  protected registerHandler(handler: CommandHandlerType) {
     if (!this.moduleRef) {
       throw new InvalidModuleRefException();
     }
@@ -56,9 +56,7 @@ export class CommandBus extends ObservableBus<ICommand> implements ICommandBus {
     return constructor.name as string;
   }
 
-  private reflectCommandName(
-    handler: CommandHandlerMetatype,
-  ): FunctionConstructor {
+  private reflectCommandName(handler: CommandHandlerType): FunctionConstructor {
     return Reflect.getMetadata(COMMAND_HANDLER_METADATA, handler);
   }
 }
