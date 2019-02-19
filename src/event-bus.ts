@@ -1,5 +1,5 @@
-import { Injectable, Type } from '@nestjs/common';
-import { Observable } from 'rxjs';
+import { Injectable, Type, OnModuleDestroy } from '@nestjs/common';
+import { Observable, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { CommandBus } from './command-bus';
 import { InvalidSagaException } from './exceptions/invalid-saga.exception';
@@ -13,12 +13,15 @@ import { ObservableBus } from './utils/observable-bus';
 export type EventHandlerMetatype = Type<IEventHandler<IEvent>>;
 
 @Injectable()
-export class EventBus extends ObservableBus<IEvent> implements IEventBus {
+export class EventBus extends ObservableBus<IEvent>
+  implements IEventBus, OnModuleDestroy {
   private moduleRef = null;
   private _publisher: IEventPublisher;
+  private readonly subscriptions: Subscription[];
 
   constructor(private readonly commandBus: CommandBus) {
     super();
+    this.subscriptions = [];
     this.useDefaultPublisher();
   }
 
@@ -26,6 +29,10 @@ export class EventBus extends ObservableBus<IEvent> implements IEventBus {
     const pubSub = new DefaultPubSub();
     pubSub.bridgeEventsTo(this.subject$);
     this._publisher = pubSub;
+  }
+
+  onModuleDestroy() {
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
   setModuleRef(moduleRef) {
@@ -42,7 +49,8 @@ export class EventBus extends ObservableBus<IEvent> implements IEventBus {
 
   bind<T extends IEvent>(handler: IEventHandler<IEvent>, name: string) {
     const stream$ = name ? this.ofEventName(name) : this.subject$;
-    stream$.subscribe(event => handler.handle(event));
+    const subscription = stream$.subscribe(event => handler.handle(event));
+    this.subscriptions.push(subscription);
   }
 
   combineSagas(sagas: Saga[]) {
@@ -83,9 +91,12 @@ export class EventBus extends ObservableBus<IEvent> implements IEventBus {
     if (!(stream$ instanceof Observable)) {
       throw new InvalidSagaException();
     }
-    stream$
+
+    const subscription = stream$
       .pipe(filter(e => e))
       .subscribe(command => this.commandBus.execute(command));
+
+    this.subscriptions.push(subscription);
   }
 
   private reflectEventsNames(
