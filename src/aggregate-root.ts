@@ -1,22 +1,33 @@
 import { IEvent } from './interfaces/index';
 
+const INTERNAL_EVENTS = Symbol();
+const IS_AUTO_COMMIT_ENABLED = Symbol();
+
 export abstract class AggregateRoot {
-  private readonly events: IEvent[] = [];
-  public autoCommit = false;
+  public [IS_AUTO_COMMIT_ENABLED] = false;
+  private readonly [INTERNAL_EVENTS]: IEvent[] = [];
+
+  set autoCommit(value: boolean) {
+    this[IS_AUTO_COMMIT_ENABLED] = value;
+  }
+
+  get autoCommit(): boolean {
+    return this[IS_AUTO_COMMIT_ENABLED];
+  }
 
   publish(event: IEvent) {}
 
   commit() {
-    this.events.forEach((event) => this.publish(event));
-    this.events.length = 0;
+    this[INTERNAL_EVENTS].forEach(event => this.publish(event));
+    this[INTERNAL_EVENTS].length = 0;
   }
 
   uncommit() {
-    this.events.length = 0;
+    this[INTERNAL_EVENTS].length = 0;
   }
 
   getUncommittedEvents(): IEvent[] {
-    return this.events;
+    return this[INTERNAL_EVENTS];
   }
 
   loadFromHistory(history: IEvent[]) {
@@ -25,7 +36,7 @@ export abstract class AggregateRoot {
 
   apply(event: IEvent, isFromHistory = false) {
     if (!isFromHistory && !this.autoCommit) {
-      this.events.push(event);
+      this[INTERNAL_EVENTS].push(event);
     }
     this.autoCommit && this.publish(event);
 

@@ -1,35 +1,36 @@
 import { Injectable, Type } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
 import { Observable } from 'rxjs';
 import { filter } from 'rxjs/operators';
+import { isFunction } from 'util';
 import { CommandBus } from './command-bus';
+import { EVENTS_HANDLER_METADATA, SAGA_METADATA } from './decorators/constants';
 import { InvalidSagaException } from './exceptions/invalid-saga.exception';
-import { InvalidModuleRefException, Saga } from './index';
+import { DefaultPubSub } from './helpers/default-pubsub';
 import { IEventPublisher } from './interfaces/events/event-publisher.interface';
-import { IEvent, IEventBus, IEventHandler } from './interfaces/index';
-import { EVENTS_HANDLER_METADATA } from './utils/constants';
-import { DefaultPubSub } from './utils/default-pubsub';
+import { IEvent, IEventBus, IEventHandler, ISaga } from './interfaces/index';
 import { ObservableBus } from './utils/observable-bus';
 
 export type EventHandlerType = Type<IEventHandler<IEvent>>;
 
 @Injectable()
 export class EventBus extends ObservableBus<IEvent> implements IEventBus {
-  private moduleRef = null;
   private _publisher: IEventPublisher;
 
-  constructor(private readonly commandBus: CommandBus) {
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly moduleRef: ModuleRef,
+  ) {
     super();
     this.useDefaultPublisher();
   }
 
-  private useDefaultPublisher() {
-    const pubSub = new DefaultPubSub();
-    pubSub.bridgeEventsTo(this.subject$);
-    this._publisher = pubSub;
+  get publisher(): IEventPublisher {
+    return this._publisher;
   }
 
-  setModuleRef(moduleRef) {
-    this.moduleRef = moduleRef;
+  set publisher(_publisher: IEventPublisher) {
+    this._publisher = _publisher;
   }
 
   publish<T extends IEvent>(event: T) {
@@ -41,22 +42,30 @@ export class EventBus extends ObservableBus<IEvent> implements IEventBus {
     stream$.subscribe(event => handler.handle(event));
   }
 
-  combineSagas(sagas: Saga[]) {
-    [].concat(sagas).map(saga => this.registerSaga(saga));
+  registerSagas(types: Type<any>[] = []) {
+    const sagas = types
+      .map(target => {
+        const metadata = Reflect.getMetadata(SAGA_METADATA, target) || [];
+        const instance = this.moduleRef.get(target, { strict: false });
+        if (!instance) {
+          throw new InvalidSagaException();
+        }
+        return metadata.map((key: string) => instance[key]);
+      })
+      .reduce((a, b) => a.concat(b), []);
+
+    sagas.forEach(saga => this.registerSaga(saga));
   }
 
-  register(handlers: EventHandlerType[]) {
+  register(handlers: EventHandlerType[] = []) {
     handlers.forEach(handler => this.registerHandler(handler));
   }
 
   protected registerHandler(handler: EventHandlerType) {
-    if (!this.moduleRef) {
-      throw new InvalidModuleRefException();
+    const instance = this.moduleRef.get(handler, { strict: false });
+    if (!instance) {
+      return;
     }
-
-    const instance = this.moduleRef.get(handler);
-    if (!instance) return;
-
     const eventsNames = this.reflectEventsNames(handler);
     eventsNames.map(event =>
       this.bind(instance as IEventHandler<IEvent>, event.name),
@@ -74,7 +83,10 @@ export class EventBus extends ObservableBus<IEvent> implements IEventBus {
     return constructor.name as string;
   }
 
-  protected registerSaga(saga: Saga) {
+  protected registerSaga(saga: ISaga) {
+    if (!isFunction(saga)) {
+      throw new InvalidSagaException();
+    }
     const stream$ = saga(this);
     if (!(stream$ instanceof Observable)) {
       throw new InvalidSagaException();
@@ -88,11 +100,9 @@ export class EventBus extends ObservableBus<IEvent> implements IEventBus {
     return Reflect.getMetadata(EVENTS_HANDLER_METADATA, handler);
   }
 
-  get publisher(): IEventPublisher {
-    return this._publisher;
-  }
-
-  set publisher(_publisher: IEventPublisher) {
-    this._publisher = _publisher;
+  private useDefaultPublisher() {
+    const pubSub = new DefaultPubSub();
+    pubSub.bridgeEventsTo(this.subject$);
+    this._publisher = pubSub;
   }
 }
