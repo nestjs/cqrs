@@ -37,6 +37,10 @@ export class EventBus extends ObservableBus<IEvent> implements IEventBus {
     this._publisher.publish(event);
   }
 
+  publishAll(events: IEvent[]) {
+    (events || []).forEach(event => this._publisher.publish(event));
+  }
+
   bind(handler: IEventHandler<IEvent>, name: string) {
     const stream$ = name ? this.ofEventName(name) : this.subject$;
     stream$.subscribe(event => handler.handle(event));
