@@ -12,7 +12,7 @@
     "publish:npm": "npm publish --access public"
   },
   "devDependencies": {
-    "@nestjs/common": "^6.0.0",
+    "@nestjs/common": "6.0.0",
     "@types/node": "^11.9.4",
     "@types/jest": "^23.3.14",
     "husky": "^0.14.3",
