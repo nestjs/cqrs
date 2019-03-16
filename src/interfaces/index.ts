@@ -1,7 +1,6 @@
 export * from './commands/command-bus.interface';
 export * from './commands/command-handler.interface';
 export * from './commands/command.interface';
-export * from './cqrs-module-options.interface';
 export * from './events/event-bus.interface';
 export * from './events/event-handler.interface';
 export * from './events/event.interface';

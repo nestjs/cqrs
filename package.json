@@ -30,10 +30,7 @@
     "rxjs": "^6.4.0"
   },
   "lint-staged": {
-    "*.ts": [
-      "prettier --write",
-      "git add"
-    ]
+    "*.ts": ["prettier --write", "git add"]
   },
   "dependencies": {
     "@nestjs/common": "^5.0.0",
