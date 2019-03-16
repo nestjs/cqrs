@@ -1,23 +1,20 @@
 import { Injectable, Type } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
 import 'reflect-metadata';
+import { COMMAND_HANDLER_METADATA } from './decorators/constants';
 import { CommandHandlerNotFoundException } from './exceptions/command-not-found.exception';
-import {
-  InvalidCommandHandlerException,
-  InvalidModuleRefException,
-} from './index';
+import { InvalidCommandHandlerException } from './index';
 import { ICommand, ICommandBus, ICommandHandler } from './interfaces/index';
-import { COMMAND_HANDLER_METADATA } from './utils/constants';
 import { ObservableBus } from './utils/observable-bus';
 
-export type CommandHandlerMetatype = Type<ICommandHandler<ICommand>>;
+export type CommandHandlerType = Type<ICommandHandler<ICommand>>;
 
 @Injectable()
 export class CommandBus extends ObservableBus<ICommand> implements ICommandBus {
   private handlers = new Map<string, ICommandHandler<ICommand>>();
-  private moduleRef = null;
 
-  setModuleRef(moduleRef) {
-    this.moduleRef = moduleRef;
+  constructor(private readonly moduleRef: ModuleRef) {
+    super();
   }
 
   execute<T extends ICommand>(command: T): Promise<any> {
@@ -33,17 +30,15 @@ export class CommandBus extends ObservableBus<ICommand> implements ICommandBus {
     this.handlers.set(name, handler);
   }
 
-  register(handlers: CommandHandlerMetatype[]) {
+  register(handlers: CommandHandlerType[] = []) {
     handlers.forEach(handler => this.registerHandler(handler));
   }
 
-  protected registerHandler(handler: CommandHandlerMetatype) {
-    if (!this.moduleRef) {
-      throw new InvalidModuleRefException();
+  protected registerHandler(handler: CommandHandlerType) {
+    const instance = this.moduleRef.get(handler, { strict: false });
+    if (!instance) {
+      return;
     }
-    const instance = this.moduleRef.get(handler);
-    if (!instance) return;
-
     const target = this.reflectCommandName(handler);
     if (!target) {
       throw new InvalidCommandHandlerException();
@@ -56,9 +51,7 @@ export class CommandBus extends ObservableBus<ICommand> implements ICommandBus {
     return constructor.name as string;
   }
 
-  private reflectCommandName(
-    handler: CommandHandlerMetatype,
-  ): FunctionConstructor {
+  private reflectCommandName(handler: CommandHandlerType): FunctionConstructor {
     return Reflect.getMetadata(COMMAND_HANDLER_METADATA, handler);
   }
 }

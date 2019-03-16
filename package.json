@@ -1,9 +1,10 @@
 {
   "name": "@nestjs/cqrs",
-  "version": "5.1.1",
+  "version": "6.0.0",
   "description": "A lightweight CQRS module for Nest framework (node.js)",
   "license": "MIT",
   "scripts": {
+    "test": "jest",
     "build": "tsc -p tsconfig.json",
     "precommit": "lint-staged",
     "prettier": "prettier src/**/*.ts --write && git status",
@@ -12,29 +13,28 @@
   },
   "devDependencies": {
     "@nestjs/common": "^5.0.0",
-    "@types/node": "^7.0.41",
+    "@types/node": "^11.9.4",
+    "@types/jest": "^23.3.14",
     "husky": "^0.14.3",
-    "lint-staged": "^7.0.0",
+    "jest": "^24.1.0",
+    "lint-staged": "^8.1.4",
     "prettier": "^1.11.1",
-    "reflect-metadata": "0.1.12",
-    "rxjs": "^6.0.0",
-    "rxjs-compat": "^6.2.1",
-    "typescript": "^2.8.0"
+    "rxjs": "^6.4.0",
+    "ts-jest": "^23.10.5",
+    "typescript": "^3.1.0"
   },
   "peerDependencies": {
-    "@nestjs/common": "^5.0.0",
+    "@nestjs/common": "^6.0.0",
+    "@nestjs/core": "^6.0.0",
     "reflect-metadata": "0.1.12",
-    "rxjs": "^6.0.0"
+    "rxjs": "^6.4.0"
   },
   "lint-staged": {
-    "*.ts": [
-      "prettier --write",
-      "git add"
-    ]
+    "*.ts": ["prettier --write", "git add"]
   },
   "dependencies": {
-    "@nestjs/common": "^5.0.0",
-    "reflect-metadata": "^0.1.12",
-    "rxjs": "^6.1.0"
+    "@nestjs/common": "^6.0.0",
+    "@nestjs/core": "^6.0.0",
+    "reflect-metadata": "^0.1.12"
   }
 }
