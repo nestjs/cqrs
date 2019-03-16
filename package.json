@@ -13,7 +13,7 @@
   },
   "devDependencies": {
     "@nestjs/common": "6.0.0",
-    "@types/node": "11.9.4",
+    "@types/node": "11.11.3",
     "@types/jest": "23.3.14",
     "husky": "0.14.3",
     "jest": "24.1.0",
