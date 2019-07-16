@@ -7,8 +7,13 @@ import { CommandBus } from './command-bus';
 import { EVENTS_HANDLER_METADATA, SAGA_METADATA } from './decorators/constants';
 import { InvalidSagaException } from './exceptions/invalid-saga.exception';
 import { DefaultPubSub } from './helpers/default-pubsub';
-import { IEventPublisher } from './interfaces/events/event-publisher.interface';
-import { IEvent, IEventBus, IEventHandler, ISaga } from './interfaces/index';
+import {
+  IEvent,
+  IEventBus,
+  IEventHandler,
+  IEventPublisher,
+  ISaga,
+} from './interfaces';
 import { ObservableBus } from './utils/observable-bus';
 
 export type EventHandlerType = Type<IEventHandler<IEvent>>;
