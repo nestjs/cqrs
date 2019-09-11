@@ -21,7 +21,7 @@
     "prettier": "1.18.2",
     "rxjs": "6.5.3",
     "ts-jest": "24.0.2",
-    "typescript": "3.6.2"
+    "typescript": "3.6.3"
   },
   "peerDependencies": {
     "@nestjs/common": "^6.0.0",
