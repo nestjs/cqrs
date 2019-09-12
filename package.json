@@ -20,7 +20,7 @@
     "lint-staged": "9.2.5",
     "prettier": "1.18.2",
     "rxjs": "6.5.3",
-    "ts-jest": "24.0.2",
+    "ts-jest": "24.1.0",
     "typescript": "3.6.3"
   },
   "peerDependencies": {
