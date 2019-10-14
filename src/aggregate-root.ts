@@ -49,7 +49,7 @@ export abstract class AggregateRoot {
     return this[handler];
   }
 
-  private getEventName(event): string {
+  protected getEventName(event): string {
     const { constructor } = Object.getPrototypeOf(event);
     return constructor.name as string;
   }
