@@ -4,14 +4,14 @@ import 'reflect-metadata';
 import { COMMAND_HANDLER_METADATA } from './decorators/constants';
 import { CommandHandlerNotFoundException } from './exceptions/command-not-found.exception';
 import { InvalidCommandHandlerException } from './index';
-import { ICommand, ICommandBus, ICommandHandler } from './interfaces/index';
+import { ICommand, ICommandBus, ICommandHandler, ReturningCommand } from './interfaces/index';
 import { ObservableBus } from './utils/observable-bus';
 
 export type CommandHandlerType = Type<ICommandHandler<ICommand>>;
 
 @Injectable()
 export class CommandBus extends ObservableBus<ICommand> implements ICommandBus {
-  private handlers = new Map<string, ICommandHandler<ICommand>>();
+  private handlers = new Map<string, ICommandHandler<ICommand, any>>();
 
   constructor(private readonly moduleRef: ModuleRef) {
     super();

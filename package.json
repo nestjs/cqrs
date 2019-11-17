@@ -1,5 +1,5 @@
 {
-  "name": "@nestjs/cqrs",
+  "name": "@MiniRoman/cqrs",
   "version": "6.1.0",
   "description": "A lightweight CQRS module for Nest framework (node.js)",
   "license": "MIT",
