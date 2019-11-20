@@ -18,9 +18,10 @@ export class CommandBus extends ObservableBus<ICommand> implements ICommandBus {
   }
 
   execute<T extends ICommand>(command: T): Promise<any> {
-    const handler = this.handlers.get(this.getCommandName(command));
+    const commandName = this.getCommandName(command);
+    const handler = this.handlers.get(commandName);
     if (!handler) {
-      throw new CommandHandlerNotFoundException();
+      throw new CommandHandlerNotFoundException(commandName);
     }
     this.subject$.next(command);
     return handler.execute(command);
