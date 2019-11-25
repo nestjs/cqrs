@@ -4,7 +4,7 @@ import { IEvent, IEventPublisher, IMessageSource } from '../interfaces';
 export class DefaultPubSub implements IEventPublisher, IMessageSource {
   private subject$: Subject<any>;
 
-  publish<T extends IEvent>(event: T) {
+  publish(event: IEvent) {
     if (!this.subject$) {
       throw new Error('Invalid underlying subject (call bridgeEventsTo())');
     }

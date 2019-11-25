@@ -1,5 +1,5 @@
 import { IEvent } from './event.interface';
 
-export interface IEventPublisher {
-  publish<T extends IEvent>(event: T);
+export interface IEventPublisher<T extends IEvent = IEvent> {
+  publish(event: T);
 }
