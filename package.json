@@ -1,6 +1,6 @@
 {
-  "name": "@MiniRoman/cqrs",
-  "version": "6.1.0",
+  "name": "@miniroman/cqrs",
+  "version": "6.1.1",
   "description": "A lightweight CQRS module for Nest framework (node.js)",
   "license": "MIT",
   "scripts": {
