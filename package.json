@@ -1,6 +1,6 @@
 {
-  "name": "@MiniRoman/cqrs",
-  "version": "6.1.0",
+  "name": "@miniroman/cqrs",
+  "version": "6.1.1",
   "description": "A lightweight CQRS module for Nest framework (node.js)",
   "license": "MIT",
   "scripts": {
@@ -30,6 +30,9 @@
     "rxjs": "^6.4.0"
   },
   "lint-staged": {
-    "*.ts": ["prettier --write", "git add"]
+    "*.ts": [
+      "prettier --write",
+      "git add"
+    ]
   }
 }

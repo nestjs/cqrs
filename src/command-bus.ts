@@ -4,7 +4,12 @@ import 'reflect-metadata';
 import { COMMAND_HANDLER_METADATA } from './decorators/constants';
 import { CommandHandlerNotFoundException } from './exceptions/command-not-found.exception';
 import { InvalidCommandHandlerException } from './index';
-import { ICommand, ICommandBus, ICommandHandler, ReturningCommand } from './interfaces/index';
+import {
+  ICommand,
+  ICommandBus,
+  ICommandHandler,
+  ReturningCommand,
+} from './interfaces/index';
 import { ObservableBus } from './utils/observable-bus';
 
 export type CommandHandlerType = Type<ICommandHandler<ICommand>>;
@@ -17,7 +22,10 @@ export class CommandBus extends ObservableBus<ICommand> implements ICommandBus {
     super();
   }
 
-  execute<T extends ICommand>(command: T): Promise<any> {
+  execute<
+    T extends ICommand,
+    K = T extends ReturningCommand<infer U> ? U : unknown
+  >(command: T): Promise<K> {
     const handler = this.handlers.get(this.getCommandName(command));
     if (!handler) {
       throw new CommandHandlerNotFoundException();
