@@ -5,7 +5,7 @@ import { filter } from 'rxjs/operators';
 import { isFunction } from 'util';
 import { CommandBus } from './command-bus';
 import { EVENTS_HANDLER_METADATA, SAGA_METADATA } from './decorators/constants';
-import { InvalidSagaException } from './exceptions/invalid-saga.exception';
+import { InvalidSagaException } from './exceptions';
 import { DefaultPubSub } from './helpers/default-pubsub';
 import {
   IEvent,
@@ -14,14 +14,15 @@ import {
   IEventPublisher,
   ISaga,
 } from './interfaces';
-import { ObservableBus } from './utils/observable-bus';
+import { ObservableBus } from './utils';
 
 export type EventHandlerType = Type<IEventHandler<IEvent>>;
 
 @Injectable()
-export class EventBus extends ObservableBus<IEvent>
-  implements IEventBus, OnModuleDestroy {
-  private _publisher: IEventPublisher;
+export class EventBus<EventBase extends IEvent = IEvent>
+  extends ObservableBus<EventBase>
+  implements IEventBus<EventBase>, OnModuleDestroy {
+  private _publisher: IEventPublisher<EventBase>;
   private readonly subscriptions: Subscription[];
 
   constructor(
@@ -33,11 +34,11 @@ export class EventBus extends ObservableBus<IEvent>
     this.useDefaultPublisher();
   }
 
-  get publisher(): IEventPublisher {
+  get publisher(): IEventPublisher<EventBase> {
     return this._publisher;
   }
 
-  set publisher(_publisher: IEventPublisher) {
+  set publisher(_publisher: IEventPublisher<EventBase>) {
     this._publisher = _publisher;
   }
 
@@ -45,21 +46,21 @@ export class EventBus extends ObservableBus<IEvent>
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
-  publish<T extends IEvent>(event: T) {
+  publish<T extends EventBase>(event: T) {
     this._publisher.publish(event);
   }
 
-  publishAll(events: IEvent[]) {
+  publishAll(events: EventBase[]) {
     (events || []).forEach(event => this._publisher.publish(event));
   }
 
-  bind(handler: IEventHandler<IEvent>, name: string) {
+  bind(handler: IEventHandler<EventBase>, name: string) {
     const stream$ = name ? this.ofEventName(name) : this.subject$;
     const subscription = stream$.subscribe(event => handler.handle(event));
     this.subscriptions.push(subscription);
   }
 
-  registerSagas(types: Type<any>[] = []) {
+  registerSagas(types: Type<unknown>[] = []) {
     const sagas = types
       .map(target => {
         const metadata = Reflect.getMetadata(SAGA_METADATA, target) || [];
@@ -121,7 +122,7 @@ export class EventBus extends ObservableBus<IEvent>
   }
 
   private useDefaultPublisher() {
-    const pubSub = new DefaultPubSub();
+    const pubSub = new DefaultPubSub<EventBase>();
     pubSub.bridgeEventsTo(this.subject$);
     this._publisher = pubSub;
   }
