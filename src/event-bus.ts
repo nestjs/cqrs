@@ -7,6 +7,7 @@ import { CommandBus } from './command-bus';
 import { EVENTS_HANDLER_METADATA, SAGA_METADATA } from './decorators/constants';
 import { InvalidSagaException } from './exceptions';
 import { DefaultPubSub } from './helpers/default-pubsub';
+import { defaultGetEventName } from './helpers/default-get-event-name';
 import {
   IEvent,
   IEventBus,
@@ -24,8 +25,9 @@ export type EventHandlerType<EventBase extends IEvent = IEvent> = Type<
 export class EventBus<EventBase extends IEvent = IEvent>
   extends ObservableBus<EventBase>
   implements IEventBus<EventBase>, OnModuleDestroy {
+  protected getEventName: (event: EventBase) => string;
   private _publisher: IEventPublisher<EventBase>;
-  private readonly subscriptions: Subscription[];
+  protected readonly subscriptions: Subscription[];
 
   constructor(
     private readonly commandBus: CommandBus,
@@ -33,6 +35,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
   ) {
     super();
     this.subscriptions = [];
+    this.getEventName = defaultGetEventName;
     this.useDefaultPublisher();
   }
 
@@ -54,7 +57,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
 
   publishAll<T extends EventBase>(events: T[]) {
     if (this._publisher.publishAll) {
-      return this.publisher.publishAll(events);
+      return this._publisher.publishAll(events);
     }
     return (events || []).map(event => this._publisher.publish(event));
   }
@@ -99,11 +102,6 @@ export class EventBus<EventBase extends IEvent = IEvent>
     return this.subject$.pipe(
       filter(event => this.getEventName(event) === name),
     );
-  }
-
-  private getEventName(event): string {
-    const { constructor } = Object.getPrototypeOf(event);
-    return constructor.name as string;
   }
 
   protected registerSaga(saga: ISaga<EventBase>) {
