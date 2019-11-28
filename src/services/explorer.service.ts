@@ -8,11 +8,16 @@ import {
   QUERY_HANDLER_METADATA,
   SAGA_METADATA,
 } from '../decorators/constants';
-import { ICommandHandler, IEventHandler, IQueryHandler } from '../interfaces';
+import {
+  ICommandHandler,
+  IEvent,
+  IEventHandler,
+  IQueryHandler,
+} from '../interfaces';
 import { CqrsOptions } from '../interfaces/cqrs-options.interface';
 
 @Injectable()
-export class ExplorerService {
+export class ExplorerService<EventBase extends IEvent = IEvent> {
   constructor(private readonly modulesContainer: ModulesContainer) {}
 
   explore(): CqrsOptions {
@@ -23,7 +28,7 @@ export class ExplorerService {
     const queries = this.flatMap<IQueryHandler>(modules, instance =>
       this.filterProvider(instance, QUERY_HANDLER_METADATA),
     );
-    const events = this.flatMap<IEventHandler>(modules, instance =>
+    const events = this.flatMap<IEventHandler<EventBase>>(modules, instance =>
       this.filterProvider(instance, EVENTS_HANDLER_METADATA),
     );
     const sagas = this.flatMap(modules, instance =>
