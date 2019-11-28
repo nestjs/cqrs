@@ -47,11 +47,14 @@ export class EventBus<EventBase extends IEvent = IEvent>
   }
 
   publish<T extends EventBase>(event: T) {
-    this._publisher.publish(event);
+    return this._publisher.publish(event);
   }
 
-  publishAll(events: EventBase[]) {
-    (events || []).forEach(event => this._publisher.publish(event));
+  publishAll<T extends EventBase>(events: T[]) {
+    if (this._publisher.publishAll) {
+      return this.publisher.publishAll(events);
+    }
+    return (events || []).map(event => this._publisher.publish(event));
   }
 
   bind(handler: IEventHandler<EventBase>, name: string) {
@@ -122,8 +125,6 @@ export class EventBus<EventBase extends IEvent = IEvent>
   }
 
   private useDefaultPublisher() {
-    const pubSub = new DefaultPubSub<EventBase>();
-    pubSub.bridgeEventsTo(this.subject$);
-    this._publisher = pubSub;
+    this._publisher = new DefaultPubSub<EventBase>(this.subject$);
   }
 }
