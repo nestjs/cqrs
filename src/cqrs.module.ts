@@ -19,12 +19,12 @@ export class CqrsModule<EventBase extends IEvent = IEvent>
     private readonly queryBus: QueryBus,
   ) {}
 
-  onModuleInit() {
+  async onModuleInit(): Promise<void> {
     const { events, queries, sagas, commands } = this.explorerService.explore();
 
-    this.eventsBus.register(events);
+    await this.eventsBus.register(events);
     this.commandsBus.register(commands);
     this.queryBus.register(queries);
-    this.eventsBus.registerSagas(sagas);
+    await this.eventsBus.registerSagas(sagas);
   }
 }

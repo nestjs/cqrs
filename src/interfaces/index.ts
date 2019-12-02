@@ -2,6 +2,7 @@ export * from './commands/command-bus.interface';
 export * from './commands/command-handler.interface';
 export * from './commands/command.interface';
 export * from './events/event-bus.interface';
+export * from './events/event-dispatcher.interface';
 export * from './events/event-handler.interface';
 export * from './events/event-publisher.interface';
 export * from './events/event.interface';
