@@ -8,7 +8,10 @@ import { EVENTS_HANDLER_METADATA, SAGA_METADATA } from './decorators/constants';
 import { InvalidSagaException } from './exceptions';
 import { DefaultEventDispatcher } from './helpers/default-event-dispatcher';
 import { DefaultPubSub } from './helpers/default-pubsub';
-import { defaultGetEventName } from './helpers/default-get-event-name';
+import {
+  defaultGetEventName,
+  defaultGetEventNameFromType,
+} from './helpers/default-event-naming';
 import {
   IEvent,
   IEventBus,
@@ -28,6 +31,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
   extends ObservableBus<EventBase>
   implements IEventBus<EventBase>, OnModuleDestroy {
   protected getEventName: (event: EventBase) => string;
+  protected getEventNameFromType: (eventType: Type<EventBase>) => string;
   private _publisher: IEventPublisher<EventBase>;
   private _dispatcher: IEventDispatcher<EventBase>;
   protected readonly subscriptions: Subscription[];
@@ -39,6 +43,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
     super();
     this.subscriptions = [];
     this.getEventName = defaultGetEventName;
+    this.getEventNameFromType = defaultGetEventNameFromType;
     this.useDefaultPublisher();
     this.useDefaultDispatcher();
   }
@@ -74,10 +79,11 @@ export class EventBus<EventBase extends IEvent = IEvent>
     return (events || []).map(event => this._publisher.publish(event));
   }
 
-  async bind(handler: IEventHandler<EventBase>, name: string) {
+  async bind(handler: IEventHandler<EventBase>, event: Type<EventBase>) {
+    const name = this.getEventNameFromType(event);
     const stream$ = name ? this.ofEventName(name) : this.subject$;
     const subscription = (
-      await this._dispatcher.processEventBinding(name, handler, stream$)
+      await this._dispatcher.processEventBinding(event, handler, stream$)
     ).subscribe(event => this._dispatcher.fireEventHandler(event, handler));
     this.subscriptions.push(subscription);
   }
@@ -106,10 +112,10 @@ export class EventBus<EventBase extends IEvent = IEvent>
     if (!instance) {
       return;
     }
-    const eventsNames = this.reflectEventsNames(handler);
+    const eventsNames = this.reflectHandlerEventNames(handler);
     return Promise.all(
       eventsNames.map(event =>
-        this.bind(instance as IEventHandler<EventBase>, event.name),
+        this.bind(instance as IEventHandler<EventBase>, event),
       ),
     );
   }
@@ -138,9 +144,9 @@ export class EventBus<EventBase extends IEvent = IEvent>
     this.subscriptions.push(subscription);
   }
 
-  private reflectEventsNames(
+  private reflectHandlerEventNames(
     handler: EventHandlerType<EventBase>,
-  ): FunctionConstructor[] {
+  ): Type<EventBase>[] {
     return Reflect.getMetadata(EVENTS_HANDLER_METADATA, handler);
   }
 

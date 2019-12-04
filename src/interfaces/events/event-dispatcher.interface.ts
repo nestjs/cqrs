@@ -1,3 +1,4 @@
+import { Type } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { ICommandBus, ICommand } from '..';
 import { IEventHandler } from './event-handler.interface';

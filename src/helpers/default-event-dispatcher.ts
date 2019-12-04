@@ -1,3 +1,4 @@
+import { Type } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import {
@@ -31,7 +32,7 @@ export class DefaultEventDispatcher<EventBase extends IEvent = IEvent>
   }
 
   processEventBinding(
-    eventName: string,
+    eventType: Type<EventBase>,
     handler: IEventHandler<EventBase>,
     stream: Observable<EventBase>,
   ): Observable<EventBase> | Promise<Observable<EventBase>> {
