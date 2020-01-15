@@ -15,7 +15,7 @@
     "@nestjs/common": "6.10.14",
     "@nestjs/core": "6.10.14",
     "@types/node": "11.15.2",
-    "@types/jest": "24.0.25",
+    "@types/jest": "24.9.0",
     "husky": "4.0.9",
     "jest": "24.9.0",
     "lint-staged": "9.5.0",
