@@ -12,8 +12,8 @@
     "publish:npm": "npm publish --access public"
   },
   "devDependencies": {
-    "@nestjs/common": "6.11.4",
-    "@nestjs/core": "6.11.4",
+    "@nestjs/common": "6.11.5",
+    "@nestjs/core": "6.11.5",
     "@types/node": "11.15.2",
     "@types/jest": "25.1.1",
     "husky": "4.2.1",
