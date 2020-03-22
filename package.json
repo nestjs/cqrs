@@ -1,6 +1,6 @@
 {
   "name": "@miniroman/cqrs",
-  "version": "6.1.1",
+  "version": "7.0.0",
   "description": "A lightweight CQRS module for Nest framework (node.js)",
   "license": "MIT",
   "scripts": {
@@ -12,8 +12,8 @@
     "publish:npm": "npm publish --access public"
   },
   "devDependencies": {
-    "@nestjs/common": "6.11.11",
-    "@nestjs/core": "6.11.11",
+    "@nestjs/common": "7.0.5",
+    "@nestjs/core": "7.0.5",
     "@types/node": "11.15.2",
     "@types/jest": "25.1.4",
     "husky": "4.2.3",
@@ -26,8 +26,8 @@
     "typescript": "3.8.3"
   },
   "peerDependencies": {
-    "@nestjs/common": "^6.0.0",
-    "@nestjs/core": "^6.0.0",
+    "@nestjs/common": "^6.0.0 || ^7.0.0",
+    "@nestjs/core": "^6.0.0 || ^7.0.0",
     "reflect-metadata": "0.1.13",
     "rxjs": "^6.4.0"
   },
