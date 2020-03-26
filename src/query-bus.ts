@@ -7,17 +7,17 @@ import { InvalidQueryHandlerException } from './exceptions/invalid-query-handler
 import { IQuery, IQueryBus, IQueryHandler, IQueryResult } from './interfaces';
 import { ObservableBus } from './utils/observable-bus';
 
-export type QueryHandlerType = Type<IQueryHandler<IQuery, IQueryResult>>;
+export type QueryHandlerType = Type<IQueryHandler<IQuery<any>>>;
 
 @Injectable()
-export class QueryBus extends ObservableBus<IQuery> implements IQueryBus {
-  private handlers = new Map<string, IQueryHandler<IQuery, IQueryResult>>();
+export class QueryBus extends ObservableBus<IQuery<any>> implements IQueryBus {
+  private handlers = new Map<string, IQueryHandler<IQuery<any>>>();
 
   constructor(private readonly moduleRef: ModuleRef) {
     super();
   }
 
-  async execute<T extends IQuery, TResult extends IQueryResult>(
+  async execute<TResult extends IQueryResult, T extends IQuery<TResult>>(
     query: T,
   ): Promise<TResult> {
     const handler = this.handlers.get(this.getQueryName(query));
@@ -28,7 +28,7 @@ export class QueryBus extends ObservableBus<IQuery> implements IQueryBus {
     return result as TResult;
   }
 
-  bind<T extends IQuery, TResult>(
+  bind<TResult extends IQueryResult, T extends IQuery<TResult>>(
     handler: IQueryHandler<T, TResult>,
     name: string,
   ) {
@@ -48,7 +48,7 @@ export class QueryBus extends ObservableBus<IQuery> implements IQueryBus {
     if (!target) {
       throw new InvalidQueryHandlerException();
     }
-    this.bind(instance as IQueryHandler<IQuery, IQueryResult>, target.name);
+    this.bind(instance as IQueryHandler<IQuery<any>>, target.name);
   }
 
   private getQueryName(query): string {
