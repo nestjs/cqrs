@@ -18,7 +18,7 @@
     "@types/jest": "25.1.4",
     "husky": "4.2.3",
     "jest": "25.2.3",
-    "lint-staged": "10.0.9",
+    "lint-staged": "10.0.10",
     "prettier": "2.0.2",
     "reflect-metadata": "0.1.13",
     "rxjs": "6.5.4",
