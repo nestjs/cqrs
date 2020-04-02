@@ -17,12 +17,12 @@
     "@types/node": "11.15.2",
     "@types/jest": "25.1.4",
     "husky": "4.2.3",
-    "jest": "25.1.0",
-    "lint-staged": "10.0.8",
-    "prettier": "1.19.1",
+    "jest": "25.2.4",
+    "lint-staged": "10.1.1",
+    "prettier": "2.0.2",
     "reflect-metadata": "0.1.13",
     "rxjs": "6.5.4",
-    "ts-jest": "25.2.1",
+    "ts-jest": "25.3.0",
     "typescript": "3.8.3"
   },
   "peerDependencies": {
