@@ -21,7 +21,7 @@
     "lint-staged": "10.1.1",
     "prettier": "2.0.2",
     "reflect-metadata": "0.1.13",
-    "rxjs": "6.5.4",
+    "rxjs": "6.5.5",
     "ts-jest": "25.3.0",
     "typescript": "3.8.3"
   },
