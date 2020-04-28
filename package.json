@@ -17,7 +17,7 @@
     "@types/node": "11.15.2",
     "@types/jest": "25.2.1",
     "husky": "4.2.5",
-    "jest": "25.4.0",
+    "jest": "25.5.0",
     "lint-staged": "10.2.0",
     "prettier": "2.0.5",
     "reflect-metadata": "0.1.13",
