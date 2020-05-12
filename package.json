@@ -23,7 +23,7 @@
     "reflect-metadata": "0.1.13",
     "rxjs": "6.5.5",
     "ts-jest": "25.5.1",
-    "typescript": "3.8.3"
+    "typescript": "3.9.2"
   },
   "peerDependencies": {
     "@nestjs/common": "^6.0.0",
