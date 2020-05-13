@@ -6,8 +6,8 @@ import { isFunction } from 'util';
 import { CommandBus } from './command-bus';
 import { EVENTS_HANDLER_METADATA, SAGA_METADATA } from './decorators/constants';
 import { InvalidSagaException } from './exceptions';
-import { DefaultPubSub } from './helpers/default-pubsub';
 import { defaultGetEventName } from './helpers/default-get-event-name';
+import { DefaultPubSub } from './helpers/default-pubsub';
 import {
   IEvent,
   IEventBus,
@@ -26,8 +26,9 @@ export class EventBus<EventBase extends IEvent = IEvent>
   extends ObservableBus<EventBase>
   implements IEventBus<EventBase>, OnModuleDestroy {
   protected getEventName: (event: EventBase) => string;
-  private _publisher: IEventPublisher<EventBase>;
   protected readonly subscriptions: Subscription[];
+
+  private _publisher: IEventPublisher<EventBase>;
 
   constructor(
     private readonly commandBus: CommandBus,

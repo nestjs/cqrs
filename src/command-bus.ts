@@ -10,15 +10,19 @@ import { ObservableBus } from './utils/observable-bus';
 export type CommandHandlerType = Type<ICommandHandler<ICommand>>;
 
 @Injectable()
-export class CommandBus extends ObservableBus<ICommand> implements ICommandBus {
-  private handlers = new Map<string, ICommandHandler<ICommand>>();
+export class CommandBus<CommandBase extends ICommand = ICommand>
+  extends ObservableBus<CommandBase>
+  implements ICommandBus<CommandBase> {
+  private handlers = new Map<string, ICommandHandler<CommandBase>>();
 
   constructor(private readonly moduleRef: ModuleRef) {
     super();
   }
 
-  execute<T extends ICommand>(command: T): Promise<any> {
-    const handler = this.handlers.get(this.getCommandName(command));
+  execute<T extends CommandBase>(command: T): Promise<any> {
+    const handler = this.handlers.get(
+      this.getCommandName((command as any) as Function),
+    );
     if (!handler) {
       throw new CommandHandlerNotFoundException();
     }
@@ -26,7 +30,7 @@ export class CommandBus extends ObservableBus<ICommand> implements ICommandBus {
     return handler.execute(command);
   }
 
-  bind<T extends ICommand>(handler: ICommandHandler<T>, name: string) {
+  bind<T extends CommandBase>(handler: ICommandHandler<T>, name: string) {
     this.handlers.set(name, handler);
   }
 
@@ -43,10 +47,10 @@ export class CommandBus extends ObservableBus<ICommand> implements ICommandBus {
     if (!target) {
       throw new InvalidCommandHandlerException();
     }
-    this.bind(instance as ICommandHandler<ICommand>, target.name);
+    this.bind(instance as ICommandHandler<CommandBase>, target.name);
   }
 
-  private getCommandName(command): string {
+  private getCommandName(command: Function): string {
     const { constructor } = Object.getPrototypeOf(command);
     return constructor.name as string;
   }
