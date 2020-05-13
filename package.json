@@ -12,8 +12,8 @@
     "publish:npm": "npm publish --access public"
   },
   "devDependencies": {
-    "@nestjs/common": "6.11.11",
-    "@nestjs/core": "6.11.11",
+    "@nestjs/common": "7.0.11",
+    "@nestjs/core": "7.0.11",
     "@types/node": "11.15.2",
     "@types/jest": "25.2.1",
     "husky": "4.2.5",
@@ -26,8 +26,8 @@
     "typescript": "3.9.2"
   },
   "peerDependencies": {
-    "@nestjs/common": "^6.0.0",
-    "@nestjs/core": "^6.0.0",
+    "@nestjs/common": "^6.0.0 || ^7.0.0",
+    "@nestjs/core": "^6.0.0 || ^7.0.0",
     "reflect-metadata": "0.1.13",
     "rxjs": "^6.4.0"
   },
