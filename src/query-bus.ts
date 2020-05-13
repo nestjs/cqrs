@@ -22,10 +22,11 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
   async execute<T extends QueryBase, TResult extends IQueryResult>(
     query: T,
   ): Promise<TResult> {
-    const handler = this.handlers.get(
-      this.getQueryName((query as any) as Function),
-    );
-    if (!handler) throw new QueryHandlerNotFoundException();
+    const queryName = this.getQueryName((query as any) as Function);
+    const handler = this.handlers.get(queryName);
+    if (!handler) {
+      throw new QueryHandlerNotFoundException(queryName);
+    }
 
     this.subject$.next(query);
     const result = await handler.execute(query);

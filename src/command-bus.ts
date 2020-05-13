@@ -20,11 +20,10 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
   }
 
   execute<T extends CommandBase>(command: T): Promise<any> {
-    const handler = this.handlers.get(
-      this.getCommandName((command as any) as Function),
-    );
+    const commandName = this.getCommandName(command as any);
+    const handler = this.handlers.get(commandName);
     if (!handler) {
-      throw new CommandHandlerNotFoundException();
+      throw new CommandHandlerNotFoundException(commandName);
     }
     this.subject$.next(command);
     return handler.execute(command);
