@@ -10,17 +10,21 @@ import { ObservableBus } from './utils/observable-bus';
 export type QueryHandlerType = Type<IQueryHandler<IQuery, IQueryResult>>;
 
 @Injectable()
-export class QueryBus extends ObservableBus<IQuery> implements IQueryBus {
-  private handlers = new Map<string, IQueryHandler<IQuery, IQueryResult>>();
+export class QueryBus<QueryBase extends IQuery = IQuery>
+  extends ObservableBus<QueryBase>
+  implements IQueryBus<QueryBase> {
+  private handlers = new Map<string, IQueryHandler<QueryBase, IQueryResult>>();
 
   constructor(private readonly moduleRef: ModuleRef) {
     super();
   }
 
-  async execute<T extends IQuery, TResult extends IQueryResult>(
+  async execute<T extends QueryBase, TResult extends IQueryResult>(
     query: T,
   ): Promise<TResult> {
-    const handler = this.handlers.get(this.getQueryName(query));
+    const handler = this.handlers.get(
+      this.getQueryName((query as any) as Function),
+    );
     if (!handler) throw new QueryHandlerNotFoundException();
 
     this.subject$.next(query);
@@ -28,7 +32,7 @@ export class QueryBus extends ObservableBus<IQuery> implements IQueryBus {
     return result as TResult;
   }
 
-  bind<T extends IQuery, TResult>(
+  bind<T extends QueryBase, TResult>(
     handler: IQueryHandler<T, TResult>,
     name: string,
   ) {
@@ -51,7 +55,7 @@ export class QueryBus extends ObservableBus<IQuery> implements IQueryBus {
     this.bind(instance as IQueryHandler<IQuery, IQueryResult>, target.name);
   }
 
-  private getQueryName(query): string {
+  private getQueryName(query: Function): string {
     const { constructor } = Object.getPrototypeOf(query);
     return constructor.name as string;
   }

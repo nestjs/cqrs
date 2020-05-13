@@ -1,6 +1,6 @@
 import { IEvent } from './event.interface';
 
-export interface IEventBus {
-  publish<T extends IEvent>(event: T);
-  publishAll(events: IEvent[]);
+export interface IEventBus<EventBase extends IEvent = IEvent> {
+  publish<T extends EventBase>(event: T);
+  publishAll(events: EventBase[]);
 }
