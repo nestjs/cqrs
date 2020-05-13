@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-empty-function */
 import { IEvent } from './interfaces';
 
 const INTERNAL_EVENTS = Symbol();
@@ -18,7 +20,7 @@ export abstract class AggregateRoot<EventBase extends IEvent = IEvent> {
   publish<T extends EventBase = EventBase>(event: T) {}
 
   commit() {
-    this[INTERNAL_EVENTS].forEach(event => this.publish(event));
+    this[INTERNAL_EVENTS].forEach((event) => this.publish(event));
     this[INTERNAL_EVENTS].length = 0;
   }
 
@@ -31,7 +33,7 @@ export abstract class AggregateRoot<EventBase extends IEvent = IEvent> {
   }
 
   loadFromHistory(history: EventBase[]) {
-    history.forEach(event => this.apply(event, true));
+    history.forEach((event) => this.apply(event, true));
   }
 
   apply<T extends EventBase = EventBase>(event: T, isFromHistory = false) {

@@ -41,7 +41,7 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
   }
 
   register(handlers: QueryHandlerType[] = []) {
-    handlers.forEach(handler => this.registerHandler(handler));
+    handlers.forEach((handler) => this.registerHandler(handler));
   }
 
   protected registerHandler(handler: QueryHandlerType) {

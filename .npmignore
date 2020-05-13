@@ -5,3 +5,9 @@ package-lock.json
 tslint.json
 tsconfig.json
 .prettierrc
+
+# misc
+.commitlintrc.json
+.release-it.json
+.eslintignore
+.eslintrc.js

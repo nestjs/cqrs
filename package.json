@@ -3,24 +3,36 @@
   "version": "6.1.0",
   "description": "A lightweight CQRS module for Nest framework (node.js)",
   "license": "MIT",
+  "url": "https://github.com/nestjs/cqrs#readme",
   "scripts": {
     "test": "jest",
     "build": "tsc -p tsconfig.json",
+    "format": "prettier --write \"**/*.ts\"",
+    "lint": "eslint \"src/**/*.ts\" --fix",
     "precommit": "lint-staged",
-    "prettier": "prettier src/**/*.ts --write && git status",
     "prepublish:npm": "npm run build",
-    "publish:npm": "npm publish --access public"
+    "publish:npm": "npm publish --access public",
+    "prerelease": "npm run build",
+    "release": "release-it"
   },
   "devDependencies": {
+    "@commitlint/cli": "8.3.5",
+    "@commitlint/config-angular": "8.3.4",
     "@nestjs/common": "7.0.11",
     "@nestjs/core": "7.0.11",
     "@types/node": "11.15.2",
     "@types/jest": "25.2.1",
+    "@typescript-eslint/eslint-plugin": "2.23.0",
+    "@typescript-eslint/parser": "2.23.0",
+    "eslint": "6.8.0",
+    "eslint-config-prettier": "6.10.0",
+    "eslint-plugin-import": "2.20.1",
     "husky": "4.2.5",
     "jest": "26.0.1",
     "lint-staged": "10.2.2",
     "prettier": "2.0.5",
     "reflect-metadata": "0.1.13",
+    "release-it": "13.1.1",
     "rxjs": "6.5.5",
     "ts-jest": "25.5.1",
     "typescript": "3.9.2"
@@ -33,8 +45,17 @@
   },
   "lint-staged": {
     "*.ts": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ]
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -c .commitlintrc.json -E HUSKY_GIT_PARAMS",
+      "pre-commit": "lint-staged"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nestjs/cqrs"
   }
 }

@@ -34,7 +34,7 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
   }
 
   register(handlers: CommandHandlerType[] = []) {
-    handlers.forEach(handler => this.registerHandler(handler));
+    handlers.forEach((handler) => this.registerHandler(handler));
   }
 
   protected registerHandler(handler: CommandHandlerType) {

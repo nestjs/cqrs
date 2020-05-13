@@ -49,7 +49,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
   }
 
   onModuleDestroy() {
-    this.subscriptions.forEach(subscription => subscription.unsubscribe());
+    this.subscriptions.forEach((subscription) => subscription.unsubscribe());
   }
 
   publish<T extends EventBase>(event: T) {
@@ -60,18 +60,18 @@ export class EventBus<EventBase extends IEvent = IEvent>
     if (this._publisher.publishAll) {
       return this._publisher.publishAll(events);
     }
-    return (events || []).map(event => this._publisher.publish(event));
+    return (events || []).map((event) => this._publisher.publish(event));
   }
 
   bind(handler: IEventHandler<EventBase>, name: string) {
     const stream$ = name ? this.ofEventName(name) : this.subject$;
-    const subscription = stream$.subscribe(event => handler.handle(event));
+    const subscription = stream$.subscribe((event) => handler.handle(event));
     this.subscriptions.push(subscription);
   }
 
   registerSagas(types: Type<unknown>[] = []) {
     const sagas = types
-      .map(target => {
+      .map((target) => {
         const metadata = Reflect.getMetadata(SAGA_METADATA, target) || [];
         const instance = this.moduleRef.get(target, { strict: false });
         if (!instance) {
@@ -81,11 +81,11 @@ export class EventBus<EventBase extends IEvent = IEvent>
       })
       .reduce((a, b) => a.concat(b), []);
 
-    sagas.forEach(saga => this.registerSaga(saga));
+    sagas.forEach((saga) => this.registerSaga(saga));
   }
 
   register(handlers: EventHandlerType<EventBase>[] = []) {
-    handlers.forEach(handler => this.registerHandler(handler));
+    handlers.forEach((handler) => this.registerHandler(handler));
   }
 
   protected registerHandler(handler: EventHandlerType<EventBase>) {
@@ -94,14 +94,14 @@ export class EventBus<EventBase extends IEvent = IEvent>
       return;
     }
     const eventsNames = this.reflectEventsNames(handler);
-    eventsNames.map(event =>
+    eventsNames.map((event) =>
       this.bind(instance as IEventHandler<EventBase>, event.name),
     );
   }
 
   protected ofEventName(name: string) {
     return this.subject$.pipe(
-      filter(event => this.getEventName(event) === name),
+      filter((event) => this.getEventName(event) === name),
     );
   }
 
@@ -115,8 +115,8 @@ export class EventBus<EventBase extends IEvent = IEvent>
     }
 
     const subscription = stream$
-      .pipe(filter(e => !!e))
-      .subscribe(command => this.commandBus.execute(command));
+      .pipe(filter((e) => !!e))
+      .subscribe((command) => this.commandBus.execute(command));
 
     this.subscriptions.push(subscription);
   }
