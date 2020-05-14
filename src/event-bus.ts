@@ -32,9 +32,10 @@ export class EventBus<EventBase extends IEvent = IEvent>
   implements IEventBus<EventBase>, OnModuleDestroy {
   protected getEventName: (event: EventBase) => string;
   protected getEventNameFromType: (eventType: Type<EventBase>) => string;
-  private _publisher: IEventPublisher<EventBase>;
   private _dispatcher: IEventDispatcher<EventBase>;
   protected readonly subscriptions: Subscription[];
+
+  private _publisher: IEventPublisher<EventBase>;
 
   constructor(
     private readonly commandBus: CommandBus,
@@ -65,7 +66,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
   }
 
   onModuleDestroy() {
-    this.subscriptions.forEach(subscription => subscription.unsubscribe());
+    this.subscriptions.forEach((subscription) => subscription.unsubscribe());
   }
 
   publish<T extends EventBase>(event: T) {
@@ -76,7 +77,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
     if (this._publisher.publishAll) {
       return this._publisher.publishAll(events);
     }
-    return (events || []).map(event => this._publisher.publish(event));
+    return (events || []).map((event) => this._publisher.publish(event));
   }
 
   async bind(handler: IEventHandler<EventBase>, event: Type<EventBase>) {
@@ -84,13 +85,13 @@ export class EventBus<EventBase extends IEvent = IEvent>
     const stream$ = name ? this.ofEventName(name) : this.subject$;
     const subscription = (
       await this._dispatcher.processEventBinding(event, handler, stream$)
-    ).subscribe(event => this._dispatcher.fireEventHandler(event, handler));
+    ).subscribe((event) => this._dispatcher.fireEventHandler(event, handler));
     this.subscriptions.push(subscription);
   }
 
   registerSagas(types: Type<unknown>[] = []): Promise<void[]> {
     const sagas = types
-      .map(target => {
+      .map((target) => {
         const metadata = Reflect.getMetadata(SAGA_METADATA, target) || [];
         const instance = this.moduleRef.get(target, { strict: false });
         if (!instance) {
@@ -100,11 +101,13 @@ export class EventBus<EventBase extends IEvent = IEvent>
       })
       .reduce((a, b) => a.concat(b), []);
 
-    return Promise.all(sagas.map(saga => this.registerSaga(saga)));
+    return Promise.all(sagas.map((saga) => this.registerSaga(saga)));
   }
 
   register(handlers: EventHandlerType<EventBase>[] = []) {
-    return Promise.all(handlers.map(handler => this.registerHandler(handler)));
+    return Promise.all(
+      handlers.map((handler) => this.registerHandler(handler)),
+    );
   }
 
   protected registerHandler(handler: EventHandlerType<EventBase>) {
@@ -114,7 +117,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
     }
     const eventsNames = this.reflectHandlerEventNames(handler);
     return Promise.all(
-      eventsNames.map(event =>
+      eventsNames.map((event) =>
         this.bind(instance as IEventHandler<EventBase>, event),
       ),
     );
@@ -122,7 +125,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
 
   protected ofEventName(name: string) {
     return this.subject$.pipe(
-      filter(event => this.getEventName(event) === name),
+      filter((event) => this.getEventName(event) === name),
     );
   }
 
@@ -137,7 +140,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
 
     const subscription = (
       await this._dispatcher.processSaga(stream$)
-    ).subscribe(command =>
+    ).subscribe((command) =>
       this._dispatcher.fireSagaCommand(command, this.commandBus),
     );
 

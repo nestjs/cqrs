@@ -1,3 +1,5 @@
-export class QueryHandlerNotFoundException {
-  constructor(public readonly message = 'QueryHandler not found exception!') {}
+export class QueryHandlerNotFoundException extends Error {
+  constructor(queryName: string) {
+    super(`The query handler for the "${queryName}" query was not found!`);
+  }
 }
