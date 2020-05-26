@@ -20,7 +20,13 @@ import { CqrsOptions } from '../interfaces/cqrs-options.interface';
 export class ExplorerService<EventBase extends IEvent = IEvent> {
   constructor(private readonly modulesContainer: ModulesContainer) {}
 
+  private cqrsOptions: CqrsOptions;
+
   explore(): CqrsOptions {
+    if (this.cqrsOptions) {
+      return this.cqrsOptions;
+    }
+
     const modules = [...this.modulesContainer.values()];
     const commands = this.flatMap<ICommandHandler>(modules, (instance) =>
       this.filterProvider(instance, COMMAND_HANDLER_METADATA),
@@ -34,7 +40,13 @@ export class ExplorerService<EventBase extends IEvent = IEvent> {
     const sagas = this.flatMap(modules, (instance) =>
       this.filterProvider(instance, SAGA_METADATA),
     );
-    return { commands, queries, events, sagas };
+
+    const commandDtos = commands.map(c => Reflect.getMetadata(COMMAND_HANDLER_METADATA, c));
+    const eventDtos = commands.map(e => Reflect.getMetadata(EVENTS_HANDLER_METADATA, e));
+    const queryDtos = commands.map(q => Reflect.getMetadata(QUERY_HANDLER_METADATA, q));
+
+    this.cqrsOptions = { commands, queries, events, sagas, commandDtos, eventDtos, queryDtos };
+    return this.cqrsOptions;
   }
 
   flatMap<T>(

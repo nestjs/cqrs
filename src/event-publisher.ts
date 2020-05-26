@@ -16,16 +16,22 @@ export class EventPublisher<EventBase extends IEvent = IEvent> {
   ): T {
     const eventBus = this.eventBus;
     return class extends metatype {
-      publish(event: EventBase) {
-        eventBus.publish(event);
+      publish(pattern: string, event: EventBase) {
+        eventBus.publish(pattern, event);
+      }
+      publishLocally(event: EventBase) {
+        eventBus.publishLocally(event);
       }
     };
   }
 
   mergeObjectContext<T extends AggregateRoot<EventBase>>(object: T): T {
     const eventBus = this.eventBus;
-    object.publish = (event: EventBase) => {
-      eventBus.publish(event);
+    object.publish = (pattern: string, event: EventBase) => {
+      eventBus.publish(pattern, event);
+    };
+    object.publishLocally = (event: EventBase) => {
+      eventBus.publishLocally(event);
     };
     return object;
   }

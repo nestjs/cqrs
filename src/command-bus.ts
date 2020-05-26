@@ -1,10 +1,9 @@
-import { Injectable, Type } from '@nestjs/common';
+import { Inject, Injectable, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import 'reflect-metadata';
 import { COMMAND_HANDLER_METADATA } from './decorators/constants';
 import { CommandHandlerNotFoundException } from './exceptions/command-not-found.exception';
-import { DefaultCommandPubSub } from './helpers/default-command-pubsub';
-import { InvalidCommandHandlerException } from './index';
+import { COMMANDS_PUB_SUB, COMMANDS_PUBLISHER_CLIENT } from './constants';
 import {
   ICommand,
   ICommandBus,
@@ -12,6 +11,8 @@ import {
   ICommandPublisher,
 } from './interfaces/index';
 import { ObservableBus } from './utils/observable-bus';
+import { InvalidCommandHandlerException } from "./exceptions";
+import { IPubSubClient } from "./interfaces/pub-sub-client.interface";
 
 export type CommandHandlerType = Type<ICommandHandler<ICommand>>;
 
@@ -20,27 +21,40 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
   extends ObservableBus<CommandBase>
   implements ICommandBus<CommandBase> {
   private handlers = new Map<string, ICommandHandler<CommandBase>>();
-  private _publisher: ICommandPublisher<CommandBase>;
 
-  constructor(private readonly moduleRef: ModuleRef) {
+  constructor(
+      @Inject(COMMANDS_PUB_SUB) private readonly _publisher: ICommandPublisher<CommandBase>,
+      @Inject(COMMANDS_PUBLISHER_CLIENT) private readonly _client: IPubSubClient,
+      private readonly moduleRef: ModuleRef
+  ) {
     super();
-    this.useDefaultPublisher();
+    this._publisher.bridgeCommandsTo(this.subject$);
   }
 
   get publisher(): ICommandPublisher<CommandBase> {
     return this._publisher;
   }
 
-  set publisher(_publisher: ICommandPublisher<CommandBase>) {
-    this._publisher = _publisher;
+  execute<T extends CommandBase, TResult = any>(
+      pattern: string,
+      command: T,
+  ): Promise<TResult> {
+    if (this.isDefaultPubSub()) {
+      return this.executeLocally(command);
+    }
+
+    return this._publisher.publish(pattern, command);
   }
 
-  execute<T extends CommandBase>(command: T): Promise<any> {
+  executeLocally<T extends CommandBase, TResult = any>(
+      command: T,
+  ): Promise<TResult> {
     const commandName = this.getCommandName(command as any);
     const handler = this.handlers.get(commandName);
     if (!handler) {
       throw new CommandHandlerNotFoundException(commandName);
     }
+
     this.subject$.next(command);
     return handler.execute(command);
   }
@@ -74,7 +88,7 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
     return Reflect.getMetadata(COMMAND_HANDLER_METADATA, handler);
   }
 
-  private useDefaultPublisher() {
-    this._publisher = new DefaultCommandPubSub<CommandBase>(this.subject$);
+  private isDefaultPubSub(): boolean {
+    return !this._client;
   }
 }

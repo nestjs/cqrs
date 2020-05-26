@@ -1,4 +1,4 @@
-import { Injectable, OnModuleDestroy, Type } from '@nestjs/common';
+import { Inject, Injectable, OnModuleDestroy, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { Observable, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
@@ -7,7 +7,6 @@ import { CommandBus } from './command-bus';
 import { EVENTS_HANDLER_METADATA, SAGA_METADATA } from './decorators/constants';
 import { InvalidSagaException } from './exceptions';
 import { defaultGetEventName } from './helpers/default-get-event-name';
-import { DefaultPubSub } from './helpers/default-pubsub';
 import {
   IEvent,
   IEventBus,
@@ -16,6 +15,7 @@ import {
   ISaga,
 } from './interfaces';
 import { ObservableBus } from './utils';
+import { EVENTS_PUB_SUB } from "./constants";
 
 export type EventHandlerType<EventBase extends IEvent = IEvent> = Type<
   IEventHandler<EventBase>
@@ -28,39 +28,39 @@ export class EventBus<EventBase extends IEvent = IEvent>
   protected getEventName: (event: EventBase) => string;
   protected readonly subscriptions: Subscription[];
 
-  private _publisher: IEventPublisher<EventBase>;
-
   constructor(
+    @Inject(EVENTS_PUB_SUB) private readonly _publisher: IEventPublisher<EventBase>,
     private readonly commandBus: CommandBus,
     private readonly moduleRef: ModuleRef,
   ) {
     super();
     this.subscriptions = [];
     this.getEventName = defaultGetEventName;
-    this.useDefaultPublisher();
+    this._publisher.bridgeEventsTo(this.subject$);
   }
 
   get publisher(): IEventPublisher<EventBase> {
     return this._publisher;
   }
 
-  set publisher(_publisher: IEventPublisher<EventBase>) {
-    this._publisher = _publisher;
-  }
-
   onModuleDestroy() {
     this.subscriptions.forEach((subscription) => subscription.unsubscribe());
   }
 
-  publish<T extends EventBase>(event: T) {
-    return this._publisher.publish(event);
+  publish<T extends EventBase>(pattern: string, event: T) {
+    this._publisher.publish(pattern, event);
   }
 
-  publishAll<T extends EventBase>(events: T[]) {
-    if (this._publisher.publishAll) {
-      return this._publisher.publishAll(events);
-    }
-    return (events || []).map((event) => this._publisher.publish(event));
+  publishAll<T extends EventBase>(pattern: string, events: T[]) {
+    events.forEach((event) => this.publish(pattern, event));
+  }
+
+  publishLocally<T extends EventBase>(event: T) {
+    this.subject$.next(event);
+  }
+
+  publishAllLocally<T extends EventBase>(events: T[]) {
+    events.map((event) => this.publishLocally(event));
   }
 
   bind(handler: IEventHandler<EventBase>, name: string) {
@@ -116,7 +116,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
 
     const subscription = stream$
       .pipe(filter((e) => !!e))
-      .subscribe((command) => this.commandBus.execute(command));
+      .subscribe((command) => this.commandBus.executeLocally(command));
 
     this.subscriptions.push(subscription);
   }
@@ -125,9 +125,5 @@ export class EventBus<EventBase extends IEvent = IEvent>
     handler: EventHandlerType<EventBase>,
   ): FunctionConstructor[] {
     return Reflect.getMetadata(EVENTS_HANDLER_METADATA, handler);
-  }
-
-  private useDefaultPublisher() {
-    this._publisher = new DefaultPubSub<EventBase>(this.subject$);
   }
 }
