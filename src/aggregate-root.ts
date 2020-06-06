@@ -19,8 +19,10 @@ export abstract class AggregateRoot<EventBase extends IEvent = IEvent> {
 
   publish<T extends EventBase = EventBase>(event: T) {}
 
+  publishAll<T extends EventBase = EventBase>(event: T[]) {}
+
   commit() {
-    this[INTERNAL_EVENTS].forEach((event) => this.publish(event));
+    this.publishAll(this[INTERNAL_EVENTS]);
     this[INTERNAL_EVENTS].length = 0;
   }
 
