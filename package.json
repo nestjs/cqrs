@@ -35,7 +35,7 @@
     "reflect-metadata": "0.1.13",
     "release-it": "13.6.5",
     "rxjs": "6.6.0",
-    "ts-jest": "26.1.1",
+    "ts-jest": "26.1.2",
     "typescript": "3.9.6"
   },
   "peerDependencies": {
