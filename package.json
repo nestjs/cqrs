@@ -36,7 +36,7 @@
     "release-it": "13.6.5",
     "rxjs": "6.6.0",
     "ts-jest": "26.1.2",
-    "typescript": "3.9.6"
+    "typescript": "3.9.7"
   },
   "peerDependencies": {
     "@nestjs/common": "^6.0.0 || ^7.0.0",
