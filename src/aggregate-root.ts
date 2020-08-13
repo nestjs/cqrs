@@ -46,7 +46,7 @@ export abstract class AggregateRoot<EventBase extends IEvent = IEvent> {
     handler && handler.call(this, event);
   }
 
-  private getEventHandler<T extends EventBase = EventBase>(
+  protected getEventHandler<T extends EventBase = EventBase>(
     event: T,
   ): Function | undefined {
     const handler = `on${this.getEventName(event)}`;
