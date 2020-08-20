@@ -3,7 +3,13 @@ import { IQuery } from '../interfaces';
 import { QUERY_HANDLER_METADATA } from './constants';
 
 /**
- * QueryHandler's are responsive for the queries dispatch in `QueryBus` and usually used to `reads`
+ * Decorator that marks a class as a Nest query handler. A query handler
+ * handles queries executed by your application code.
+ *
+ * The decorated class must implement the `IQueryHandler` interface.
+ *
+ * @param query query *type* to be handled by this handler.
+ *
  * @see https://docs.nestjs.com/recipes/cqrs#queries
  */
 export const QueryHandler = (query: IQuery): ClassDecorator => {
