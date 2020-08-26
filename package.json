@@ -31,7 +31,7 @@
     "husky": "4.2.5",
     "jest": "26.4.2",
     "lint-staged": "10.2.13",
-    "prettier": "2.1.0",
+    "prettier": "2.1.1",
     "reflect-metadata": "0.1.13",
     "release-it": "13.7.0",
     "rxjs": "6.6.2",
