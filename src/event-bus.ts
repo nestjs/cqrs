@@ -77,7 +77,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
         if (!instance) {
           throw new InvalidSagaException();
         }
-        return metadata.map((key: string) => instance[key]);
+        return metadata.map((key: string) => instance[key].bind(instance));
       })
       .reduce((a, b) => a.concat(b), []);
 
