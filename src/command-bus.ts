@@ -19,7 +19,7 @@ export type CommandHandlerType = Type<ICommandHandler<ICommand>>;
 export class CommandBus<CommandBase extends ICommand = ICommand>
   extends ObservableBus<CommandBase>
   implements ICommandBus<CommandBase> {
-  private handlers = new Map<string, ICommandHandler<CommandBase>>();
+  private handlers = new Map<string, CommandHandlerType>();
   private _publisher: ICommandPublisher<CommandBase>;
 
   constructor(private readonly moduleRef: ModuleRef) {
@@ -35,17 +35,18 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
     this._publisher = _publisher;
   }
 
-  execute<T extends CommandBase>(command: T): Promise<any> {
+  async execute<T extends CommandBase>(command: T): Promise<any> {
     const commandName = this.getCommandName(command as any);
-    const handler = this.handlers.get(commandName);
-    if (!handler) {
+    const handlerType = this.handlers.get(commandName);
+    if (!handlerType) {
       throw new CommandHandlerNotFoundException(commandName);
     }
     this.subject$.next(command);
+    const handler = await this.moduleRef.resolve(handlerType);
     return handler.execute(command);
   }
 
-  bind<T extends CommandBase>(handler: ICommandHandler<T>, name: string) {
+  bind<T extends CommandBase>(handler: CommandHandlerType, name: string) {
     this.handlers.set(name, handler);
   }
 
@@ -54,15 +55,11 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
   }
 
   protected registerHandler(handler: CommandHandlerType) {
-    const instance = this.moduleRef.get(handler, { strict: false });
-    if (!instance) {
-      return;
-    }
     const target = this.reflectCommandName(handler);
     if (!target) {
       throw new InvalidCommandHandlerException();
     }
-    this.bind(instance as ICommandHandler<CommandBase>, target.name);
+    this.bind(handler, target.name);
   }
 
   private getCommandName(command: Function): string {
