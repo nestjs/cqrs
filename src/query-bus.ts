@@ -23,7 +23,7 @@ export type QueryHandlerType<
 export class QueryBus<QueryBase extends IQuery = IQuery>
   extends ObservableBus<QueryBase>
   implements IQueryBus<QueryBase> {
-  private handlers = new Map<string, IQueryHandler<QueryBase, IQueryResult>>();
+  private handlers = new Map<string, QueryHandlerType<QueryBase>>();
   private _publisher: IQueryPublisher<QueryBase>;
 
   constructor(private readonly moduleRef: ModuleRef) {
@@ -43,18 +43,19 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
     query: T,
   ): Promise<TResult> {
     const queryName = this.getQueryName((query as any) as Function);
-    const handler = this.handlers.get(queryName);
-    if (!handler) {
+    const handlerType = this.handlers.get(queryName);
+    if (!handlerType) {
       throw new QueryHandlerNotFoundException(queryName);
     }
 
     this.subject$.next(query);
+    const handler = await this.moduleRef.resolve(handlerType);
     const result = await handler.execute(query);
     return result as TResult;
   }
 
   bind<T extends QueryBase, TResult = any>(
-    handler: IQueryHandler<T, TResult>,
+    handler: QueryHandlerType<QueryBase>,
     name: string,
   ) {
     this.handlers.set(name, handler);
@@ -65,15 +66,11 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
   }
 
   protected registerHandler(handler: QueryHandlerType<QueryBase>) {
-    const instance = this.moduleRef.get(handler, { strict: false });
-    if (!instance) {
-      return;
-    }
     const target = this.reflectQueryName(handler);
     if (!target) {
       throw new InvalidQueryHandlerException();
     }
-    this.bind(instance as IQueryHandler<QueryBase, IQueryResult>, target.name);
+    this.bind(handler, target.name);
   }
 
   private getQueryName(query: Function): string {
