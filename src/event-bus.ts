@@ -63,12 +63,9 @@ export class EventBus<EventBase extends IEvent = IEvent>
     return (events || []).map((event) => this._publisher.publish(event));
   }
 
-  bind(handler: EventHandlerType<EventBase>, name: string) {
+  bind(handler: IEventHandler<EventBase>, name: string) {
     const stream$ = name ? this.ofEventName(name) : this.subject$;
-    const subscription = stream$.subscribe(async (event) => {
-      const instance = await this.moduleRef.resolve(handler);
-      instance.handle(event);
-    });
+    const subscription = stream$.subscribe((event) => handler.handle(event));
     this.subscriptions.push(subscription);
   }
 
@@ -92,8 +89,14 @@ export class EventBus<EventBase extends IEvent = IEvent>
   }
 
   protected registerHandler(handler: EventHandlerType<EventBase>) {
+    const instance = this.moduleRef.get(handler, { strict: false });
+    if (!instance) {
+      return;
+    }
     const eventsNames = this.reflectEventsNames(handler);
-    eventsNames.map((event) => this.bind(handler, event.name));
+    eventsNames.map((event) =>
+      this.bind(instance as IEventHandler<EventBase>, event.name),
+    );
   }
 
   protected ofEventName(name: string) {
