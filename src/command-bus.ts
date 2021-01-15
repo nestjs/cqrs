@@ -1,3 +1,4 @@
+import { HandlerRegister } from './utils/handler-register';
 import { Injectable, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import 'reflect-metadata';
@@ -19,7 +20,10 @@ export type CommandHandlerType = Type<ICommandHandler<ICommand>>;
 export class CommandBus<CommandBase extends ICommand = ICommand>
   extends ObservableBus<CommandBase>
   implements ICommandBus<CommandBase> {
-  private handlers = new Map<string, CommandHandlerType>();
+  private handlers = new HandlerRegister<ICommandHandler<ICommand>>(
+    this.moduleRef,
+    COMMAND_HANDLER_METADATA,
+  );
   private _publisher: ICommandPublisher<CommandBase>;
 
   constructor(private readonly moduleRef: ModuleRef) {
@@ -36,18 +40,11 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
   }
 
   async execute<T extends CommandBase>(command: T): Promise<any> {
-    const commandName = this.getCommandName(command as any);
-    const handlerType = this.handlers.get(commandName);
-    if (!handlerType) {
-      throw new CommandHandlerNotFoundException(commandName);
+    const handler = await this.handlers.get(command);
+    if (!handler) {
+      throw new CommandHandlerNotFoundException(this.handlers.getName(command));
     }
-    this.subject$.next(command);
-    const handler = await this.moduleRef.resolve(handlerType);
     return handler.execute(command);
-  }
-
-  bind<T extends CommandBase>(handler: CommandHandlerType, name: string) {
-    this.handlers.set(name, handler);
   }
 
   register(handlers: CommandHandlerType[] = []) {
@@ -55,20 +52,9 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
   }
 
   protected registerHandler(handler: CommandHandlerType) {
-    const target = this.reflectCommandName(handler);
-    if (!target) {
+    if (!this.handlers.registerHandler(handler)) {
       throw new InvalidCommandHandlerException();
     }
-    this.bind(handler, target.name);
-  }
-
-  private getCommandName(command: Function): string {
-    const { constructor } = Object.getPrototypeOf(command);
-    return constructor.name as string;
-  }
-
-  private reflectCommandName(handler: CommandHandlerType): FunctionConstructor {
-    return Reflect.getMetadata(COMMAND_HANDLER_METADATA, handler);
   }
 
   private useDefaultPublisher() {

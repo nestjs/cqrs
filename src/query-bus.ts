@@ -12,6 +12,7 @@ import {
   IQueryPublisher,
   IQueryResult,
 } from './interfaces';
+import { HandlerRegister } from './utils/handler-register';
 import { ObservableBus } from './utils/observable-bus';
 
 export type QueryHandlerType<
@@ -23,7 +24,10 @@ export type QueryHandlerType<
 export class QueryBus<QueryBase extends IQuery = IQuery>
   extends ObservableBus<QueryBase>
   implements IQueryBus<QueryBase> {
-  private handlers = new Map<string, QueryHandlerType<QueryBase>>();
+  private handlers = new HandlerRegister<IQueryHandler<QueryBase, any>>(
+    this.moduleRef,
+    QUERY_HANDLER_METADATA,
+  );
   private _publisher: IQueryPublisher<QueryBase>;
 
   constructor(private readonly moduleRef: ModuleRef) {
@@ -42,23 +46,11 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
   async execute<T extends QueryBase, TResult = any>(
     query: T,
   ): Promise<TResult> {
-    const queryName = this.getQueryName((query as any) as Function);
-    const handlerType = this.handlers.get(queryName);
-    if (!handlerType) {
-      throw new QueryHandlerNotFoundException(queryName);
+    const handler = await this.handlers.get(query);
+    if (!handler) {
+      throw new QueryHandlerNotFoundException(this.handlers.getName(query));
     }
-
-    this.subject$.next(query);
-    const handler = await this.moduleRef.resolve(handlerType);
-    const result = await handler.execute(query);
-    return result as TResult;
-  }
-
-  bind<T extends QueryBase, TResult = any>(
-    handler: QueryHandlerType<QueryBase>,
-    name: string,
-  ) {
-    this.handlers.set(name, handler);
+    return handler.execute(query);
   }
 
   register(handlers: QueryHandlerType<QueryBase>[] = []) {
@@ -66,11 +58,9 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
   }
 
   protected registerHandler(handler: QueryHandlerType<QueryBase>) {
-    const target = this.reflectQueryName(handler);
-    if (!target) {
+    if (!this.handlers.registerHandler(handler)) {
       throw new InvalidQueryHandlerException();
     }
-    this.bind(handler, target.name);
   }
 
   private getQueryName(query: Function): string {

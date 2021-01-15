@@ -16,6 +16,7 @@ import {
   ISaga,
 } from './interfaces';
 import { ObservableBus } from './utils';
+import { HandlerRegister } from './utils/handler-register';
 
 export type EventHandlerType<EventBase extends IEvent = IEvent> = Type<
   IEventHandler<EventBase>
@@ -27,6 +28,10 @@ export class EventBus<EventBase extends IEvent = IEvent>
   implements IEventBus<EventBase>, OnModuleDestroy {
   protected getEventName: (event: EventBase) => string;
   protected readonly subscriptions: Subscription[];
+  private handlers = new HandlerRegister<IEventHandler<EventBase>>(
+    this.moduleRef,
+    EVENTS_HANDLER_METADATA,
+  );
 
   private _publisher: IEventPublisher<EventBase>;
 
@@ -66,7 +71,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
   bind(handler: EventHandlerType<EventBase>, name: string) {
     const stream$ = name ? this.ofEventName(name) : this.subject$;
     const subscription = stream$.subscribe(async (event) => {
-      const instance = await this.moduleRef.resolve(handler);
+      const instance = await this.handlers.get(handler);
       instance.handle(event);
     });
     this.subscriptions.push(subscription);
@@ -92,8 +97,10 @@ export class EventBus<EventBase extends IEvent = IEvent>
   }
 
   protected registerHandler(handler: EventHandlerType<EventBase>) {
-    const eventsNames = this.reflectEventsNames(handler);
-    eventsNames.map((event) => this.bind(handler, event.name));
+    if (this.handlers.registerHandler(handler)) {
+      const eventsNames = this.reflectEventsNames(handler);
+      eventsNames.map((event) => this.bind(handler, event.name));
+    }
   }
 
   protected ofEventName(name: string) {
