@@ -68,10 +68,10 @@ export class EventBus<EventBase extends IEvent = IEvent>
     return (events || []).map((event) => this._publisher.publish(event));
   }
 
-  bind(handler: EventHandlerType<EventBase>, name: string) {
+  bind(_handler: EventHandlerType<EventBase>, name: string) {
     const stream$ = name ? this.ofEventName(name) : this.subject$;
     const subscription = stream$.subscribe(async (event) => {
-      const instance = await this.handlers.get(handler);
+      const instance = await this.handlers.get(event);
       instance.handle(event);
     });
     this.subscriptions.push(subscription);
