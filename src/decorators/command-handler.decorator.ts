@@ -40,7 +40,7 @@ export function CommandHandler(
   commandOrOptions: ICommand | CommandHandlerOptions,
 ): ClassDecorator {
   return (target: object) => {
-    if ((commandOrOptions as CommandHandlerOptions)?.scope) {
+    if ((commandOrOptions as CommandHandlerOptions)?.command) {
       const options: CommandHandlerOptions = commandOrOptions as CommandHandlerOptions;
       Reflect.defineMetadata(COMMAND_HANDLER_METADATA, options.command, target);
       Reflect.defineMetadata(
