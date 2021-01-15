@@ -16,12 +16,24 @@ export class HandlerRegister<T, TypeT extends Type<T> = Type<T>> {
     try {
       const instance = this.moduleRef.get(handler, { strict: false });
       if (instance) {
-        this.handlers.set(target.name, instance);
+        if (Array.isArray(target)) {
+          for (const singleTarget of target) {
+            this.handlers.set(singleTarget.name, instance);
+          }
+        } else {
+          this.handlers.set(target.name, instance);
+        }
       }
     } catch {
       try {
         this.moduleRef.introspect(handler);
-        this.scopedHandlers.set(target.name, handler);
+        if (Array.isArray(target)) {
+          for (const singleTarget of target) {
+            this.scopedHandlers.set(singleTarget.name, handler);
+          }
+        } else {
+          this.scopedHandlers.set(target.name, handler);
+        }
       } catch {
         return false;
       }
@@ -30,7 +42,9 @@ export class HandlerRegister<T, TypeT extends Type<T> = Type<T>> {
     return true;
   }
 
-  private reflectCommandName(handler: TypeT): FunctionConstructor {
+  private reflectCommandName(
+    handler: TypeT,
+  ): FunctionConstructor | FunctionConstructor[] {
     return Reflect.getMetadata(this.metadataKey, handler);
   }
 
