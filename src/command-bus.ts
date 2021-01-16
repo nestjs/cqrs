@@ -13,6 +13,7 @@ import {
   ICommandPublisher,
 } from './interfaces/index';
 import { ObservableBus } from './utils/observable-bus';
+import { getClassName } from './utils';
 
 export type CommandHandlerType = Type<ICommandHandler<ICommand>>;
 
@@ -42,16 +43,16 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
   async execute<T extends CommandBase>(command: T): Promise<any> {
     const handler = await this.handlers.get(command);
     if (!handler) {
-      throw new CommandHandlerNotFoundException(this.handlers.getName(command));
+      throw new CommandHandlerNotFoundException(getClassName(command));
     }
     return handler.execute(command);
   }
 
-  register(handlers: CommandHandlerType[] = []) {
+  register(handlers: CommandHandlerType[] = []): void {
     handlers.forEach((handler) => this.registerHandler(handler));
   }
 
-  protected registerHandler(handler: CommandHandlerType) {
+  protected registerHandler(handler: CommandHandlerType): void {
     if (!this.handlers.registerHandler(handler)) {
       throw new InvalidCommandHandlerException();
     }

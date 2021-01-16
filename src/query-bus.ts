@@ -12,6 +12,7 @@ import {
   IQueryPublisher,
   IQueryResult,
 } from './interfaces';
+import { getClassName } from './utils';
 import { HandlerRegister } from './utils/handler-register';
 import { ObservableBus } from './utils/observable-bus';
 
@@ -48,30 +49,19 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
   ): Promise<TResult> {
     const handler = await this.handlers.get(query);
     if (!handler) {
-      throw new QueryHandlerNotFoundException(this.handlers.getName(query));
+      throw new QueryHandlerNotFoundException(getClassName(query));
     }
     return handler.execute(query);
   }
 
-  register(handlers: QueryHandlerType<QueryBase>[] = []) {
+  register(handlers: QueryHandlerType<QueryBase>[] = []): void {
     handlers.forEach((handler) => this.registerHandler(handler));
   }
 
-  protected registerHandler(handler: QueryHandlerType<QueryBase>) {
+  protected registerHandler(handler: QueryHandlerType<QueryBase>): void {
     if (!this.handlers.registerHandler(handler)) {
       throw new InvalidQueryHandlerException();
     }
-  }
-
-  private getQueryName(query: Function): string {
-    const { constructor } = Object.getPrototypeOf(query);
-    return constructor.name as string;
-  }
-
-  private reflectQueryName(
-    handler: QueryHandlerType<QueryBase>,
-  ): FunctionConstructor {
-    return Reflect.getMetadata(QUERY_HANDLER_METADATA, handler);
   }
 
   private useDefaultPublisher() {

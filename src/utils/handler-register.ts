@@ -1,56 +1,35 @@
 import { ContextIdFactory, ModuleRef } from '@nestjs/core';
 import { Type } from '@nestjs/common';
-import { CommandHandlerNotFoundException } from '../exceptions';
+import { getClassName } from './get-class-name';
 
 export class HandlerRegister<T, TypeT extends Type<T> = Type<T>> {
-  private handlers = new Map<string, T>();
+  private singletonHandlers = new Map<string, T>();
   private scopedHandlers = new Map<string, TypeT>();
 
-  constructor(private moduleRef: ModuleRef, private metadataKey: any) {}
+  constructor(private moduleRef: ModuleRef, private metadataKey: unknown) {}
 
   registerHandler(handler: TypeT): boolean {
-    const target = this.reflectCommandName(handler);
+    const target = Reflect.getMetadata(this.metadataKey, handler);
     if (!target) {
       return false;
     }
+    const targetArray = Array.isArray(target) ? target : [target];
     try {
       const instance = this.moduleRef.get(handler, { strict: false });
-      if (instance) {
-        if (Array.isArray(target)) {
-          for (const singleTarget of target) {
-            this.handlers.set(singleTarget.name, instance);
-          }
-        } else {
-          this.handlers.set(target.name, instance);
-        }
-      }
+      targetArray.forEach(({ name }) =>
+        this.singletonHandlers.set(name, instance),
+      );
     } catch {
-      try {
-        this.moduleRef.introspect(handler);
-        if (Array.isArray(target)) {
-          for (const singleTarget of target) {
-            this.scopedHandlers.set(singleTarget.name, handler);
-          }
-        } else {
-          this.scopedHandlers.set(target.name, handler);
-        }
-      } catch {
-        return false;
-      }
+      this.moduleRef.introspect(handler);
+      targetArray.forEach(({ name }) => this.scopedHandlers.set(name, handler));
     }
 
     return true;
   }
 
-  private reflectCommandName(
-    handler: TypeT,
-  ): FunctionConstructor | FunctionConstructor[] {
-    return Reflect.getMetadata(this.metadataKey, handler);
-  }
-
   async get<C>(command: C): Promise<T | undefined> {
-    const commandName = this.getName(command);
-    let handler = this.handlers.get(commandName);
+    const commandName = getClassName(command);
+    let handler = this.singletonHandlers.get(commandName);
 
     if (!handler) {
       const contextId = ContextIdFactory.create();
@@ -63,10 +42,5 @@ export class HandlerRegister<T, TypeT extends Type<T> = Type<T>> {
     }
 
     return handler;
-  }
-
-  getName<T>(command: T): string {
-    const { constructor } = Object.getPrototypeOf(command);
-    return constructor.name as string;
   }
 }
