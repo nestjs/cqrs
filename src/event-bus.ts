@@ -70,11 +70,15 @@ export class EventBus<EventBase extends IEvent = IEvent>
 
   bind(_handler: EventHandlerType<EventBase>, name: string) {
     const stream$ = name ? this.ofEventName(name) : this.subject$;
-    const subscription = stream$.subscribe(async (event) => {
+    const subscription = stream$.subscribe(this.subscribeCallbackFactory());
+    this.subscriptions.push(subscription);
+  }
+
+  private subscribeCallbackFactory() {
+    return async (event: EventBase) => {
       const instance = await this.handlers.get(event);
       instance.handle(event);
-    });
-    this.subscriptions.push(subscription);
+    };
   }
 
   registerSagas(types: Type<unknown>[] = []) {
