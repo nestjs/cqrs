@@ -51,13 +51,12 @@ describe('EventBus', () => {
 
     it('should return a function that calls handle method of the obtained handler and return the result', async () => {
       const callback = target['subscribeCallbackFactory']();
-      const result = await callback('my command');
+      await callback('my command');
 
       expect(get).toHaveBeenCalledTimes(1);
       expect(get).toHaveBeenCalledWith('my command');
       expect(handle).toHaveBeenCalledTimes(1);
       expect(handle).toHaveBeenCalledWith('my command');
-      expect(result).toBe('expected result');
     });
   });
 });
