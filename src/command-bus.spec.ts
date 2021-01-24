@@ -88,6 +88,7 @@ describe('CommandBus', () => {
   describe('request scope handler injections', () => {
     class MyCommand {}
     class MyCommand2 {}
+    class MyCommand3 {}
 
     @Injectable()
     class MySingletonService {
@@ -119,6 +120,21 @@ describe('CommandBus', () => {
       }
     }
 
+    @CommandHandler(MyCommand3)
+    class MyThirdWayToCreateAHandler implements ICommandHandler<string> {
+      constructor(
+        private singleton: MySingletonService,
+        private requestScope: MyRequestScopeService,
+      ) {}
+      async execute(command: MyCommand2): Promise<any> {
+        return [
+          command.constructor.name,
+          this.singleton.test(),
+          this.requestScope.test(),
+        ];
+      }
+    }
+
     @CommandHandler({ command: MyCommand2, scope: Scope.REQUEST })
     class MyOtherWayToCreateAHandler implements ICommandHandler<MyCommand2> {
       constructor(
@@ -142,10 +158,19 @@ describe('CommandBus', () => {
           MyHandler,
           MySingletonService,
           MyRequestScopeService,
+          {
+            provide: MyThirdWayToCreateAHandler,
+            useClass: MyThirdWayToCreateAHandler,
+            scope: Scope.REQUEST,
+          },
         ],
       }).compile();
       const bus = module.get(CommandBus);
-      bus.register([MyHandler, MyOtherWayToCreateAHandler]);
+      bus.register([
+        MyHandler,
+        MyOtherWayToCreateAHandler,
+        MyThirdWayToCreateAHandler,
+      ]);
 
       const [command1, singleton1, requestScope1] = await bus.execute(
         new MyCommand(),
@@ -153,14 +178,22 @@ describe('CommandBus', () => {
       const [command2, singleton2, requestScope2] = await bus.execute(
         new MyCommand2(),
       );
+      const [command3, singleton3, requestScope3] = await bus.execute(
+        new MyCommand3(),
+      );
 
       expect(command1).toBe('MyCommand');
       expect(command2).toBe('MyCommand2');
+      expect(command3).toBe('MyCommand3');
       expect(singleton1).toMatch(/^singleton salt .+$/);
       expect(singleton1).toBe(singleton2);
+      expect(singleton1).toBe(singleton3);
       expect(requestScope1).toMatch(/^salt .+$/);
       expect(requestScope2).toMatch(/^salt .+$/);
+      expect(requestScope3).toMatch(/^salt .+$/);
       expect(requestScope1).not.toBe(requestScope2);
+      expect(requestScope1).not.toBe(requestScope3);
+      expect(requestScope2).not.toBe(requestScope3);
     });
   });
 
