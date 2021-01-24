@@ -1,7 +1,5 @@
 import { CommandBus } from './command-bus';
-import { InvalidQueryHandlerException } from './exceptions/invalid-query-handler.exception';
 import { ModuleRef } from '@nestjs/core';
-import { QueryHandlerNotFoundException } from './exceptions';
 import { EventBus } from './event-bus';
 
 describe('EventBus', () => {
@@ -57,7 +55,7 @@ describe('EventBus', () => {
       expect(get).toHaveBeenCalledWith('my command');
       expect(handle).toHaveBeenCalledTimes(1);
       expect(handle).toHaveBeenCalledWith('my command');
-      expect(result).toBe('expected result');
+      expect(result).toBeUndefined();
     });
   });
 });
