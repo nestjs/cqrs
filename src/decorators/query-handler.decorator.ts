@@ -40,7 +40,10 @@ export function QueryHandler(
   queryOrOptions: IQuery | QueryHandlerOptions,
 ): ClassDecorator {
   return (target: object) => {
-    if ((queryOrOptions as QueryHandlerOptions)?.query) {
+    if (
+      !(queryOrOptions as any)?.prototype &&
+      (queryOrOptions as QueryHandlerOptions)?.query
+    ) {
       const options: QueryHandlerOptions = queryOrOptions as QueryHandlerOptions;
       Reflect.defineMetadata(QUERY_HANDLER_METADATA, options.query, target);
       Reflect.defineMetadata(

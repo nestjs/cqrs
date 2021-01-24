@@ -43,7 +43,7 @@ export function EventsHandler(...events: IEvent[]): ClassDecorator;
  */
 export function EventsHandler(...eventsOrOptions: any[]): ClassDecorator {
   return (target: object) => {
-    if (eventsOrOptions?.[0]?.events) {
+    if (!eventsOrOptions?.[0].prototype && eventsOrOptions?.[0]?.events) {
       const options: EventHandlerOptions = eventsOrOptions.shift();
       Reflect.defineMetadata(EVENTS_HANDLER_METADATA, options.events, target);
       Reflect.defineMetadata(
