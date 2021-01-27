@@ -51,6 +51,7 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
     if (!handler) {
       throw new QueryHandlerNotFoundException(getClassName(query));
     }
+    this.subject$.next(query);
     return handler.execute(query);
   }
 

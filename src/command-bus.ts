@@ -45,6 +45,7 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
     if (!handler) {
       throw new CommandHandlerNotFoundException(getClassName(command));
     }
+    this.subject$.next(command);
     return handler.execute(command);
   }
 
