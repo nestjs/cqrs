@@ -1,29 +1,43 @@
 {
   "name": "@miniroman/cqrs",
-  "version": "7.0.0",
+  "version": "7.0.1",
   "description": "A lightweight CQRS module for Nest framework (node.js)",
   "license": "MIT",
+  "url": "https://github.com/nestjs/cqrs#readme",
   "scripts": {
     "test": "jest",
     "build": "tsc -p tsconfig.json",
-    "precommit": "lint-staged",
-    "prettier": "prettier src/**/*.ts --write && git status",
+    "format": "prettier --write \"**/*.ts\"",
+    "lint": "eslint \"src/**/*.ts\" --fix",
+    "prepublish:next": "npm run build",
+    "publish:next": "npm publish --access public --tag next",
     "prepublish:npm": "npm run build",
-    "publish:npm": "npm publish --access public"
+    "publish:npm": "npm publish --access public",
+    "prerelease": "npm run build",
+    "release": "release-it"
   },
   "devDependencies": {
-    "@nestjs/common": "7.0.5",
-    "@nestjs/core": "7.0.5",
-    "@types/node": "11.15.2",
-    "@types/jest": "25.1.4",
-    "husky": "4.2.3",
-    "jest": "25.1.0",
-    "lint-staged": "10.0.8",
-    "prettier": "2.0.1",
+
+    "@commitlint/cli": "12.1.1",
+    "@commitlint/config-angular": "12.1.1",
+    "@nestjs/common": "7.6.15",
+    "@nestjs/core": "7.6.15",
+    "@types/node": "11.15.51",
+    "@types/jest": "26.0.22",
+    "@typescript-eslint/eslint-plugin": "4.22.0",
+    "@typescript-eslint/parser": "4.22.0",
+    "eslint": "7.24.0",
+    "eslint-config-prettier": "8.2.0",
+    "eslint-plugin-import": "2.22.1",
+    "husky": "6.0.0",
+    "jest": "26.6.3",
+    "lint-staged": "10.5.4",
+    "prettier": "2.2.1",
     "reflect-metadata": "0.1.13",
-    "rxjs": "6.5.4",
-    "ts-jest": "25.2.1",
-    "typescript": "3.8.3"
+    "release-it": "14.6.1",
+    "rxjs": "6.6.7",
+    "ts-jest": "26.5.5",
+    "typescript": "4.2.4"
   },
   "peerDependencies": {
     "@nestjs/common": "^6.0.0 || ^7.0.0",
@@ -33,8 +47,17 @@
   },
   "lint-staged": {
     "*.ts": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ]
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -c .commitlintrc.json -E HUSKY_GIT_PARAMS",
+      "pre-commit": "lint-staged"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nestjs/cqrs"
   }
 }

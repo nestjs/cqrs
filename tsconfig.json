@@ -4,7 +4,7 @@
     "declaration": true,
     "noImplicitAny": false,
     "noUnusedLocals": false,
-    "removeComments": true,
+    "removeComments": false,
     "noLib": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,

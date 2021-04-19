@@ -8,25 +8,30 @@ import {
   QUERY_HANDLER_METADATA,
   SAGA_METADATA,
 } from '../decorators/constants';
-import { ICommandHandler, IEventHandler, IQueryHandler } from '../interfaces';
+import {
+  ICommandHandler,
+  IEvent,
+  IEventHandler,
+  IQueryHandler,
+} from '../interfaces';
 import { CqrsOptions } from '../interfaces/cqrs-options.interface';
 
 @Injectable()
-export class ExplorerService {
+export class ExplorerService<EventBase extends IEvent = IEvent> {
   constructor(private readonly modulesContainer: ModulesContainer) {}
 
   explore(): CqrsOptions {
     const modules = [...this.modulesContainer.values()];
-    const commands = this.flatMap<ICommandHandler>(modules, instance =>
+    const commands = this.flatMap<ICommandHandler>(modules, (instance) =>
       this.filterProvider(instance, COMMAND_HANDLER_METADATA),
     );
-    const queries = this.flatMap<IQueryHandler>(modules, instance =>
+    const queries = this.flatMap<IQueryHandler>(modules, (instance) =>
       this.filterProvider(instance, QUERY_HANDLER_METADATA),
     );
-    const events = this.flatMap<IEventHandler>(modules, instance =>
+    const events = this.flatMap<IEventHandler<EventBase>>(modules, (instance) =>
       this.filterProvider(instance, EVENTS_HANDLER_METADATA),
     );
-    const sagas = this.flatMap(modules, instance =>
+    const sagas = this.flatMap(modules, (instance) =>
       this.filterProvider(instance, SAGA_METADATA),
     );
     return { commands, queries, events, sagas };
@@ -37,9 +42,9 @@ export class ExplorerService {
     callback: (instance: InstanceWrapper) => Type<any> | undefined,
   ): Type<T>[] {
     const items = modules
-      .map(module => [...module.providers.values()].map(callback))
+      .map((module) => [...module.providers.values()].map(callback))
       .reduce((a, b) => a.concat(b), []);
-    return items.filter(element => !!element) as Type<T>[];
+    return items.filter((element) => !!element) as Type<T>[];
   }
 
   filterProvider(
@@ -53,7 +58,10 @@ export class ExplorerService {
     return this.extractMetadata(instance, metadataKey);
   }
 
-  extractMetadata(instance: Object, metadataKey: string): Type<any> {
+  extractMetadata(
+    instance: Record<string, any>,
+    metadataKey: string,
+  ): Type<any> {
     if (!instance.constructor) {
       return;
     }

@@ -1,11 +1,13 @@
-import { IEvent } from './interfaces/index';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-empty-function */
+import { IEvent } from './interfaces';
 
 const INTERNAL_EVENTS = Symbol();
 const IS_AUTO_COMMIT_ENABLED = Symbol();
 
-export abstract class AggregateRoot {
+export abstract class AggregateRoot<EventBase extends IEvent = IEvent> {
   public [IS_AUTO_COMMIT_ENABLED] = false;
-  private readonly [INTERNAL_EVENTS]: IEvent[] = [];
+  private readonly [INTERNAL_EVENTS]: EventBase[] = [];
 
   set autoCommit(value: boolean) {
     this[IS_AUTO_COMMIT_ENABLED] = value;
@@ -15,10 +17,10 @@ export abstract class AggregateRoot {
     return this[IS_AUTO_COMMIT_ENABLED];
   }
 
-  publish(event: IEvent) {}
+  publish<T extends EventBase = EventBase>(event: T) {}
 
   commit() {
-    this[INTERNAL_EVENTS].forEach(event => this.publish(event));
+    this[INTERNAL_EVENTS].forEach((event) => this.publish(event));
     this[INTERNAL_EVENTS].length = 0;
   }
 
@@ -26,15 +28,15 @@ export abstract class AggregateRoot {
     this[INTERNAL_EVENTS].length = 0;
   }
 
-  getUncommittedEvents(): IEvent[] {
+  getUncommittedEvents(): EventBase[] {
     return this[INTERNAL_EVENTS];
   }
 
-  loadFromHistory(history: IEvent[]) {
-    history.forEach(event => this.apply(event, true));
+  loadFromHistory(history: EventBase[]) {
+    history.forEach((event) => this.apply(event, true));
   }
 
-  apply(event: IEvent, isFromHistory = false) {
+  apply<T extends EventBase = EventBase>(event: T, isFromHistory = false) {
     if (!isFromHistory && !this.autoCommit) {
       this[INTERNAL_EVENTS].push(event);
     }
@@ -44,12 +46,14 @@ export abstract class AggregateRoot {
     handler && handler.call(this, event);
   }
 
-  private getEventHandler(event: IEvent): Function | undefined {
+  protected getEventHandler<T extends EventBase = EventBase>(
+    event: T,
+  ): Function | undefined {
     const handler = `on${this.getEventName(event)}`;
     return this[handler];
   }
 
-  protected getEventName(event): string {
+  protected getEventName(event: any): string {
     const { constructor } = Object.getPrototypeOf(event);
     return constructor.name as string;
   }
