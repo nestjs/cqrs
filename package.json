@@ -21,7 +21,7 @@
     "@commitlint/config-angular": "12.1.4",
     "@nestjs/common": "7.6.18",
     "@nestjs/core": "7.6.18",
-    "@types/node": "14.17.5",
+    "@types/node": "16.0.1",
     "@types/jest": "26.0.24",
     "@typescript-eslint/eslint-plugin": "4.28.2",
     "@typescript-eslint/parser": "4.28.2",
@@ -39,10 +39,10 @@
     "typescript": "4.3.5"
   },
   "peerDependencies": {
-    "@nestjs/common": "^6.0.0 || ^7.0.0",
-    "@nestjs/core": "^6.0.0 || ^7.0.0",
+    "@nestjs/common": "^8.0.0",
+    "@nestjs/core": "^8.0.0",
     "reflect-metadata": "0.1.13",
-    "rxjs": "^6.4.0"
+    "rxjs": "^7.2.0"
   },
   "lint-staged": {
     "*.ts": [
