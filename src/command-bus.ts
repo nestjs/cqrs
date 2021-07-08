@@ -35,7 +35,7 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
     this._publisher = _publisher;
   }
 
-  execute<T extends CommandBase>(command: T): Promise<any> {
+  execute<T extends CommandBase, R = any>(command: T): Promise<R> {
     const commandName = this.getCommandName(command as any);
     const handler = this.handlers.get(commandName);
     if (!handler) {
