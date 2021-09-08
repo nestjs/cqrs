@@ -29,7 +29,7 @@
     "eslint-config-prettier": "8.3.0",
     "eslint-plugin-import": "2.24.2",
     "husky": "7.0.2",
-    "jest": "27.1.0",
+    "jest": "27.1.1",
     "lint-staged": "11.1.2",
     "prettier": "2.3.2",
     "reflect-metadata": "0.1.13",
