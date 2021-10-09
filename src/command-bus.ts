@@ -12,13 +12,16 @@ import {
   ICommandPublisher,
 } from './interfaces/index';
 import { ObservableBus } from './utils/observable-bus';
+import { CommandHandlerAlreadyDefinedException } from './exceptions/command-handler-already-defined.exception';
+import { getHandlerName } from './helpers/get-handler-name';
 
 export type CommandHandlerType = Type<ICommandHandler<ICommand>>;
 
 @Injectable()
 export class CommandBus<CommandBase extends ICommand = ICommand>
   extends ObservableBus<CommandBase>
-  implements ICommandBus<CommandBase> {
+  implements ICommandBus<CommandBase>
+{
   private handlers = new Map<string, ICommandHandler<CommandBase>>();
   private _publisher: ICommandPublisher<CommandBase>;
 
@@ -46,6 +49,14 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
   }
 
   bind<T extends CommandBase>(handler: ICommandHandler<T>, name: string) {
+    if (this.handlers.has(name)) {
+      throw new CommandHandlerAlreadyDefinedException(
+        name,
+        getHandlerName(handler),
+        getHandlerName(this.handlers.get(name)),
+      );
+    }
+
     this.handlers.set(name, handler);
   }
 
@@ -76,5 +87,9 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
 
   private useDefaultPublisher() {
     this._publisher = new DefaultCommandPubSub<CommandBase>(this.subject$);
+  }
+
+  private getHandlerName(instance: ICommandHandler) {
+    return (instance as Object).constructor.name;
   }
 }

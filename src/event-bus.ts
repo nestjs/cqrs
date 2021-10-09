@@ -24,7 +24,8 @@ export type EventHandlerType<EventBase extends IEvent = IEvent> = Type<
 @Injectable()
 export class EventBus<EventBase extends IEvent = IEvent>
   extends ObservableBus<EventBase>
-  implements IEventBus<EventBase>, OnModuleDestroy {
+  implements IEventBus<EventBase>, OnModuleDestroy
+{
   protected getEventName: (event: EventBase) => string;
   protected readonly subscriptions: Subscription[];
 
