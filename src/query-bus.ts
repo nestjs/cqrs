@@ -13,6 +13,8 @@ import {
   IQueryResult,
 } from './interfaces';
 import { ObservableBus } from './utils/observable-bus';
+import { QueryHandlerAlreadyDefined } from './exceptions/query-handler-already-defined';
+import { getHandlerName } from './helpers/get-handler-name';
 
 export type QueryHandlerType<
   QueryBase extends IQuery = IQuery,
@@ -57,6 +59,14 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
     handler: IQueryHandler<T, TResult>,
     name: string,
   ) {
+    if (this.handlers.has(name)) {
+      throw new QueryHandlerAlreadyDefined(
+        name,
+        getHandlerName(handler),
+        getHandlerName(this.handlers.get(name)),
+      )
+    }
+
     this.handlers.set(name, handler);
   }
 
