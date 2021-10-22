@@ -65,7 +65,7 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
     this.bind(instance as ICommandHandler<CommandBase>, target.name);
   }
 
-  private getCommandName(command: Function): string {
+  private getCommandName(command: Type<CommandBase>): string {
     const { constructor } = Object.getPrototypeOf(command);
     return constructor.name as string;
   }
