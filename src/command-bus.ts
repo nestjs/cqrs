@@ -88,8 +88,4 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
   private useDefaultPublisher() {
     this._publisher = new DefaultCommandPubSub<CommandBase>(this.subject$);
   }
-
-  private getHandlerName(instance: ICommandHandler) {
-    return (instance as Object).constructor.name;
-  }
 }
