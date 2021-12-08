@@ -42,7 +42,7 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
   async execute<T extends QueryBase, TResult = any>(
     query: T,
   ): Promise<TResult> {
-    const queryName = this.getQueryName((query as any) as Function);
+    const queryName = this.getQueryName((query as any) as Type<QueryBase>);
     const handler = this.handlers.get(queryName);
     if (!handler) {
       throw new QueryHandlerNotFoundException(queryName);
@@ -76,7 +76,7 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
     this.bind(instance as IQueryHandler<QueryBase, IQueryResult>, target.name);
   }
 
-  private getQueryName(query: Function): string {
+  private getQueryName(query: Type<QueryBase>): string {
     const { constructor } = Object.getPrototypeOf(query);
     return constructor.name as string;
   }
