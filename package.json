@@ -16,6 +16,9 @@
     "prerelease": "npm run build",
     "release": "release-it"
   },
+  "dependencies": {
+    "uuid": "8.3.2"
+  },
   "devDependencies": {
     "@commitlint/cli": "15.0.0",
     "@commitlint/config-angular": "15.0.0",

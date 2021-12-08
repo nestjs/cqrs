@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { ICommand } from '../index';
-import { COMMAND_HANDLER_METADATA } from './constants';
+import { COMMAND_HANDLER_METADATA, COMMAND_METADATA } from './constants';
+import { v4 } from 'uuid';
 
 /**
  * Decorator that marks a class as a Nest command handler. A command handler
@@ -14,6 +15,9 @@ import { COMMAND_HANDLER_METADATA } from './constants';
  */
 export const CommandHandler = (command: ICommand): ClassDecorator => {
   return (target: object) => {
+    if (!Reflect.hasMetadata(COMMAND_METADATA, command)) {
+      Reflect.defineMetadata(COMMAND_METADATA, { id: v4() }, command);
+    }
     Reflect.defineMetadata(COMMAND_HANDLER_METADATA, command, target);
   };
 };
