@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { IEvent } from '../index';
-import { EVENTS_HANDLER_METADATA } from './constants';
+import { EVENT_METADATA, EVENTS_HANDLER_METADATA } from './constants';
+import { v4 } from 'uuid';
 
 /**
  * Decorator that marks a class as a Nest event handler. An event handler
@@ -14,6 +15,12 @@ import { EVENTS_HANDLER_METADATA } from './constants';
  */
 export const EventsHandler = (...events: IEvent[]): ClassDecorator => {
   return (target: object) => {
+    events.forEach((event) => {
+      if (!Reflect.hasMetadata(EVENT_METADATA, event)) {
+        Reflect.defineMetadata(EVENT_METADATA, { id: v4() }, event);
+      }
+    });
+    
     Reflect.defineMetadata(EVENTS_HANDLER_METADATA, events, target);
   };
 };
