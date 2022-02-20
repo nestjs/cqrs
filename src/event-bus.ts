@@ -1,7 +1,7 @@
-import { Injectable, OnModuleDestroy, Type } from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
-import { Observable, Subscription } from 'rxjs';
-import { filter } from 'rxjs/operators';
+import { from, Observable, Subscription } from 'rxjs';
+import { filter, mergeMap } from 'rxjs/operators';
 import { isFunction } from 'util';
 import { CommandBus } from './command-bus';
 import { EVENTS_HANDLER_METADATA, SAGA_METADATA } from './decorators/constants';
@@ -27,11 +27,13 @@ export type EventHandlerType<EventBase extends IEvent = IEvent> = Type<
 @Injectable()
 export class EventBus<EventBase extends IEvent = IEvent>
   extends ObservableBus<EventBase>
-  implements IEventBus<EventBase>, OnModuleDestroy {
+  implements IEventBus<EventBase>, OnModuleDestroy
+{
   protected getEventId: (event: EventBase) => string;
   protected readonly subscriptions: Subscription[];
 
   private _publisher: IEventPublisher<EventBase>;
+  private _logger = new Logger('EventBus');
 
   constructor(
     private readonly commandBus: CommandBus,
@@ -68,7 +70,17 @@ export class EventBus<EventBase extends IEvent = IEvent>
 
   bind(handler: IEventHandler<EventBase>, id: string) {
     const stream$ = id ? this.ofEventId(id) : this.subject$;
-    const subscription = stream$.subscribe((event) => handler.handle(event));
+    const subscription = stream$
+      .pipe(mergeMap((event) => from(handler.handle(event))))
+      .subscribe({
+        error: (error) => {
+          this._logger.error(
+            `${handler.constructor.name} produced an error.`,
+            error,
+          );
+          throw error;
+        },
+      });
     this.subscriptions.push(subscription);
   }
 
@@ -98,7 +110,10 @@ export class EventBus<EventBase extends IEvent = IEvent>
     }
     const events = this.reflectEvents(handler);
     events.map((event) =>
-      this.bind(instance as IEventHandler<EventBase>, defaultReflectEventId(event)),
+      this.bind(
+        instance as IEventHandler<EventBase>,
+        defaultReflectEventId(event),
+      ),
     );
   }
 
@@ -118,8 +133,19 @@ export class EventBus<EventBase extends IEvent = IEvent>
     }
 
     const subscription = stream$
-      .pipe(filter((e) => !!e))
-      .subscribe((command) => this.commandBus.execute(command));
+      .pipe(
+        filter((e) => !!e),
+        mergeMap((command) => from(this.commandBus.execute(command))),
+      )
+      .subscribe({
+        error: (error) => {
+          this._logger.error(
+            `CommandHandler executed by Saga produced an error.`,
+            error,
+          );
+          throw error;
+        },
+      });
 
     this.subscriptions.push(subscription);
   }
