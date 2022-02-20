@@ -28,7 +28,7 @@ export type EventHandlerType<EventBase extends IEvent = IEvent> = Type<
 export class EventBus<EventBase extends IEvent = IEvent>
   extends ObservableBus<EventBase>
   implements IEventBus<EventBase>, OnModuleDestroy {
-  protected getEventId: (event: EventBase) => string;
+  protected getEventId: (event: EventBase) => string | null;
   protected readonly subscriptions: Subscription[];
 
   private _publisher: IEventPublisher<EventBase>;
@@ -102,9 +102,9 @@ export class EventBus<EventBase extends IEvent = IEvent>
     );
   }
 
-  protected ofEventId(name: string) {
+  protected ofEventId(id: string) {
     return this.subject$.pipe(
-      filter((event) => this.getEventId(event) === name),
+      filter((event) => this.getEventId(event) === id),
     );
   }
 
