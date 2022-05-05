@@ -140,7 +140,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
       .subscribe({
         error: (error) => {
           this._logger.error(
-            `CommandHandler executed by Saga produced an error.`,
+            `Command handler which execution was triggered by Saga has thrown an error.`,
             error,
           );
           throw error;
