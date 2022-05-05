@@ -75,7 +75,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
       .subscribe({
         error: (error) => {
           this._logger.error(
-            `${handler.constructor.name} produced an error.`,
+            `"${handler.constructor.name}" has thrown an error.`,
             error,
           );
           throw error;
