@@ -33,7 +33,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
   protected readonly subscriptions: Subscription[];
 
   private _publisher: IEventPublisher<EventBase>;
-  private _logger = new Logger('EventBus');
+  private readonly _logger = new Logger(EventBus.name);
 
   constructor(
     private readonly commandBus: CommandBus,
