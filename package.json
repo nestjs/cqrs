@@ -24,7 +24,7 @@
     "@commitlint/config-angular": "17.0.0",
     "@nestjs/common": "8.4.6",
     "@nestjs/core": "8.4.6",
-    "@types/node": "16.11.36",
+    "@types/node": "16.11.38",
     "@types/jest": "27.5.1",
     "@typescript-eslint/eslint-plugin": "5.27.0",
     "@typescript-eslint/parser": "5.27.0",
