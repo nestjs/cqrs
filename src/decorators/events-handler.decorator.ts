@@ -16,7 +16,7 @@ import { v4 } from 'uuid';
 export const EventsHandler = (...events: IEvent[]): ClassDecorator => {
   return (target: object) => {
     events.forEach((event) => {
-      if (!Reflect.hasMetadata(EVENT_METADATA, event)) {
+      if (!Reflect.hasOwnMetadata(EVENT_METADATA, event)) {
         Reflect.defineMetadata(EVENT_METADATA, { id: v4() }, event);
       }
     });
