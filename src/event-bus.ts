@@ -71,7 +71,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
   bind(handler: IEventHandler<EventBase>, id: string) {
     const stream$ = id ? this.ofEventId(id) : this.subject$;
     const subscription = stream$
-      .pipe(mergeMap((event) => from(handler.handle(event))))
+      .pipe(mergeMap((event) => from(Promise.resolve(handler.handle(event)))))
       .subscribe({
         error: (error) => {
           this._logger.error(
