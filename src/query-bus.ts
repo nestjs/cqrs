@@ -47,7 +47,7 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
       throw new QueryHandlerNotFoundException(queryId);
     }
 
-    this.subject$.next(query);
+    this._publisher.publish(query);
     const result = await handler.execute(query);
     return result as TResult;
   }
