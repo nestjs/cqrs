@@ -17,7 +17,7 @@ jobs:
   build:
     working_directory: ~/nest
     docker:
-      - image: circleci/node:17
+      - image: cimg/node:17.9
     steps:
       - checkout
       - run:
