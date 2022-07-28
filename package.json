@@ -22,8 +22,8 @@
   "devDependencies": {
     "@commitlint/cli": "17.0.3",
     "@commitlint/config-angular": "17.0.3",
-    "@nestjs/common": "9.0.5",
-    "@nestjs/core": "9.0.5",
+    "@nestjs/common": "9.0.7",
+    "@nestjs/core": "9.0.7",
     "@types/node": "16.11.46",
     "@types/jest": "28.1.6",
     "@typescript-eslint/eslint-plugin": "5.31.0",
