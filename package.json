@@ -17,7 +17,7 @@
     "release": "release-it"
   },
   "dependencies": {
-    "uuid": "8.3.2"
+    "uuid": "9.0.0"
   },
   "devDependencies": {
     "@commitlint/cli": "17.1.2",
