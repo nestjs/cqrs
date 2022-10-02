@@ -14,7 +14,8 @@
     "prepublish:npm": "npm run build",
     "publish:npm": "npm publish --access public",
     "prerelease": "npm run build",
-    "release": "release-it"
+    "release": "release-it",
+    "prepare": "husky install"
   },
   "dependencies": {
     "uuid": "8.3.2"
@@ -48,15 +49,7 @@
     "rxjs": "^7.2.0"
   },
   "lint-staged": {
-    "*.ts": [
-      "prettier --write"
-    ]
-  },
-  "husky": {
-    "hooks": {
-      "commit-msg": "commitlint -c .commitlintrc.json -E HUSKY_GIT_PARAMS",
-      "pre-commit": "lint-staged"
-    }
+    "**/*.{ts,json}": []
   },
   "repository": {
     "type": "git",
