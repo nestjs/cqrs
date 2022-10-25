@@ -15,7 +15,7 @@ import { v4 } from 'uuid';
  */
 export const CommandHandler = (command: ICommand): ClassDecorator => {
   return (target: object) => {
-    if (!Reflect.hasMetadata(COMMAND_METADATA, command)) {
+    if (!Reflect.hasOwnMetadata(COMMAND_METADATA, command)) {
       Reflect.defineMetadata(COMMAND_METADATA, { id: v4() }, command);
     }
     Reflect.defineMetadata(COMMAND_HANDLER_METADATA, command, target);
