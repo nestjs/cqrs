@@ -10,18 +10,21 @@ import {
   IQueryBus,
   IQueryHandler,
   IQueryPublisher,
-  IQueryResult
+  IQueryResult,
 } from './interfaces';
 import { QueryMetadata } from './interfaces/queries/query-metadata.interface';
 import { ObservableBus } from './utils/observable-bus';
 
-export type QueryHandlerType<QueryBase extends IQuery = IQuery,
-  QueryResultBase extends IQueryResult = IQueryResult> = Type<IQueryHandler<QueryBase, QueryResultBase>>;
+export type QueryHandlerType<
+  QueryBase extends IQuery = IQuery,
+  QueryResultBase extends IQueryResult<QueryBase> = IQueryResult,
+> = Type<IQueryHandler<QueryBase, QueryResultBase>>;
 
 @Injectable()
 export class QueryBus<QueryBase extends IQuery = IQuery>
   extends ObservableBus<QueryBase>
-  implements IQueryBus<QueryBase> {
+  implements IQueryBus<QueryBase>
+{
   private handlers = new Map<string, IQueryHandler<QueryBase, IQueryResult>>();
   private _publisher: IQueryPublisher<QueryBase>;
 
@@ -38,7 +41,7 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
     this._publisher = _publisher;
   }
 
-  async execute<T extends QueryBase, TResult = any>(
+  async execute<T extends QueryBase, TResult = IQueryResult<T>>(
     query: T,
   ): Promise<TResult> {
     const queryId = this.getQueryId(query);
