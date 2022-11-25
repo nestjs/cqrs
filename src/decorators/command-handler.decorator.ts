@@ -13,7 +13,7 @@ import { v4 } from 'uuid';
  *
  * @see https://docs.nestjs.com/recipes/cqrs#commands
  */
-export const CommandHandler = (command: ICommand): ClassDecorator => {
+export const CommandHandler = (command: ICommand | (new (...args: any[]) => ICommand)): ClassDecorator => {
   return (target: object) => {
     if (!Reflect.hasMetadata(COMMAND_METADATA, command)) {
       Reflect.defineMetadata(COMMAND_METADATA, { id: v4() }, command);
