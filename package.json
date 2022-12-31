@@ -26,7 +26,7 @@
     "@nestjs/common": "9.2.1",
     "@nestjs/core": "9.2.1",
     "@types/node": "18.11.18",
-    "@types/jest": "29.2.4",
+    "@types/jest": "29.2.5",
     "@typescript-eslint/eslint-plugin": "5.47.1",
     "@typescript-eslint/parser": "5.47.1",
     "eslint": "8.30.0",
