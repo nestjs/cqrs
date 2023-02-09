@@ -15,7 +15,7 @@ import { v4 } from 'uuid';
  */
 export const QueryHandler = (query: IQuery): ClassDecorator => {
   return (target: object) => {
-    if (!Reflect.hasMetadata(QUERY_METADATA, query)) {
+    if (!Reflect.hasOwnMetadata(QUERY_METADATA, query)) {
       Reflect.defineMetadata(QUERY_METADATA, { id: v4() }, query);
     }
     Reflect.defineMetadata(QUERY_HANDLER_METADATA, query, target);
