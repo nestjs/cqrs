@@ -13,7 +13,7 @@ import { v4 } from 'uuid';
  *
  * @see https://docs.nestjs.com/recipes/cqrs#events
  */
-export const EventsHandler = (...events: IEvent[]): ClassDecorator => {
+export const EventsHandler = (...events: (IEvent | (new (...args: any[]) => IEvent))[]): ClassDecorator => {
   return (target: object) => {
     events.forEach((event) => {
       if (!Reflect.hasOwnMetadata(EVENT_METADATA, event)) {
