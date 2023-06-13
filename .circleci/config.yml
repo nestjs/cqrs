@@ -3,21 +3,21 @@ version: 2
 aliases:
   - &restore-cache
     restore_cache:
-        key: dependency-cache-{{ checksum "package.json" }}
+      key: dependency-cache-{{ checksum "package.json" }}
   - &install-deps
     run:
-        name: Install dependencies
-        command: npm ci
+      name: Install dependencies
+      command: npm ci --ignore-scripts
   - &build-packages
     run:
-        name: Build
-        command: npm run build
+      name: Build
+      command: npm run build
 
 jobs:
   build:
     working_directory: ~/nest
     docker:
-      - image: cimg/node:20.2
+      - image: cimg/node:20.3
     steps:
       - checkout
       - run:
@@ -27,18 +27,17 @@ jobs:
           key: dependency-cache-{{ checksum "package.json" }}
       - run:
           name: Install dependencies
-          command: npm ci
+          command: npm ci --ignore-scripts
       - save_cache:
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
             - ./node_modules
       - run:
           name: Build
-          command: npm run build    
+          command: npm run build
 
 workflows:
   version: 2
   build-and-test:
     jobs:
       - build
-      
