@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnModuleDestroy, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
-import { from, Observable, Subscription } from 'rxjs';
+import { Observable, Subscription, from } from 'rxjs';
 import { filter, mergeMap } from 'rxjs/operators';
 import { isFunction } from 'util';
 import { CommandBus } from './command-bus';
@@ -75,10 +75,9 @@ export class EventBus<EventBase extends IEvent = IEvent>
       .subscribe({
         error: (error) => {
           this._logger.error(
-            `"${handler.constructor.name}" has thrown an error.`,
+            `"${handler.constructor.name}" has thrown an unhandled exception.`,
             error,
           );
-          throw error;
         },
       });
     this.subscriptions.push(subscription);
@@ -138,10 +137,9 @@ export class EventBus<EventBase extends IEvent = IEvent>
       .subscribe({
         error: (error) => {
           this._logger.error(
-            `Command handler which execution was triggered by Saga has thrown an error.`,
+            `Command handler which execution was triggered by Saga has thrown an unhandled exception.`,
             error,
           );
-          throw error;
         },
       });
 
