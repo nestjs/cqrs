@@ -5,10 +5,24 @@ import { EventPublisher } from './event-publisher';
 import { IEvent } from './interfaces';
 import { QueryBus } from './query-bus';
 import { ExplorerService } from './services/explorer.service';
+import { UnhandledExceptionBus } from './unhandled-exception-bus';
 
 @Module({
-  providers: [CommandBus, QueryBus, EventBus, EventPublisher, ExplorerService],
-  exports: [CommandBus, QueryBus, EventBus, EventPublisher],
+  providers: [
+    CommandBus,
+    QueryBus,
+    EventBus,
+    UnhandledExceptionBus,
+    EventPublisher,
+    ExplorerService,
+  ],
+  exports: [
+    CommandBus,
+    QueryBus,
+    EventBus,
+    UnhandledExceptionBus,
+    EventPublisher,
+  ],
 })
 export class CqrsModule<EventBase extends IEvent = IEvent>
   implements OnApplicationBootstrap
