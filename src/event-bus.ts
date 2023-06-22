@@ -1,8 +1,7 @@
 import { Injectable, Logger, OnModuleDestroy, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
-import { Observable, Subscription, from } from 'rxjs';
-import { filter, mergeMap } from 'rxjs/operators';
-import { isFunction } from 'util';
+import { Observable, Subscription, defer, throwError } from 'rxjs';
+import { catchError, filter, mergeMap } from 'rxjs/operators';
 import { CommandBus } from './command-bus';
 import { EVENTS_HANDLER_METADATA, SAGA_METADATA } from './decorators/constants';
 import { InvalidSagaException } from './exceptions';
@@ -12,12 +11,15 @@ import {
 } from './helpers/default-get-event-id';
 import { DefaultPubSub } from './helpers/default-pubsub';
 import {
+  ICommand,
   IEvent,
   IEventBus,
   IEventHandler,
   IEventPublisher,
   ISaga,
+  UnhandledExceptionInfo,
 } from './interfaces';
+import { UnhandledExceptionBus } from './unhandled-exception-bus';
 import { ObservableBus } from './utils';
 
 export type EventHandlerType<EventBase extends IEvent = IEvent> = Type<
@@ -38,6 +40,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
   constructor(
     private readonly commandBus: CommandBus,
     private readonly moduleRef: ModuleRef,
+    private readonly unhandledExceptionBus: UnhandledExceptionBus,
   ) {
     super();
     this.subscriptions = [];
@@ -71,9 +74,21 @@ export class EventBus<EventBase extends IEvent = IEvent>
   bind(handler: IEventHandler<EventBase>, id: string) {
     const stream$ = id ? this.ofEventId(id) : this.subject$;
     const subscription = stream$
-      .pipe(mergeMap((event) => from(Promise.resolve(handler.handle(event)))))
+      .pipe(
+        mergeMap((event) =>
+          defer(() => Promise.resolve(handler.handle(event))).pipe(
+            catchError((error) =>
+              throwError(() => this.mapToUnhandledErrorInfo(event, error)),
+            ),
+          ),
+        ),
+      )
       .subscribe({
         error: (error) => {
+          if (this.isUnhandledErrorInfo(error)) {
+            this.unhandledExceptionBus.publish(error);
+            error = error.exception;
+          }
           this._logger.error(
             `"${handler.constructor.name}" has thrown an unhandled exception.`,
             error,
@@ -121,7 +136,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
   }
 
   protected registerSaga(saga: ISaga<EventBase>) {
-    if (!isFunction(saga)) {
+    if (typeof saga !== 'function') {
       throw new InvalidSagaException();
     }
     const stream$ = saga(this);
@@ -132,10 +147,20 @@ export class EventBus<EventBase extends IEvent = IEvent>
     const subscription = stream$
       .pipe(
         filter((e) => !!e),
-        mergeMap((command) => from(this.commandBus.execute(command))),
+        mergeMap((command) =>
+          defer(() => this.commandBus.execute(command)).pipe(
+            catchError((error) =>
+              throwError(() => this.mapToUnhandledErrorInfo(command, error)),
+            ),
+          ),
+        ),
       )
       .subscribe({
         error: (error) => {
+          if (this.isUnhandledErrorInfo(error)) {
+            this.unhandledExceptionBus.publish(error);
+            error = error.exception;
+          }
           this._logger.error(
             `Command handler which execution was triggered by Saga has thrown an unhandled exception.`,
             error,
@@ -154,5 +179,26 @@ export class EventBus<EventBase extends IEvent = IEvent>
 
   private useDefaultPublisher() {
     this._publisher = new DefaultPubSub<EventBase>(this.subject$);
+  }
+
+  private mapToUnhandledErrorInfo(
+    eventOrCommand: IEvent | ICommand,
+    exception: unknown,
+  ): UnhandledExceptionInfo {
+    return {
+      cause: eventOrCommand,
+      exception,
+    };
+  }
+
+  private isUnhandledErrorInfo(
+    error: unknown,
+  ): error is UnhandledExceptionInfo {
+    return (
+      typeof error === 'object' &&
+      error !== null &&
+      'cause' in error &&
+      'exception' in error
+    );
   }
 }
