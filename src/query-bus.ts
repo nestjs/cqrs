@@ -10,18 +10,21 @@ import {
   IQueryBus,
   IQueryHandler,
   IQueryPublisher,
-  IQueryResult
+  IQueryResult,
 } from './interfaces';
 import { QueryMetadata } from './interfaces/queries/query-metadata.interface';
 import { ObservableBus } from './utils/observable-bus';
 
-export type QueryHandlerType<QueryBase extends IQuery = IQuery,
-  QueryResultBase extends IQueryResult = IQueryResult> = Type<IQueryHandler<QueryBase, QueryResultBase>>;
+export type QueryHandlerType<
+  QueryBase extends IQuery = IQuery,
+  QueryResultBase extends IQueryResult = IQueryResult,
+> = Type<IQueryHandler<QueryBase, QueryResultBase>>;
 
 @Injectable()
 export class QueryBus<QueryBase extends IQuery = IQuery>
   extends ObservableBus<QueryBase>
-  implements IQueryBus<QueryBase> {
+  implements IQueryBus<QueryBase>
+{
   private handlers = new Map<string, IQueryHandler<QueryBase, IQueryResult>>();
   private _publisher: IQueryPublisher<QueryBase>;
 
@@ -30,14 +33,26 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
     this.useDefaultPublisher();
   }
 
+  /**
+   * Returns the publisher.
+   */
   get publisher(): IQueryPublisher<QueryBase> {
     return this._publisher;
   }
 
+  /**
+   * Sets the publisher.
+   * Default publisher is `DefaultQueryPubSub` (in memory).
+   * @param _publisher The publisher to set.
+   */
   set publisher(_publisher: IQueryPublisher<QueryBase>) {
     this._publisher = _publisher;
   }
 
+  /**
+   * Executes a query.
+   * @param query The query to execute.
+   */
   async execute<T extends QueryBase, TResult = any>(
     query: T,
   ): Promise<TResult> {

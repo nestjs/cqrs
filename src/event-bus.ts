@@ -48,10 +48,19 @@ export class EventBus<EventBase extends IEvent = IEvent>
     this.useDefaultPublisher();
   }
 
+  /**
+   * Returns the publisher.
+   * Default publisher is `DefaultPubSub` (in memory).
+   */
   get publisher(): IEventPublisher<EventBase> {
     return this._publisher;
   }
 
+  /**
+   * Sets the publisher.
+   * Default publisher is `DefaultPubSub` (in memory).
+   * @param _publisher The publisher to set.
+   */
   set publisher(_publisher: IEventPublisher<EventBase>) {
     this._publisher = _publisher;
   }
@@ -60,10 +69,18 @@ export class EventBus<EventBase extends IEvent = IEvent>
     this.subscriptions.forEach((subscription) => subscription.unsubscribe());
   }
 
+  /**
+   * Publishes an event.
+   * @param event The event to publish.
+   */
   publish<T extends EventBase>(event: T) {
     return this._publisher.publish(event);
   }
 
+  /**
+   * Publishes multiple events.
+   * @param events The events to publish.
+   */
   publishAll<T extends EventBase>(events: T[]) {
     if (this._publisher.publishAll) {
       return this._publisher.publishAll(events);
