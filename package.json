@@ -21,8 +21,8 @@
     "uuid": "9.0.0"
   },
   "devDependencies": {
-    "@commitlint/cli": "17.6.5",
-    "@commitlint/config-angular": "17.6.5",
+    "@commitlint/cli": "17.6.6",
+    "@commitlint/config-angular": "17.6.6",
     "@nestjs/common": "10.0.3",
     "@nestjs/core": "10.0.3",
     "@types/node": "18.16.18",
