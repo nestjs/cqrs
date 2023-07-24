@@ -94,7 +94,6 @@ export class EventBus<EventBase extends IEvent = IEvent>
       .pipe(
         mergeMap((event) =>
           defer(() => Promise.resolve(handler.handle(event))).pipe(
-            // NOTE: catch on disposable stream, main stream lives on
             catchError((error) => {
               const unhandledError = this.mapToUnhandledErrorInfo(event, error);
               this.unhandledExceptionBus.publish(unhandledError);
