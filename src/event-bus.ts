@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnModuleDestroy, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
-import { Observable, Subscription, defer, of, throwError } from 'rxjs';
+import { Observable, Subscription, defer, of } from 'rxjs';
 import { catchError, filter, mergeMap } from 'rxjs/operators';
 import { CommandBus } from './command-bus';
 import { EVENTS_HANDLER_METADATA, SAGA_METADATA } from './decorators/constants';
@@ -162,7 +162,10 @@ export class EventBus<EventBase extends IEvent = IEvent>
         mergeMap((command) =>
           defer(() => this.commandBus.execute(command)).pipe(
             catchError((error) => {
-              const unhandledError = this.mapToUnhandledErrorInfo(event, error);
+              const unhandledError = this.mapToUnhandledErrorInfo(
+                command,
+                error,
+              );
               this.unhandledExceptionBus.publish(unhandledError);
               this._logger.error(
                 `Command handler which execution was triggered by Saga has thrown an unhandled exception.`,
