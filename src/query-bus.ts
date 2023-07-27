@@ -1,4 +1,4 @@
-import { Injectable, Type } from '@nestjs/common';
+import {Injectable, Logger, Type} from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import 'reflect-metadata';
 import { QUERY_HANDLER_METADATA, QUERY_METADATA } from './decorators/constants';
@@ -27,6 +27,8 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
 {
   private handlers = new Map<string, IQueryHandler<QueryBase, IQueryResult>>();
   private _publisher: IQueryPublisher<QueryBase>;
+  private readonly _logger = new Logger(QueryBus.name);
+
 
   constructor(private readonly moduleRef: ModuleRef) {
     super();
@@ -69,9 +71,14 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
 
   bind<T extends QueryBase, TResult = any>(
     handler: IQueryHandler<T, TResult>,
-    queryId: string,
+    { id, name }: QueryMetadata,
   ) {
-    this.handlers.set(queryId, handler);
+    if(this.handlers.has(id)) {
+      const previousHandlerName = this.handlers.get(id).constructor.name;
+      const handlerName = handler.constructor.name;
+      this._logger.warn(`Multiple handlers for query ${name}. Repleacing ${previousHandlerName} with ${handlerName}`)
+    }
+    this.handlers.set(id, handler);
   }
 
   register(handlers: QueryHandlerType<QueryBase>[] = []) {
@@ -83,11 +90,11 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
     if (!instance) {
       return;
     }
-    const target = this.reflectQueryId(handler);
-    if (!target) {
+    const queryMetadata = this.reflectQueryMetadata(handler);
+    if (!queryMetadata) {
       throw new InvalidQueryHandlerException();
     }
-    this.bind(instance as IQueryHandler<QueryBase, IQueryResult>, target);
+    this.bind(instance as IQueryHandler<QueryBase, IQueryResult>, queryMetadata);
   }
 
   private getQueryId(query: QueryBase): string {
@@ -103,18 +110,17 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
     return queryMetadata.id;
   }
 
-  private reflectQueryId(
+  private reflectQueryMetadata(
     handler: QueryHandlerType<QueryBase>,
-  ): string | undefined {
+  ): QueryMetadata {
     const query: Type<QueryBase> = Reflect.getMetadata(
       QUERY_HANDLER_METADATA,
       handler,
     );
-    const queryMetadata: QueryMetadata = Reflect.getMetadata(
+    return Reflect.getMetadata(
       QUERY_METADATA,
       query,
     );
-    return queryMetadata.id;
   }
 
   private useDefaultPublisher() {
