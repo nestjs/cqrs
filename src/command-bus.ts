@@ -1,4 +1,4 @@
-import { Injectable, Type } from '@nestjs/common';
+import { Injectable, Logger, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import 'reflect-metadata';
 import {
@@ -26,6 +26,7 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
 {
   private handlers = new Map<string, ICommandHandler<CommandBase>>();
   private _publisher: ICommandPublisher<CommandBase>;
+  private readonly _logger = new Logger(CommandBus.name);
 
   constructor(private readonly moduleRef: ModuleRef) {
     super();
@@ -64,7 +65,17 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
     return handler.execute(command);
   }
 
-  bind<T extends CommandBase>(handler: ICommandHandler<T>, id: string) {
+  bind<T extends CommandBase>(
+    handler: ICommandHandler<T>,
+    { id, name }: CommandMetadata,
+  ) {
+    if (this.handlers.has(id)) {
+      const previousHandlerName = this.handlers.get(id).constructor.name;
+      const handlerName = handler.constructor.name;
+      this._logger.warn(
+        `Multiple handlers for command ${name}. Repleacing ${previousHandlerName} with ${handlerName}.`,
+      );
+    }
     this.handlers.set(id, handler);
   }
 
@@ -77,11 +88,11 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
     if (!instance) {
       return;
     }
-    const target = this.reflectCommandId(handler);
-    if (!target) {
+    const commandMetadata = this.reflectCommandMetadata(handler);
+    if (!commandMetadata) {
       throw new InvalidCommandHandlerException();
     }
-    this.bind(instance as ICommandHandler<CommandBase>, target);
+    this.bind(instance as ICommandHandler<CommandBase>, commandMetadata);
   }
 
   private getCommandId(command: CommandBase): string {
@@ -97,16 +108,12 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
     return commandMetadata.id;
   }
 
-  private reflectCommandId(handler: CommandHandlerType): string | undefined {
+  private reflectCommandMetadata(handler: CommandHandlerType): CommandMetadata {
     const command: Type<ICommand> = Reflect.getMetadata(
       COMMAND_HANDLER_METADATA,
       handler,
     );
-    const commandMetadata: CommandMetadata = Reflect.getMetadata(
-      COMMAND_METADATA,
-      command,
-    );
-    return commandMetadata.id;
+    return Reflect.getMetadata(COMMAND_METADATA, command);
   }
 
   private useDefaultPublisher() {

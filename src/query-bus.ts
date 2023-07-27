@@ -1,4 +1,4 @@
-import {Injectable, Logger, Type} from '@nestjs/common';
+import { Injectable, Logger, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import 'reflect-metadata';
 import { QUERY_HANDLER_METADATA, QUERY_METADATA } from './decorators/constants';
@@ -28,7 +28,6 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
   private handlers = new Map<string, IQueryHandler<QueryBase, IQueryResult>>();
   private _publisher: IQueryPublisher<QueryBase>;
   private readonly _logger = new Logger(QueryBus.name);
-
 
   constructor(private readonly moduleRef: ModuleRef) {
     super();
@@ -73,10 +72,12 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
     handler: IQueryHandler<T, TResult>,
     { id, name }: QueryMetadata,
   ) {
-    if(this.handlers.has(id)) {
+    if (this.handlers.has(id)) {
       const previousHandlerName = this.handlers.get(id).constructor.name;
       const handlerName = handler.constructor.name;
-      this._logger.warn(`Multiple handlers for query ${name}. Repleacing ${previousHandlerName} with ${handlerName}`)
+      this._logger.warn(
+        `Multiple handlers for query ${name}. Repleacing ${previousHandlerName} with ${handlerName}.`,
+      );
     }
     this.handlers.set(id, handler);
   }
@@ -94,7 +95,10 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
     if (!queryMetadata) {
       throw new InvalidQueryHandlerException();
     }
-    this.bind(instance as IQueryHandler<QueryBase, IQueryResult>, queryMetadata);
+    this.bind(
+      instance as IQueryHandler<QueryBase, IQueryResult>,
+      queryMetadata,
+    );
   }
 
   private getQueryId(query: QueryBase): string {
@@ -117,10 +121,7 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
       QUERY_HANDLER_METADATA,
       handler,
     );
-    return Reflect.getMetadata(
-      QUERY_METADATA,
-      query,
-    );
+    return Reflect.getMetadata(QUERY_METADATA, query);
   }
 
   private useDefaultPublisher() {
