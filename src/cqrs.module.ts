@@ -1,4 +1,4 @@
-import { Module, OnApplicationBootstrap } from '@nestjs/common';
+import { DynamicModule, Module, OnApplicationBootstrap } from '@nestjs/common';
 import { CommandBus } from './command-bus';
 import { EventBus } from './event-bus';
 import { EventPublisher } from './event-publisher';
@@ -27,6 +27,17 @@ import { UnhandledExceptionBus } from './unhandled-exception-bus';
 export class CqrsModule<EventBase extends IEvent = IEvent>
   implements OnApplicationBootstrap
 {
+  /**
+   * Registers the CQRS Module globally.
+   * @returns DynamicModule
+   */
+  static forRoot(): DynamicModule {
+    return {
+      module: CqrsModule,
+      global: true,
+    };
+  }
+
   constructor(
     private readonly explorerService: ExplorerService<EventBase>,
     private readonly eventBus: EventBus<EventBase>,
