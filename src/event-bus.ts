@@ -89,7 +89,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
     context?: TContext,
   ) {
     if (this._publisher.publishAll) {
-      return this._publisher.publishAll(events);
+      return this._publisher.publishAll(events, context);
     }
     return (events || []).map((event) =>
       this._publisher.publish(event, context),
