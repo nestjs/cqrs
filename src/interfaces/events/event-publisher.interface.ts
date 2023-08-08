@@ -1,6 +1,23 @@
 import { IEvent } from './event.interface';
 
 export interface IEventPublisher<EventBase extends IEvent = IEvent> {
-  publish<T extends EventBase = EventBase>(event: T): any;
-  publishAll?<T extends EventBase = EventBase>(events: T[]): any;
+  /**
+   * Publishes an event.
+   * @param event The event to publish.
+   * @param context The context.
+   */
+  publish<TEvent extends EventBase, TContext = unknown>(
+    event: TEvent,
+    context?: TContext,
+  ): any;
+
+  /**
+   * Publishes multiple events.
+   * @param events The events to publish.
+   * @param context The context.
+   */
+  publishAll?<TEvent extends EventBase, TContext = unknown>(
+    events: TEvent[],
+    context?: TContext,
+  ): any;
 }

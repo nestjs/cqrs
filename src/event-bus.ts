@@ -73,19 +73,27 @@ export class EventBus<EventBase extends IEvent = IEvent>
    * Publishes an event.
    * @param event The event to publish.
    */
-  publish<T extends EventBase>(event: T) {
-    return this._publisher.publish(event);
+  publish<TEvent extends EventBase, TContext = unknown>(
+    event: TEvent,
+    context: TContext,
+  ) {
+    return this._publisher.publish(event, context);
   }
 
   /**
    * Publishes multiple events.
    * @param events The events to publish.
    */
-  publishAll<T extends EventBase>(events: T[]) {
+  publishAll<TEvent extends EventBase, TContext = unknown>(
+    events: TEvent[],
+    context: TContext,
+  ) {
     if (this._publisher.publishAll) {
       return this._publisher.publishAll(events);
     }
-    return (events || []).map((event) => this._publisher.publish(event));
+    return (events || []).map((event) =>
+      this._publisher.publish(event, context),
+    );
   }
 
   bind(handler: IEventHandler<EventBase>, id: string) {

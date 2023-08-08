@@ -22,11 +22,11 @@ export class EventPublisher<EventBase extends IEvent = IEvent> {
     const eventBus = this.eventBus;
     return class extends metatype {
       publish(event: EventBase) {
-        eventBus.publish(event);
+        eventBus.publish(event, this);
       }
 
       publishAll(events: EventBase[]) {
-        eventBus.publishAll(events);
+        eventBus.publishAll(events, this);
       }
     };
   }
@@ -39,11 +39,11 @@ export class EventPublisher<EventBase extends IEvent = IEvent> {
   mergeObjectContext<T extends AggregateRoot<EventBase>>(object: T): T {
     const eventBus = this.eventBus;
     object.publish = (event: EventBase) => {
-      eventBus.publish(event);
+      eventBus.publish(event, object);
     };
 
     object.publishAll = (events: EventBase[]) => {
-      eventBus.publishAll(events);
+      eventBus.publishAll(events, object);
     };
     return object;
   }
