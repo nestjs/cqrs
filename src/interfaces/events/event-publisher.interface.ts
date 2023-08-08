@@ -6,18 +6,15 @@ export interface IEventPublisher<EventBase extends IEvent = IEvent> {
    * @param event The event to publish.
    * @param context The context.
    */
-  publish<TEvent extends EventBase, TContext = unknown>(
-    event: TEvent,
-    context?: TContext,
-  ): any;
+  publish<TEvent extends EventBase>(event: TEvent, context?: unknown): any;
 
   /**
    * Publishes multiple events.
    * @param events The events to publish.
    * @param context The context.
    */
-  publishAll?<TEvent extends EventBase, TContext = unknown>(
+  publishAll?<TEvent extends EventBase>(
     events: TEvent[],
-    context?: TContext,
+    context?: unknown,
   ): any;
 }
