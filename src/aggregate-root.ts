@@ -86,7 +86,7 @@ export abstract class AggregateRoot<EventBase extends IEvent = IEvent> {
    */
   apply<T extends EventBase = EventBase>(
     event: T,
-    isFromHistory: boolean,
+    isFromHistory?: boolean,
   ): void;
   /**
    * Applies an event.
@@ -100,7 +100,7 @@ export abstract class AggregateRoot<EventBase extends IEvent = IEvent> {
    */
   apply<T extends EventBase = EventBase>(
     event: T,
-    options: { fromHistory?: boolean; skipHandler?: boolean },
+    options?: { fromHistory?: boolean; skipHandler?: boolean },
   ): void;
   apply<T extends EventBase = EventBase>(
     event: T,
