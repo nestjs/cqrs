@@ -84,14 +84,48 @@ export abstract class AggregateRoot<EventBase extends IEvent = IEvent> {
    * @param event The event to apply.
    * @param isFromHistory Whether the event is from history.
    */
-  apply<T extends EventBase = EventBase>(event: T, isFromHistory = false) {
+  apply<T extends EventBase = EventBase>(
+    event: T,
+    isFromHistory: boolean,
+  ): void;
+  /**
+   * Applies an event.
+   * If auto commit is enabled, the event will be published immediately (note: must be merged with the publisher context in order to work).
+   * Otherwise, the event will be stored in the internal events array, and will be published when the commit method is called.
+   * Also, the corresponding event handler will be called (if exists).
+   * For example, if the event is called UserCreatedEvent, the "onUserCreatedEvent" method will be called.
+   *
+   * @param event The event to apply.
+   * @param options The options.
+   */
+  apply<T extends EventBase = EventBase>(
+    event: T,
+    options: { fromHistory?: boolean; skipHandler?: boolean },
+  ): void;
+  apply<T extends EventBase = EventBase>(
+    event: T,
+    optionsOrIsFromHistory:
+      | boolean
+      | { fromHistory?: boolean; skipHandler?: boolean } = {},
+  ): void {
+    const isFromHistory =
+      (typeof optionsOrIsFromHistory === 'boolean'
+        ? optionsOrIsFromHistory
+        : optionsOrIsFromHistory.fromHistory) ?? false;
+    const skipHandler =
+      typeof optionsOrIsFromHistory === 'boolean'
+        ? false
+        : optionsOrIsFromHistory.skipHandler;
+
     if (!isFromHistory && !this.autoCommit) {
       this[INTERNAL_EVENTS].push(event);
     }
     this.autoCommit && this.publish(event);
 
-    const handler = this.getEventHandler(event);
-    handler && handler.call(this, event);
+    if (!skipHandler) {
+      const handler = this.getEventHandler(event);
+      handler && handler.call(this, event);
+    }
   }
 
   protected getEventHandler<T extends EventBase = EventBase>(
