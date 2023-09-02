@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { ICommand } from '../index';
 import { COMMAND_HANDLER_METADATA, COMMAND_METADATA } from './constants';
 import { v4 } from 'uuid';
+import { Type } from '@nestjs/common';
 
 /**
  * Decorator that marks a class as a Nest command handler. A command handler
@@ -13,10 +14,14 @@ import { v4 } from 'uuid';
  *
  * @see https://docs.nestjs.com/recipes/cqrs#commands
  */
-export const CommandHandler = (command: ICommand | (new (...args: any[]) => ICommand)): ClassDecorator => {
+export const CommandHandler = (command: Type<ICommand>): ClassDecorator => {
   return (target: object) => {
     if (!Reflect.hasOwnMetadata(COMMAND_METADATA, command)) {
-      Reflect.defineMetadata(COMMAND_METADATA, { id: v4() }, command);
+      Reflect.defineMetadata(
+        COMMAND_METADATA,
+        { id: v4(), name: command.name },
+        command,
+      );
     }
     Reflect.defineMetadata(COMMAND_HANDLER_METADATA, command, target);
   };
