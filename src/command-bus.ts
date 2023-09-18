@@ -58,7 +58,9 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
     const commandId = this.getCommandId(command);
     const handler = this.handlers.get(commandId);
     if (!handler) {
-      throw new CommandHandlerNotFoundException(commandId);
+      throw new CommandHandlerNotFoundException(
+        Object.getPrototypeOf(command).constructor.name,
+      );
     }
     this._publisher.publish(command);
     return handler.execute(command);
