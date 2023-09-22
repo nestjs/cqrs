@@ -49,6 +49,11 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
     this._publisher = _publisher;
   }
 
+  private getCommandName(command: Type<CommandBase>): string {
+    const { constructor } = Object.getPrototypeOf(command);
+    return constructor.name as string;
+  }
+
   /**
    * Executes a command.
    * @param command The command to execute.
@@ -58,9 +63,8 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
     const commandId = this.getCommandId(command);
     const handler = this.handlers.get(commandId);
     if (!handler) {
-      throw new CommandHandlerNotFoundException(
-        Object.getPrototypeOf(command).constructor.name,
-      );
+      const commandName = this.getCommandName(command);
+      throw new CommandHandlerNotFoundException(commandName);
     }
     this._publisher.publish(command);
     return handler.execute(command);
