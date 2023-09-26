@@ -49,11 +49,6 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
     this._publisher = _publisher;
   }
 
-  private getCommandName(command: Type<CommandBase>): string {
-    const { constructor } = Object.getPrototypeOf(command);
-    return constructor.name as string;
-  }
-
   /**
    * Executes a command.
    * @param command The command to execute.
@@ -101,6 +96,11 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
     }
 
     return commandMetadata.id;
+  }
+
+  private getCommandName(command: Type<CommandBase>): string {
+    const { constructor } = Object.getPrototypeOf(command);
+    return constructor.name as string;
   }
 
   private reflectCommandId(handler: CommandHandlerType): string | undefined {
