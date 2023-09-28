@@ -58,7 +58,8 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
     const commandId = this.getCommandId(command);
     const handler = this.handlers.get(commandId);
     if (!handler) {
-      throw new CommandHandlerNotFoundException(commandId);
+      const commandName = this.getCommandName(command);
+      throw new CommandHandlerNotFoundException(commandName);
     }
     this._publisher.publish(command);
     return handler.execute(command);
@@ -95,6 +96,11 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
     }
 
     return commandMetadata.id;
+  }
+
+  private getCommandName(command: Type<CommandBase>): string {
+    const { constructor } = Object.getPrototypeOf(command);
+    return constructor.name as string;
   }
 
   private reflectCommandId(handler: CommandHandlerType): string | undefined {
