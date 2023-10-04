@@ -13,14 +13,16 @@ import { v4 } from 'uuid';
  *
  * @see https://docs.nestjs.com/recipes/cqrs#events
  */
-export const EventsHandler = (...events: (IEvent | (new (...args: any[]) => IEvent))[]): ClassDecorator => {
+export const EventsHandler = (
+  ...events: (IEvent | (new (...args: any[]) => IEvent))[]
+): ClassDecorator => {
   return (target: object) => {
     events.forEach((event) => {
       if (!Reflect.hasOwnMetadata(EVENT_METADATA, event)) {
         Reflect.defineMetadata(EVENT_METADATA, { id: v4() }, event);
       }
     });
-    
+
     Reflect.defineMetadata(EVENTS_HANDLER_METADATA, events, target);
   };
 };
