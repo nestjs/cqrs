@@ -4,8 +4,8 @@ import { Type } from '@nestjs/common';
 
 /**
  * Null if the published class is not connected to any handler
- * @param event 
- * @returns 
+ * @param event
+ * @returns
  */
 export const defaultGetEventId = <EventBase extends IEvent = IEvent>(
   event: EventBase,
