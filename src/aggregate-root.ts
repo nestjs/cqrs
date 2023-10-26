@@ -13,7 +13,7 @@ const IS_AUTO_COMMIT_ENABLED = Symbol();
  *
  * @template EventBase The base type of the events.
  */
-export abstract class AggregateRoot<EventBase extends IEvent = IEvent> {
+export abstract class AggregateRoot<EventBase extends IEvent<any>> {
   public [IS_AUTO_COMMIT_ENABLED] = false;
   private readonly [INTERNAL_EVENTS]: EventBase[] = [];
 

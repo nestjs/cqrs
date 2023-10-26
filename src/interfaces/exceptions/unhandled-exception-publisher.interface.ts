@@ -3,7 +3,7 @@ import { IEvent } from '../events/event.interface';
 import { UnhandledExceptionInfo } from './unhandled-exception-info.interface';
 
 export interface IUnhandledExceptionPublisher<
-  CauseBase = IEvent | ICommand,
+  CauseBase = IEvent<any> | ICommand<any>,
   ExceptionBase = any,
 > {
   /**

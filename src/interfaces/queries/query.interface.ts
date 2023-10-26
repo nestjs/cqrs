@@ -1,1 +1,2 @@
-export interface IQuery {}
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export interface IQuery<TResponse = any> {}

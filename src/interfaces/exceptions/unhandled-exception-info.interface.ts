@@ -5,7 +5,7 @@ import { IEvent } from '../events/event.interface';
  * Represents an unhandled exception.
  */
 export interface UnhandledExceptionInfo<
-  Cause = IEvent | ICommand,
+  Cause = IEvent<any> | ICommand<any>,
   Exception = any,
 > {
   /**

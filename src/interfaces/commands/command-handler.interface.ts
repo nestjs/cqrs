@@ -5,7 +5,7 @@ import { ICommand } from './command.interface';
  * Command handlers are used to execute commands.
  */
 export interface ICommandHandler<
-  TCommand extends ICommand = any,
+  TCommand extends ICommand<TResult> = ICommand,
   TResult = any,
 > {
   /**

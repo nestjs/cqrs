@@ -3,7 +3,7 @@ import { IEvent } from './event.interface';
 /**
  * Represents an event bus.
  */
-export interface IEventBus<EventBase extends IEvent = IEvent> {
+export interface IEventBus<EventBase extends IEvent<TResponse> = IEvent, TResponse = any> {
   /**
    * Publishes an event.
    * @param event The event to publish.
@@ -12,7 +12,7 @@ export interface IEventBus<EventBase extends IEvent = IEvent> {
   publish<TEvent extends EventBase, TContext = unknown>(
     event: TEvent,
     context?: TContext,
-  ): any;
+  ): TResponse;
 
   /**
    * Publishes multiple events.
@@ -22,5 +22,5 @@ export interface IEventBus<EventBase extends IEvent = IEvent> {
   publishAll<TEvent extends EventBase, TContext = unknown>(
     events: TEvent[],
     context?: TContext,
-  ): any;
+  ): TResponse;
 }
