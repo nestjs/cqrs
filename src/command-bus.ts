@@ -20,7 +20,7 @@ import { ObservableBus } from './utils/observable-bus';
 export type CommandHandlerType = Type<ICommandHandler<ICommand>>;
 
 @Injectable()
-export class CommandBus<CommandBase extends ICommand = ICommand>
+export class CommandBus<CommandBase extends ICommand<TResponse> = ICommand, TResponse = any>
   extends ObservableBus<CommandBase>
   implements ICommandBus<CommandBase>
 {
@@ -54,7 +54,7 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
    * @param command The command to execute.
    * @returns A promise that, when resolved, will contain the result returned by the command's handler.
    */
-  execute<T extends CommandBase, R = any>(command: T): Promise<R> {
+  execute<T extends CommandBase, TResponse>(command: T): Promise<TResponse> {
     const commandId = this.getCommandId(command);
     const handler = this.handlers.get(commandId);
     if (!handler) {
@@ -104,7 +104,7 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
   }
 
   private reflectCommandId(handler: CommandHandlerType): string | undefined {
-    const command: Type<ICommand> = Reflect.getMetadata(
+    const command: Type<ICommand<TResponse>> = Reflect.getMetadata(
       COMMAND_HANDLER_METADATA,
       handler,
     );

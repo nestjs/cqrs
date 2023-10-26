@@ -21,7 +21,7 @@ export type QueryHandlerType<
 > = Type<IQueryHandler<QueryBase, QueryResultBase>>;
 
 @Injectable()
-export class QueryBus<QueryBase extends IQuery = IQuery>
+export class QueryBus<QueryBase extends IQuery<TResult> = IQuery<any>, TResult = any>
   extends ObservableBus<QueryBase>
   implements IQueryBus<QueryBase>
 {
@@ -53,7 +53,7 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
    * Executes a query.
    * @param query The query to execute.
    */
-  async execute<T extends QueryBase, TResult = any>(
+  async execute<T extends QueryBase, TResult>(
     query: T,
   ): Promise<TResult> {
     const queryId = this.getQueryId(query);
