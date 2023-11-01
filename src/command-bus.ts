@@ -8,6 +8,7 @@ import {
 import { CommandHandlerNotFoundException } from './exceptions/command-not-found.exception';
 import { DefaultCommandPubSub } from './helpers/default-command-pubsub';
 import { InvalidCommandHandlerException } from './index';
+import { Command } from './interfaces/commands/command';
 import { CommandMetadata } from './interfaces/commands/command-metadata.interface';
 import {
   ICommand,
@@ -54,6 +55,8 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
    * @param command The command to execute.
    * @returns A promise that, when resolved, will contain the result returned by the command's handler.
    */
+  execute<R = void>(query: Command<R>): Promise<R>;
+  execute<T extends CommandBase, R = any>(command: T): Promise<R>;
   execute<T extends CommandBase, R = any>(command: T): Promise<R> {
     const commandId = this.getCommandId(command);
     const handler = this.handlers.get(commandId);

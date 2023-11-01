@@ -12,6 +12,7 @@ import {
   IQueryPublisher,
   IQueryResult,
 } from './interfaces';
+import { Query } from './interfaces/queries/query';
 import { QueryMetadata } from './interfaces/queries/query-metadata.interface';
 import { ObservableBus } from './utils/observable-bus';
 
@@ -53,6 +54,8 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
    * Executes a query.
    * @param query The query to execute.
    */
+  execute<TResult>(query: Query<TResult>): Promise<TResult>;
+  execute<T extends QueryBase, TResult = any>(query: T): Promise<TResult>;
   async execute<T extends QueryBase, TResult = any>(
     query: T,
   ): Promise<TResult> {
