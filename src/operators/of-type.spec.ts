@@ -32,7 +32,7 @@ describe('operators/ofType', () => {
     expectedResults.push(new A());
 
     stream.next(new B());
-    stream.next(...expectedResults);
+    expectedResults.forEach((event) => stream.next(event));
     stream.next(new Date());
 
     expect(output).toEqual(expectedResults);
