@@ -16,6 +16,7 @@ import {
   ICommandPublisher,
 } from './interfaces/index';
 import { ObservableBus } from './utils/observable-bus';
+import { CommandInterceptionExecutor } from './command-interception-executor';
 
 export type CommandHandlerType = Type<ICommandHandler<ICommand>>;
 
@@ -27,7 +28,10 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
   private handlers = new Map<string, ICommandHandler<CommandBase>>();
   private _publisher: ICommandPublisher<CommandBase>;
 
-  constructor(private readonly moduleRef: ModuleRef) {
+  constructor(
+    private readonly moduleRef: ModuleRef,
+    private readonly commandInterceptor: CommandInterceptionExecutor,
+  ) {
     super();
     this.useDefaultPublisher();
   }
@@ -61,8 +65,13 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
       const commandName = this.getCommandName(command);
       throw new CommandHandlerNotFoundException(commandName);
     }
-    this._publisher.publish(command);
-    return handler.execute(command);
+
+    const next = (): Promise<R> => {
+      this._publisher.publish(command);
+      return handler.execute(command);
+    };
+
+    return this.commandInterceptor.intercept(command, next);
   }
 
   bind<T extends CommandBase>(handler: ICommandHandler<T>, id: string) {

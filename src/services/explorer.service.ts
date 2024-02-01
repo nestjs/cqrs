@@ -4,6 +4,7 @@ import { Module } from '@nestjs/core/injector/module';
 import { ModulesContainer } from '@nestjs/core/injector/modules-container';
 import {
   COMMAND_HANDLER_METADATA,
+  COMMAND_INTERCEPTOR_METADATA,
   EVENTS_HANDLER_METADATA,
   QUERY_HANDLER_METADATA,
   SAGA_METADATA,
@@ -15,6 +16,7 @@ import {
   IQueryHandler,
 } from '../interfaces';
 import { CqrsOptions } from '../interfaces/cqrs-options.interface';
+import { ICommandInterceptor } from '../interfaces/commands/command-interceptor.interface';
 
 @Injectable()
 export class ExplorerService<EventBase extends IEvent = IEvent> {
@@ -34,7 +36,11 @@ export class ExplorerService<EventBase extends IEvent = IEvent> {
     const sagas = this.flatMap(modules, (instance) =>
       this.filterProvider(instance, SAGA_METADATA),
     );
-    return { commands, queries, events, sagas };
+    const interceptors = this.flatMap<ICommandInterceptor>(
+      modules,
+      (instance) => this.filterProvider(instance, COMMAND_INTERCEPTOR_METADATA),
+    );
+    return { commands, queries, events, sagas, interceptors };
   }
 
   flatMap<T>(
