@@ -37,7 +37,7 @@
     "lint-staged": "15.2.2",
     "prettier": "3.2.5",
     "reflect-metadata": "0.2.2",
-    "release-it": "17.2.1",
+    "release-it": "17.3.0",
     "rxjs": "7.8.1",
     "ts-jest": "29.1.2",
     "typescript": "5.4.5"
