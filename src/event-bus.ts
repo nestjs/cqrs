@@ -5,12 +5,10 @@ import { catchError, filter, mergeMap } from 'rxjs/operators';
 import { CommandBus } from './command-bus';
 import { EVENTS_HANDLER_METADATA, SAGA_METADATA } from './decorators/constants';
 import { InvalidSagaException } from './exceptions';
-import {
-  defaultGetEventId,
-  defaultReflectEventId,
-} from './helpers/default-get-event-id';
+import { defaultEventIdProvider } from './helpers/default-event-id-provider';
 import { DefaultPubSub } from './helpers/default-pubsub';
 import {
+  EventIdProvider,
   ICommand,
   IEvent,
   IEventBus,
@@ -31,7 +29,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
   extends ObservableBus<EventBase>
   implements IEventBus<EventBase>, OnModuleDestroy
 {
-  protected getEventId: (event: EventBase) => string | null;
+  public eventIdProvider: EventIdProvider<EventBase>;
   protected readonly subscriptions: Subscription[];
 
   private _publisher: IEventPublisher<EventBase>;
@@ -44,7 +42,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
   ) {
     super();
     this.subscriptions = [];
-    this.getEventId = defaultGetEventId;
+    this.eventIdProvider = defaultEventIdProvider;
     this.useDefaultPublisher();
   }
 
@@ -146,13 +144,15 @@ export class EventBus<EventBase extends IEvent = IEvent>
     events.map((event) =>
       this.bind(
         instance as IEventHandler<EventBase>,
-        defaultReflectEventId(event),
+        this.eventIdProvider.reflectEventId(event),
       ),
     );
   }
 
   protected ofEventId(id: string) {
-    return this.subject$.pipe(filter((event) => this.getEventId(event) === id));
+    return this.subject$.pipe(
+      filter((event) => this.eventIdProvider.getEventId(event) === id),
+    );
   }
 
   protected registerSaga(saga: ISaga<EventBase>) {
@@ -191,7 +191,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
 
   private reflectEvents(
     handler: EventHandlerType<EventBase>,
-  ): FunctionConstructor[] {
+  ): Array<Type<EventBase>> {
     return Reflect.getMetadata(EVENTS_HANDLER_METADATA, handler);
   }
 
