@@ -40,7 +40,7 @@
     "release-it": "17.6.0",
     "rxjs": "7.8.1",
     "ts-jest": "29.2.3",
-    "typescript": "5.5.3"
+    "typescript": "5.5.4"
   },
   "peerDependencies": {
     "@nestjs/common": "^9.0.0 || ^10.0.0",
