@@ -122,8 +122,8 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
     this._publisher = new DefaultQueryPubSub<QueryBase>(this.subject$);
   }
 
-  private getQueryName(query: Type<QueryBase>): string {
+  private getQueryName(query: QueryBase): string {
     const { constructor } = Object.getPrototypeOf(query);
-    return constructor.name;
+    return constructor.name as string;
   }
 }
