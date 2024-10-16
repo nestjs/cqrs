@@ -6,6 +6,7 @@ import { IEvent } from './interfaces';
 import { QueryBus } from './query-bus';
 import { ExplorerService } from './services/explorer.service';
 import { UnhandledExceptionBus } from './unhandled-exception-bus';
+import { AggregateRootStorage } from './storages/aggregate-root.storage';
 
 @Module({
   providers: [
@@ -52,5 +53,7 @@ export class CqrsModule<EventBase extends IEvent = IEvent>
     this.commandBus.register(commands);
     this.queryBus.register(queries);
     this.eventBus.registerSagas(sagas);
+
+    AggregateRootStorage.mergeContext(this.eventBus);
   }
 }
