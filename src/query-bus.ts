@@ -59,7 +59,8 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
     const queryId = this.getQueryId(query);
     const handler = this.handlers.get(queryId);
     if (!handler) {
-      throw new QueryHandlerNotFoundException(queryId);
+      const queryName = this.getQueryName(query);
+      throw new QueryHandlerNotFoundException(queryName);
     }
 
     this._publisher.publish(query);
@@ -119,5 +120,10 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
 
   private useDefaultPublisher() {
     this._publisher = new DefaultQueryPubSub<QueryBase>(this.subject$);
+  }
+
+  private getQueryName(query: QueryBase): string {
+    const { constructor } = Object.getPrototypeOf(query);
+    return constructor.name as string;
   }
 }
