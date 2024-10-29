@@ -3,6 +3,7 @@
     "commitMessage": "chore(): release v${version}"
   },
   "github": {
-    "release": true
+    "release": true,
+    "releaseNotes": "npx lerna-changelog --from ${latestTag}"
   }
 }
