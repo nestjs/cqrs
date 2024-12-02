@@ -1,6 +1,7 @@
-import { Injectable, Type } from '@nestjs/common';
+import { Inject, Injectable, Logger, Optional, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import 'reflect-metadata';
+import { CQRS_MODULE_OPTIONS } from './constants';
 import {
   COMMAND_HANDLER_METADATA,
   COMMAND_METADATA,
@@ -10,6 +11,7 @@ import { DefaultCommandPubSub } from './helpers/default-command-pubsub';
 import { InvalidCommandHandlerException } from './index';
 import { CommandMetadata } from './interfaces/commands/command-metadata.interface';
 import {
+  CqrsModuleOptions,
   ICommand,
   ICommandBus,
   ICommandHandler,
@@ -24,12 +26,23 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
   extends ObservableBus<CommandBase>
   implements ICommandBus<CommandBase>
 {
+  private readonly logger = new Logger(CommandBus.name);
   private handlers = new Map<string, ICommandHandler<CommandBase>>();
   private _publisher: ICommandPublisher<CommandBase>;
 
-  constructor(private readonly moduleRef: ModuleRef) {
+  constructor(
+    private readonly moduleRef: ModuleRef,
+    @Optional()
+    @Inject(CQRS_MODULE_OPTIONS)
+    private readonly options?: CqrsModuleOptions,
+  ) {
     super();
-    this.useDefaultPublisher();
+
+    if (this.options?.commandPublisher) {
+      this._publisher = this.options.commandPublisher;
+    } else {
+      this.useDefaultPublisher();
+    }
   }
 
   /**
@@ -78,10 +91,16 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
     if (!instance) {
       return;
     }
+
     const target = this.reflectCommandId(handler);
     if (!target) {
       throw new InvalidCommandHandlerException();
     }
+
+    if (this.handlers.has(target)) {
+      // TODO: Add a logger warning here.
+    }
+
     this.bind(instance as ICommandHandler<CommandBase>, target);
   }
 

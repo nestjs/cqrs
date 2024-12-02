@@ -6,7 +6,7 @@
   "url": "https://github.com/nestjs/cqrs#readme",
   "scripts": {
     "test": "jest",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.build.json",
     "format": "prettier --write \"**/*.ts\"",
     "lint": "eslint \"src/**/*.ts\" --fix",
     "prepublish:next": "npm run build",
@@ -15,7 +15,8 @@
     "publish:npm": "npm publish --access public",
     "prerelease": "npm run build",
     "release": "release-it",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "test:e2e": "jest --config ./test/jest-e2e.json --runInBand"
   },
   "dependencies": {
     "uuid": "11.0.2"
@@ -25,8 +26,9 @@
     "@commitlint/config-angular": "19.6.0",
     "@nestjs/common": "10.4.11",
     "@nestjs/core": "10.4.11",
-    "@types/node": "22.10.1",
+    "@nestjs/testing": "10.4.12",
     "@types/jest": "29.5.14",
+    "@types/node": "22.10.1",
     "@typescript-eslint/eslint-plugin": "8.16.0",
     "@typescript-eslint/parser": "8.16.0",
     "eslint": "9.15.0",

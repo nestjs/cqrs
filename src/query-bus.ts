@@ -1,11 +1,13 @@
-import { Injectable, Type } from '@nestjs/common';
+import { Inject, Injectable, Optional, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import 'reflect-metadata';
+import { CQRS_MODULE_OPTIONS } from './constants';
 import { QUERY_HANDLER_METADATA, QUERY_METADATA } from './decorators/constants';
 import { QueryHandlerNotFoundException } from './exceptions';
 import { InvalidQueryHandlerException } from './exceptions/invalid-query-handler.exception';
 import { DefaultQueryPubSub } from './helpers/default-query-pubsub';
 import {
+  CqrsModuleOptions,
   IQuery,
   IQueryBus,
   IQueryHandler,
@@ -28,9 +30,19 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
   private handlers = new Map<string, IQueryHandler<QueryBase, IQueryResult>>();
   private _publisher: IQueryPublisher<QueryBase>;
 
-  constructor(private readonly moduleRef: ModuleRef) {
+  constructor(
+    private readonly moduleRef: ModuleRef,
+    @Optional()
+    @Inject(CQRS_MODULE_OPTIONS)
+    private readonly options?: CqrsModuleOptions,
+  ) {
     super();
-    this.useDefaultPublisher();
+
+    if (this.options?.queryPublisher) {
+      this._publisher = this.options.queryPublisher;
+    } else {
+      this.useDefaultPublisher();
+    }
   }
 
   /**
@@ -68,7 +80,7 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
     return result as TResult;
   }
 
-  bind<T extends QueryBase, TResult = any>(
+  bind<T extends QueryBase, TResult extends IQueryResult = any>(
     handler: IQueryHandler<T, TResult>,
     queryId: string,
   ) {
