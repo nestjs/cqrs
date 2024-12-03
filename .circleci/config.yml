@@ -17,7 +17,7 @@ jobs:
   build:
     working_directory: ~/nest
     docker:
-      - image: cimg/node:21.6
+      - image: cimg/node:22.3
     steps:
       - checkout
       - run:
@@ -35,9 +35,37 @@ jobs:
       - run:
           name: Build
           command: npm run build
+  e2e_test:
+    working_directory: ~/nest
+    docker:
+      - image: cimg/node:22.3
+    steps:
+      - checkout
+      - *restore-cache
+      - *install-deps
+      - run:
+          name: e2e tests
+          command: npm run test:e2e
+  test:
+    working_directory: ~/nest
+    docker:
+      - image: cimg/node:22.3
+    steps:
+      - checkout
+      - *restore-cache
+      - *install-deps
+      - run:
+          name: Unit tests
+          command: npm run test
 
 workflows:
   version: 2
   build-and-test:
     jobs:
       - build
+      - test:
+          requires:
+            - build
+      - e2e_test:
+          requires:
+            - build
