@@ -8,6 +8,7 @@ export * from './events/event-handler.interface';
 export * from './events/event-publisher.interface';
 export * from './events/event.interface';
 export * from './events/message-source.interface';
+export * from './events/event-id-provider.interface';
 export * from './exceptions/unhandled-exception-info.interface';
 export * from './exceptions/unhandled-exception-publisher.interface';
 export * from './queries/query-bus.interface';
