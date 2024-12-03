@@ -17,13 +17,11 @@ import {
   InvalidSagaException,
   UnsupportedSagaScopeException,
 } from './exceptions';
-import {
-  defaultGetEventId,
-  defaultReflectEventId,
-} from './helpers/default-get-event-id';
+import { defaultEventIdProvider } from './helpers/default-event-id-provider';
 import { DefaultPubSub } from './helpers/default-pubsub';
 import {
   CqrsModuleOptions,
+  EventIdProvider,
   ICommand,
   IEvent,
   IEventBus,
@@ -45,7 +43,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
   extends ObservableBus<EventBase>
   implements IEventBus<EventBase>, OnModuleDestroy
 {
-  protected getEventId: (event: EventBase) => string | null;
+  protected eventIdProvider: EventIdProvider<EventBase>;
   protected readonly subscriptions: Subscription[];
 
   private _publisher: IEventPublisher<EventBase>;
@@ -61,7 +59,8 @@ export class EventBus<EventBase extends IEvent = IEvent>
   ) {
     super();
     this.subscriptions = [];
-    this.getEventId = defaultGetEventId;
+    this.eventIdProvider =
+      this.options?.eventIdProvider ?? defaultEventIdProvider;
 
     if (this.options?.eventPublisher) {
       this._publisher = this.options.eventPublisher;
@@ -300,11 +299,20 @@ export class EventBus<EventBase extends IEvent = IEvent>
   ) {
     const typeRef = handler.metatype as Type<IEventHandler<EventBase>>;
     const events = this.reflectEvents(typeRef) as Type<EventBase>[];
-    events.map((event) => this.bind(handler, defaultReflectEventId(event)));
+    events.forEach((event) => {
+      const { constructor } = Object.getPrototypeOf(event);
+      if (!constructor) {
+        return;
+      }
+      const eventId = this.eventIdProvider.getEventId(constructor);
+      this.bind(handler, eventId!);
+    });
   }
 
   protected ofEventId(id: string) {
-    return this.subject$.pipe(filter((event) => this.getEventId(event) === id));
+    return this.subject$.pipe(
+      filter((event) => this.eventIdProvider.getEventId(event) === id),
+    );
   }
 
   protected registerSaga(saga: ISaga<EventBase>) {

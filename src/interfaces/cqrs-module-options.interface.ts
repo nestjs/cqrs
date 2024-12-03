@@ -1,4 +1,5 @@
 import { ICommandPublisher } from './commands/command-publisher.interface';
+import { EventIdProvider } from './events/event-id-provider.interface';
 import { IEventPublisher } from './events/event-publisher.interface';
 import { IUnhandledExceptionPublisher } from './exceptions/unhandled-exception-publisher.interface';
 import { IQueryPublisher } from './queries/query-publisher.interface';
@@ -27,6 +28,11 @@ export interface CqrsModuleOptions {
    * @default DefaultUnhandledExceptionPubSub
    */
   unhandledExceptionPublisher?: IUnhandledExceptionPublisher;
+  /**
+   * Event ID provider to use for retrieving event IDs by event instances.
+   * @default DefaultEventIdProvider
+   */
+  eventIdProvider?: EventIdProvider;
   /**
    * Whether to rethrow unhandled exceptions.
    * @default false
