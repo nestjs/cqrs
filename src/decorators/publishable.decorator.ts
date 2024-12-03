@@ -1,3 +1,4 @@
+import { Type } from '@nestjs/common';
 import { AggregateRootStorage } from '../storages/aggregate-root.storage';
 
 /**
@@ -5,7 +6,7 @@ import { AggregateRootStorage } from '../storages/aggregate-root.storage';
  * Implements the `publish` and `publishAll` methods in a similar way to {@link EventPublisher#mergeClassContext}.
  */
 export function Publishable(): ClassDecorator {
-  return (target: any) => {
-    AggregateRootStorage.add(target);
+  return (target: Function) => {
+    AggregateRootStorage.add(target as Type);
   };
 }
