@@ -7,12 +7,16 @@ import {
   Type,
 } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
+import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { Observable, Subscription, defer, of } from 'rxjs';
 import { catchError, filter, mergeMap } from 'rxjs/operators';
 import { CommandBus } from './command-bus';
 import { CQRS_MODULE_OPTIONS } from './constants';
 import { EVENTS_HANDLER_METADATA, SAGA_METADATA } from './decorators/constants';
-import { InvalidSagaException } from './exceptions';
+import {
+  InvalidSagaException,
+  UnsupportedSagaScopeException,
+} from './exceptions';
 import {
   defaultGetEventId,
   defaultReflectEventId,
@@ -28,6 +32,7 @@ import {
   ISaga,
   UnhandledExceptionInfo,
 } from './interfaces';
+import { AsyncContext } from './scopes';
 import { UnhandledExceptionBus } from './unhandled-exception-bus';
 import { ObservableBus } from './utils';
 
@@ -90,35 +95,157 @@ export class EventBus<EventBase extends IEvent = IEvent>
    * Publishes an event.
    * @param event The event to publish.
    */
+  publish<TEvent extends EventBase>(event: TEvent): any;
+  /**
+   * Publishes an event.
+   * @param event The event to publish.
+   * @param asyncContext Async context
+   */
+  publish<TEvent extends EventBase>(
+    event: TEvent,
+    asyncContext: AsyncContext,
+  ): any;
+  /**
+   * Publishes an event.
+   * @param event The event to publish.
+   * @param dispatcherContext Dispatcher context
+   */
   publish<TEvent extends EventBase, TContext = unknown>(
     event: TEvent,
-    context?: TContext,
+    dispatcherContext: TContext,
+  ): any;
+  /**
+   * Publishes an event.
+   * @param event The event to publish.
+   * @param dispatcherContext Dispatcher context
+   * @param asyncContext Async context
+   */
+  publish<TEvent extends EventBase, TContext = unknown>(
+    event: TEvent,
+    dispatcherContext: TContext,
+    asyncContext: AsyncContext,
+  ): any;
+  /**
+   * Publishes an event.
+   * @param event The event to publish.
+   * @param dispatcherOrAsyncContext Dispatcher context or async context
+   * @param asyncContext Async context
+   */
+  publish<TEvent extends EventBase, TContext = unknown>(
+    event: TEvent,
+    dispatcherOrAsyncContext?: TContext | AsyncContext,
+    asyncContext?: AsyncContext,
   ) {
-    return this._publisher.publish(event, context);
+    if (!asyncContext && dispatcherOrAsyncContext instanceof AsyncContext) {
+      asyncContext = dispatcherOrAsyncContext;
+      dispatcherOrAsyncContext = undefined;
+    }
+
+    if (asyncContext) {
+      asyncContext.attachTo(event);
+    }
+
+    return this._publisher.publish(
+      event,
+      dispatcherOrAsyncContext,
+      asyncContext,
+    );
   }
 
   /**
    * Publishes multiple events.
    * @param events The events to publish.
    */
+  publishAll<TEvent extends EventBase>(events: TEvent[]): any;
+  /**
+   * Publishes multiple events.
+   * @param events The events to publish.
+   * @param asyncContext Async context
+   */
+  publishAll<TEvent extends EventBase>(
+    events: TEvent[],
+    asyncContext: AsyncContext,
+  ): any;
+  /**
+   * Publishes multiple events.
+   * @param events The events to publish.
+   * @param dispatcherContext Dispatcher context
+   */
   publishAll<TEvent extends EventBase, TContext = unknown>(
     events: TEvent[],
-    context?: TContext,
+    dispatcherContext: TContext,
+  ): any;
+  /**
+   * Publishes multiple events.
+   * @param events The events to publish.
+   * @param dispatcherContext Dispatcher context
+   * @param asyncContext Async context
+   */
+  publishAll<TEvent extends EventBase, TContext = unknown>(
+    events: TEvent[],
+    dispatcherContext: TContext,
+    asyncContext: AsyncContext,
+  ): any;
+  /**
+   * Publishes multiple events.
+   * @param events The events to publish.
+   * @param dispatcherOrAsyncContext Dispatcher context or async context
+   * @param asyncContext Async context
+   */
+  publishAll<TEvent extends EventBase, TContext = unknown>(
+    events: TEvent[],
+    dispatcherOrAsyncContext?: TContext | AsyncContext,
+    asyncContext?: AsyncContext,
   ) {
+    if (!asyncContext && dispatcherOrAsyncContext instanceof AsyncContext) {
+      asyncContext = dispatcherOrAsyncContext;
+      dispatcherOrAsyncContext = undefined;
+    }
+
+    if (asyncContext) {
+      events.forEach((event) => {
+        if (AsyncContext.isAttached(event)) {
+          return;
+        }
+        asyncContext.attachTo(event);
+      });
+    }
+
     if (this._publisher.publishAll) {
-      return this._publisher.publishAll(events, context);
+      return this._publisher.publishAll(
+        events,
+        dispatcherOrAsyncContext,
+        asyncContext,
+      );
     }
     return (events || []).map((event) =>
-      this._publisher.publish(event, context),
+      this._publisher.publish(event, dispatcherOrAsyncContext, asyncContext),
     );
   }
 
-  bind(handler: IEventHandler<EventBase>, id: string) {
+  bind(handler: InstanceWrapper<IEventHandler<EventBase>>, id: string) {
     const stream$ = id ? this.ofEventId(id) : this.subject$;
+
+    const deferred = handler.isDependencyTreeStatic()
+      ? (event: EventBase) => () => {
+          return Promise.resolve(handler.instance.handle(event));
+        }
+      : (event: EventBase) => async () => {
+          const asyncContext = AsyncContext.of(event) ?? new AsyncContext();
+          const instance = await this.moduleRef.resolve(
+            handler.metatype,
+            asyncContext.id,
+            {
+              strict: false,
+            },
+          );
+          return instance.handle(event);
+        };
+
     const subscription = stream$
       .pipe(
         mergeMap((event) =>
-          defer(() => Promise.resolve(handler.handle(event))).pipe(
+          defer(deferred(event)).pipe(
             catchError((error) => {
               if (this.options?.rethrowUnhandled) {
                 throw error;
@@ -138,14 +265,16 @@ export class EventBus<EventBase extends IEvent = IEvent>
     this.subscriptions.push(subscription);
   }
 
-  registerSagas(types: Type<unknown>[] = []) {
-    const sagas = types
-      .map((target) => {
-        const metadata = Reflect.getMetadata(SAGA_METADATA, target) || [];
-        const instance = this.moduleRef.get(target, { strict: false });
-        if (!instance) {
-          throw new InvalidSagaException();
+  registerSagas(wrappers: InstanceWrapper<object>[] = []) {
+    const sagas = wrappers
+      .map((wrapper) => {
+        const { metatype: target } = wrapper;
+        const metadata = Reflect.getMetadata(SAGA_METADATA, target) ?? [];
+
+        if (!wrapper.isDependencyTreeStatic()) {
+          throw new UnsupportedSagaScopeException();
         }
+        const instance = wrapper.instance;
         return metadata.map((key: string) => {
           const sagaFn = instance[key].bind(instance);
           Object.defineProperty(sagaFn, 'name', {
@@ -162,22 +291,16 @@ export class EventBus<EventBase extends IEvent = IEvent>
     sagas.forEach((saga: ISaga<EventBase>) => this.registerSaga(saga));
   }
 
-  register(handlers: EventHandlerType<EventBase>[] = []) {
+  register(handlers: InstanceWrapper<IEventHandler<EventBase>>[] = []) {
     handlers.forEach((handler) => this.registerHandler(handler));
   }
 
-  protected registerHandler(handler: EventHandlerType<EventBase>) {
-    const instance = this.moduleRef.get(handler, { strict: false });
-    if (!instance) {
-      return;
-    }
-    const events = this.reflectEvents(handler);
-    events.map((event) =>
-      this.bind(
-        instance as IEventHandler<EventBase>,
-        defaultReflectEventId(event),
-      ),
-    );
+  protected registerHandler(
+    handler: InstanceWrapper<IEventHandler<EventBase>>,
+  ) {
+    const typeRef = handler.metatype as Type<IEventHandler<EventBase>>;
+    const events = this.reflectEvents(typeRef) as Type<EventBase>[];
+    events.map((event) => this.bind(handler, defaultReflectEventId(event)));
   }
 
   protected ofEventId(id: string) {
@@ -237,7 +360,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
 
   private reflectEvents(
     handler: EventHandlerType<EventBase>,
-  ): FunctionConstructor[] {
+  ): Type<EventBase>[] {
     return Reflect.getMetadata(EVENTS_HANDLER_METADATA, handler);
   }
 

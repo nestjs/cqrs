@@ -1,7 +1,7 @@
 export class InvalidEventsHandlerException extends Error {
   constructor() {
     super(
-      `Invalid event handler exception (missing @EventsHandler() decorator?)`,
+      `An invalid events handler has been provided. Please ensure that the provided handler is a class annotated with @EventsHandler and contains a 'handle' method.`,
     );
   }
 }

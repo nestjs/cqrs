@@ -4,9 +4,10 @@ import { UnhandledExceptionCommandHandler } from './errors/commands/unhandled-ex
 import { UnhandledExceptionEventHandler } from './errors/events/unhandled-exception.handler';
 import { ErrorsSagas } from './errors/sagas/errors.saga';
 import { HeroesGameModule } from './heroes/heroes.module';
+import { ScopedModule } from './scoped/scoped.module';
 
 @Module({
-  imports: [HeroesGameModule, CqrsModule.forRoot()],
+  imports: [HeroesGameModule, CqrsModule.forRoot(), ScopedModule],
   providers: [
     UnhandledExceptionCommandHandler,
     UnhandledExceptionEventHandler,

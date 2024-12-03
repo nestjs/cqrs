@@ -1,7 +1,7 @@
 export class InvalidCommandHandlerException extends Error {
   constructor() {
     super(
-      `Invalid command handler exception (missing @CommandHandler() decorator?)`,
+      `An invalid command handler has been provided. Please ensure that the provided handler is a class annotated with @CommandHandler and contains an 'execute' method.`,
     );
   }
 }

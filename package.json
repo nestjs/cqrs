@@ -18,9 +18,7 @@
     "prepare": "husky install",
     "test:e2e": "jest --config ./test/jest-e2e.json --runInBand"
   },
-  "dependencies": {
-    "uuid": "11.0.2"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@commitlint/cli": "19.6.0",
     "@commitlint/config-angular": "19.6.0",

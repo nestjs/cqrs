@@ -4,7 +4,6 @@ import { CommandBus, UnhandledExceptionBus } from '../../src';
 import { AppModule } from '../src/app.module';
 import { UnhandledExceptionCommand } from '../src/errors/commands/unhandled-exception.command';
 import { UnhandledExceptionEvent } from '../src/errors/events/unhandled-exception.event';
-import exp = require('constants');
 
 describe('Unhandled exceptions', () => {
   let moduleRef: TestingModule;
