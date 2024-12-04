@@ -6,6 +6,7 @@ import { QueryHandlerNotFoundException } from './exceptions';
 import { InvalidQueryHandlerException } from './exceptions/invalid-query-handler.exception';
 import { DefaultQueryPubSub } from './helpers/default-query-pubsub';
 import {
+  HookedResponse,
   IQuery,
   IQueryBus,
   IQueryHandler,
@@ -53,7 +54,7 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
    * Executes a query.
    * @param query The query to execute.
    */
-  async execute<T extends QueryBase, TResult = any>(
+  async execute<T extends QueryBase, TResult = HookedResponse<T>>(
     query: T,
   ): Promise<TResult> {
     const queryId = this.getQueryId(query);

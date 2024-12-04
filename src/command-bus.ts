@@ -14,6 +14,7 @@ import {
   ICommandBus,
   ICommandHandler,
   ICommandPublisher,
+  HookedResponse,
 } from './interfaces/index';
 import { ObservableBus } from './utils/observable-bus';
 
@@ -54,7 +55,7 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
    * @param command The command to execute.
    * @returns A promise that, when resolved, will contain the result returned by the command's handler.
    */
-  execute<T extends CommandBase, R = any>(command: T): Promise<R> {
+  execute<T extends CommandBase, R = HookedResponse<T>>(command: T): Promise<R> {
     const commandId = this.getCommandId(command);
     const handler = this.handlers.get(commandId);
     if (!handler) {
