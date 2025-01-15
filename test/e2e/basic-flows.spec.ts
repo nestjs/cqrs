@@ -13,6 +13,7 @@ import { HeroKilledDragonEvent } from '../src/heroes/events/impl/hero-killed-dra
 import { GetHeroesQuery } from '../src/heroes/queries/impl';
 import { HERO_ID } from '../src/heroes/repository/fixtures/user';
 import { ANCIENT_ITEM_ID } from '../src/heroes/sagas/heroes.sagas';
+import { NoopHandler } from '../src/noop/events/handlers/noop.handler';
 import { waitImmediate } from '../utils/wait-immediate';
 
 describe('Basic flows', () => {
@@ -29,14 +30,17 @@ describe('Basic flows', () => {
   describe('when "KillDragonCommand" command is dispatched', () => {
     let killDragonExecuteSpy: jest.SpyInstance;
     let heroKilledDragonHandleSpy: jest.SpyInstance;
+    let noopEventHandleSpy: jest.SpyInstance;
     let command: KillDragonCommand;
 
     beforeAll(async () => {
       const killDragonHandler = moduleRef.get(KillDragonHandler);
       const heroKilledDragonHandler = moduleRef.get(HeroKilledDragonHandler);
+      const noopHandler = moduleRef.get(NoopHandler);
 
       killDragonExecuteSpy = jest.spyOn(killDragonHandler, 'execute');
       heroKilledDragonHandleSpy = jest.spyOn(heroKilledDragonHandler, 'handle');
+      noopEventHandleSpy = jest.spyOn(noopHandler, 'handle');
 
       const commandBus = moduleRef.get(CommandBus);
       const heroId = HERO_ID;
@@ -54,6 +58,10 @@ describe('Basic flows', () => {
     it('should handle "HeroKillDragonEvent" event', () => {
       const event = new HeroKilledDragonEvent(command.heroId, command.dragonId);
       expect(heroKilledDragonHandleSpy).toHaveBeenCalledWith(event);
+    });
+
+    it('should not trigger "NoopHandler" event', () => {
+      expect(noopEventHandleSpy).not.toHaveBeenCalled();
     });
 
     describe('when saga triggered', () => {

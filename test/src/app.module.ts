@@ -4,10 +4,11 @@ import { UnhandledExceptionCommandHandler } from './errors/commands/unhandled-ex
 import { UnhandledExceptionEventHandler } from './errors/events/unhandled-exception.handler';
 import { ErrorsSagas } from './errors/sagas/errors.saga';
 import { HeroesGameModule } from './heroes/heroes.module';
+import { NoopModule } from './noop/noop.module';
 import { ScopedModule } from './scoped/scoped.module';
 
 @Module({
-  imports: [HeroesGameModule, CqrsModule.forRoot(), ScopedModule],
+  imports: [HeroesGameModule, CqrsModule.forRoot(), ScopedModule, NoopModule],
   providers: [
     UnhandledExceptionCommandHandler,
     UnhandledExceptionEventHandler,

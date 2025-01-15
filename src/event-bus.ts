@@ -300,18 +300,20 @@ export class EventBus<EventBase extends IEvent = IEvent>
     const typeRef = handler.metatype as Type<IEventHandler<EventBase>>;
     const events = this.reflectEvents(typeRef) as Type<EventBase>[];
     events.forEach((event) => {
-      const { constructor } = Object.getPrototypeOf(event);
-      if (!constructor) {
-        return;
-      }
-      const eventId = this.eventIdProvider.getEventId(constructor);
+      const eventId = this.eventIdProvider.getEventId(event);
       this.bind(handler, eventId!);
     });
   }
 
   protected ofEventId(id: string) {
     return this.subject$.pipe(
-      filter((event) => this.eventIdProvider.getEventId(event) === id),
+      filter((event) => {
+        const { constructor } = Object.getPrototypeOf(event);
+        if (!constructor) {
+          return false;
+        }
+        return this.eventIdProvider.getEventId(constructor) === id;
+      }),
     );
   }
 
