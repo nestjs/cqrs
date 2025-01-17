@@ -11,11 +11,13 @@ import { IEvent } from '../interfaces';
  *
  * @return A stream only emitting the filtered instances.
  */
-export function ofType<TInput extends IEvent, TOutput extends IEvent>(
-  ...types: Type<TOutput>[]
+export function ofType<TInput extends IEvent, T extends Type<IEvent>[]>(
+  ...types: T
 ) {
-  const isInstanceOf = (event: IEvent): event is TOutput =>
+  type InstanceOf<T> = T extends Type<infer I> ? I : never;
+  const isInstanceOf = (event: IEvent): event is InstanceOf<T[number]> =>
     !!types.find((classType) => event instanceof classType);
-  return (source: Observable<TInput>): Observable<TOutput> =>
+
+  return (source: Observable<TInput>): Observable<InstanceOf<T[number]>> =>
     source.pipe(filter(isInstanceOf));
 }

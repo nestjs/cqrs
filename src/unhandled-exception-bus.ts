@@ -1,8 +1,10 @@
-import { Injectable, Type } from '@nestjs/common';
+import { Inject, Injectable, Optional, Type } from '@nestjs/common';
 import 'reflect-metadata';
 import { Observable, filter } from 'rxjs';
+import { CQRS_MODULE_OPTIONS } from './constants';
 import { DefaultUnhandledExceptionPubSub } from './helpers/default-unhandled-exception-pubsub';
 import {
+  CqrsModuleOptions,
   ICommand,
   IEvent,
   IUnhandledExceptionPublisher,
@@ -20,9 +22,19 @@ export class UnhandledExceptionBus<
 > extends ObservableBus<UnhandledExceptionInfo<Cause>> {
   private _publisher: IUnhandledExceptionPublisher<Cause>;
 
-  constructor() {
+  constructor(
+    @Optional()
+    @Inject(CQRS_MODULE_OPTIONS)
+    private readonly options?: CqrsModuleOptions,
+  ) {
     super();
-    this.useDefaultPublisher();
+
+    if (this.options?.unhandledExceptionPublisher) {
+      this._publisher = this.options
+        .unhandledExceptionPublisher as IUnhandledExceptionPublisher<Cause>;
+    } else {
+      this.useDefaultPublisher();
+    }
   }
 
   /**
@@ -32,7 +44,10 @@ export class UnhandledExceptionBus<
    * @param types List of types to filter by.
    * @return A stream only emitting the filtered exceptions.
    */
-  static ofType<TInput, TOutput>(...types: Type<TOutput>[]) {
+  static ofType<
+    TInput extends IEvent | ICommand,
+    TOutput extends IEvent | ICommand,
+  >(...types: Type<TOutput>[]) {
     const isInstanceOf = (
       exceptionInfo: UnhandledExceptionInfo,
     ): exceptionInfo is UnhandledExceptionInfo<TOutput> =>

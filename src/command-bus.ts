@@ -1,6 +1,9 @@
-import { Injectable, Type } from '@nestjs/common';
+import { Inject, Injectable, Logger, Optional, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
+import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import 'reflect-metadata';
+import { Command } from './classes';
+import { CQRS_MODULE_OPTIONS } from './constants';
 import {
   COMMAND_HANDLER_METADATA,
   COMMAND_METADATA,
@@ -10,26 +13,44 @@ import { DefaultCommandPubSub } from './helpers/default-command-pubsub';
 import { InvalidCommandHandlerException } from './index';
 import { CommandMetadata } from './interfaces/commands/command-metadata.interface';
 import {
+  CqrsModuleOptions,
   ICommand,
   ICommandBus,
   ICommandHandler,
   ICommandPublisher,
 } from './interfaces/index';
+import { AsyncContext } from './scopes/async.context';
 import { ObservableBus } from './utils/observable-bus';
 
-export type CommandHandlerType = Type<ICommandHandler<ICommand>>;
+export type CommandHandlerType<T extends ICommand = ICommand> = Type<
+  ICommandHandler<T>
+>;
 
 @Injectable()
 export class CommandBus<CommandBase extends ICommand = ICommand>
   extends ObservableBus<CommandBase>
   implements ICommandBus<CommandBase>
 {
-  private handlers = new Map<string, ICommandHandler<CommandBase>>();
+  private readonly logger = new Logger(CommandBus.name);
+  private handlers = new Map<
+    string,
+    (command: CommandBase, asyncContext?: AsyncContext) => any
+  >();
   private _publisher: ICommandPublisher<CommandBase>;
 
-  constructor(private readonly moduleRef: ModuleRef) {
+  constructor(
+    private readonly moduleRef: ModuleRef,
+    @Optional()
+    @Inject(CQRS_MODULE_OPTIONS)
+    private readonly options?: CqrsModuleOptions,
+  ) {
     super();
-    this.useDefaultPublisher();
+
+    if (this.options?.commandPublisher) {
+      this._publisher = this.options.commandPublisher;
+    } else {
+      this.useDefaultPublisher();
+    }
   }
 
   /**
@@ -54,35 +75,101 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
    * @param command The command to execute.
    * @returns A promise that, when resolved, will contain the result returned by the command's handler.
    */
-  execute<T extends CommandBase, R = any>(command: T): Promise<R> {
+  execute<R = void>(command: Command<R>): Promise<R>;
+  /**
+   * Executes a command.
+   * @param command The command to execute.
+   * @param context The context to use. Optional.
+   * @returns A promise that, when resolved, will contain the result returned by the command's handler.
+   */
+  execute<R = void>(command: Command<R>, context?: AsyncContext): Promise<R>;
+  /**
+   * Executes a command.
+   * @param command The command to execute.
+   * @param context The context to use. Optional.
+   * @returns A promise that, when resolved, will contain the result returned by the command's handler.
+   */
+  execute<T extends CommandBase, R = any>(
+    command: T,
+    context?: AsyncContext,
+  ): Promise<R>;
+  /**
+   * Executes a command.
+   * @param command The command to execute.
+   * @param context The context to use. Optional.
+   * @returns A promise that, when resolved, will contain the result returned by the command's handler.
+   */
+  execute<T extends CommandBase, R = any>(
+    command: T,
+    context?: AsyncContext,
+  ): Promise<R> {
     const commandId = this.getCommandId(command);
-    const handler = this.handlers.get(commandId);
-    if (!handler) {
+    const executeFn = this.handlers.get(commandId);
+    if (!executeFn) {
       const commandName = this.getCommandName(command);
       throw new CommandHandlerNotFoundException(commandName);
     }
     this._publisher.publish(command);
-    return handler.execute(command);
+    return executeFn(command, context);
   }
 
-  bind<T extends CommandBase>(handler: ICommandHandler<T>, id: string) {
-    this.handlers.set(id, handler);
+  bind<T extends CommandBase>(
+    handler: InstanceWrapper<ICommandHandler<T>>,
+    id: string,
+  ) {
+    if (handler.isDependencyTreeStatic()) {
+      const instance = handler.instance;
+      if (!instance.execute) {
+        throw new InvalidCommandHandlerException();
+      }
+      this.handlers.set(id, (command) =>
+        instance.execute(command as T & Command<unknown>),
+      );
+      return;
+    }
+
+    this.handlers.set(id, async (command: T, context?: AsyncContext) => {
+      context ??= AsyncContext.of(command) ?? new AsyncContext();
+
+      if (!AsyncContext.isAttached(context)) {
+        // Commands returned by sagas may already have an async context set
+        // and a corresponding request provider registered.
+        this.moduleRef.registerRequestByContextId(context, context.id);
+
+        context.attachTo(command);
+      }
+
+      const instance = await this.moduleRef.resolve(
+        handler.metatype,
+        context.id,
+        {
+          strict: false,
+        },
+      );
+      return instance.execute(command as T & Command<unknown>);
+    });
   }
 
-  register(handlers: CommandHandlerType[] = []) {
+  register(handlers: InstanceWrapper<ICommandHandler<CommandBase>>[] = []) {
     handlers.forEach((handler) => this.registerHandler(handler));
   }
 
-  protected registerHandler(handler: CommandHandlerType) {
-    const instance = this.moduleRef.get(handler, { strict: false });
-    if (!instance) {
-      return;
-    }
-    const target = this.reflectCommandId(handler);
+  protected registerHandler(
+    handler: InstanceWrapper<ICommandHandler<CommandBase>>,
+  ) {
+    const typeRef = handler.metatype as Type<ICommandHandler<CommandBase>>;
+    const target = this.reflectCommandId(typeRef);
     if (!target) {
       throw new InvalidCommandHandlerException();
     }
-    this.bind(instance as ICommandHandler<CommandBase>, target);
+
+    if (this.handlers.has(target)) {
+      this.logger.warn(
+        `Command handler [${typeRef.name}] is already registered. Overriding previously registered handler.`,
+      );
+    }
+
+    this.bind(handler, target);
   }
 
   private getCommandId(command: CommandBase): string {

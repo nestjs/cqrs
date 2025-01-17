@@ -1,12 +1,12 @@
 {
   "name": "@nestjs/cqrs",
-  "version": "10.2.8",
+  "version": "11.0.0-next.2",
   "description": "A lightweight CQRS module for Nest framework (node.js)",
   "license": "MIT",
   "url": "https://github.com/nestjs/cqrs#readme",
   "scripts": {
     "test": "jest",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.build.json",
     "format": "prettier --write \"**/*.ts\"",
     "lint": "eslint \"src/**/*.ts\" --fix",
     "prepublish:next": "npm run build",
@@ -15,11 +15,10 @@
     "publish:npm": "npm publish --access public",
     "prerelease": "npm run build",
     "release": "release-it",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "test:e2e": "jest --config ./test/jest-e2e.json --runInBand"
   },
-  "dependencies": {
-    "uuid": "11.0.2"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@commitlint/cli": "19.6.1",
     "@commitlint/config-angular": "19.7.0",
