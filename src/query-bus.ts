@@ -133,7 +133,7 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
 
       this.moduleRef.registerRequestByContextId(context, context.id);
       const instance = await this.moduleRef.resolve(
-        handler.metatype,
+        handler.metatype!,
         context.id,
         {
           strict: false,

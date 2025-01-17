@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-empty-function */
+
 import { Type } from '@nestjs/common';
 import { IEvent, IEventHandler } from './interfaces';
 

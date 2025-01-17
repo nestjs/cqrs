@@ -140,7 +140,7 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
       }
 
       const instance = await this.moduleRef.resolve(
-        handler.metatype,
+        handler.metatype!,
         context.id,
         {
           strict: false,

@@ -232,7 +232,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
       : (event: EventBase) => async () => {
           const asyncContext = AsyncContext.of(event) ?? new AsyncContext();
           const instance = await this.moduleRef.resolve(
-            handler.metatype,
+            handler.metatype!,
             asyncContext.id,
             {
               strict: false,
@@ -268,7 +268,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
     const sagas = wrappers
       .map((wrapper) => {
         const { metatype: target } = wrapper;
-        const metadata = Reflect.getMetadata(SAGA_METADATA, target) ?? [];
+        const metadata = Reflect.getMetadata(SAGA_METADATA, target!) ?? [];
 
         if (!wrapper.isDependencyTreeStatic()) {
           throw new UnsupportedSagaScopeException();
@@ -298,7 +298,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
     handler: InstanceWrapper<IEventHandler<EventBase>>,
   ) {
     const typeRef = handler.metatype as Type<IEventHandler<EventBase>>;
-    const events = this.reflectEvents(typeRef) as Type<EventBase>[];
+    const events = this.reflectEvents(typeRef);
     events.forEach((event) => {
       const eventId = this.eventIdProvider.getEventId(event);
       this.bind(handler, eventId!);
