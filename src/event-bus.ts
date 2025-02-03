@@ -297,7 +297,12 @@ export class EventBus<EventBase extends IEvent = IEvent>
   protected registerHandler(
     handler: InstanceWrapper<IEventHandler<EventBase>>,
   ) {
-    const typeRef = handler.metatype as Type<IEventHandler<EventBase>>;
+    const typeRef = (
+      handler.metatype || handler.inject
+        ? handler.instance?.constructor
+        : handler.metatype
+    ) as Type<IEventHandler<EventBase>>;
+
     const events = this.reflectEvents(typeRef);
     events.forEach((event) => {
       const eventId = this.eventIdProvider.getEventId(event);
