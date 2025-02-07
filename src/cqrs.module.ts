@@ -3,7 +3,11 @@ import { CommandBus } from './command-bus';
 import { CQRS_MODULE_OPTIONS } from './constants';
 import { EventBus } from './event-bus';
 import { EventPublisher } from './event-publisher';
-import { CqrsModuleOptions, IEvent } from './interfaces';
+import {
+  CqrsModuleAsyncOptions,
+  CqrsModuleOptions,
+  IEvent,
+} from './interfaces';
 import { QueryBus } from './query-bus';
 import { ExplorerService } from './services/explorer.service';
 import { UnhandledExceptionBus } from './unhandled-exception-bus';
@@ -29,11 +33,6 @@ import { AggregateRootStorage } from './storages/aggregate-root.storage';
 export class CqrsModule<EventBase extends IEvent = IEvent>
   implements OnApplicationBootstrap
 {
-  /**
-   * Registers CQRS module globally.
-   * @param options CQRS module options.
-   * @returns A dynamic module.
-   */
   static forRoot(options?: CqrsModuleOptions): DynamicModule {
     return {
       module: CqrsModule,
@@ -45,6 +44,37 @@ export class CqrsModule<EventBase extends IEvent = IEvent>
       ],
       global: true,
     };
+  }
+
+  static async forRootAsync(
+    options: CqrsModuleAsyncOptions,
+  ): Promise<DynamicModule> {
+    const asyncOptions = await this.createAsyncOptions(options);
+
+    return {
+      module: CqrsModule,
+      providers: [
+        {
+          provide: CQRS_MODULE_OPTIONS,
+          useValue: asyncOptions,
+        },
+        ...(options.extraProviders || []),
+      ],
+      exports: [CQRS_MODULE_OPTIONS],
+      global: true,
+    };
+  }
+
+  private static async createAsyncOptions(
+    options: CqrsModuleAsyncOptions,
+  ): Promise<CqrsModuleOptions> {
+    if (options.useFactory) {
+      return options.useFactory(...(options.inject || []));
+    }
+
+    throw new Error(
+      'Invalid CqrsModuleAsyncOptions configuration. Provide useFactory.',
+    );
   }
 
   constructor(
