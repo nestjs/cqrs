@@ -53,6 +53,7 @@ export interface CqrsModuleAsyncOptions {
   useFactory?: (
     ...args: any[]
   ) => Promise<CqrsModuleOptions> | CqrsModuleOptions;
+  useValue?: CqrsModuleOptions;
   inject?: any[];
   extraProviders?: Provider[];
 }

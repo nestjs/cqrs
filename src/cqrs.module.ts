@@ -1,4 +1,9 @@
-import { DynamicModule, Module, OnApplicationBootstrap } from '@nestjs/common';
+import {
+  DynamicModule,
+  Module,
+  OnApplicationBootstrap,
+  Provider,
+} from '@nestjs/common';
 import { CommandBus } from './command-bus';
 import { CQRS_MODULE_OPTIONS } from './constants';
 import { EventBus } from './event-bus';
@@ -6,6 +11,7 @@ import { EventPublisher } from './event-publisher';
 import {
   CqrsModuleAsyncOptions,
   CqrsModuleOptions,
+  CqrsModuleOptionsFactory,
   IEvent,
 } from './interfaces';
 import { QueryBus } from './query-bus';
@@ -46,34 +52,66 @@ export class CqrsModule<EventBase extends IEvent = IEvent>
     };
   }
 
-  static async forRootAsync(
-    options: CqrsModuleAsyncOptions,
-  ): Promise<DynamicModule> {
-    const asyncOptions = await this.createAsyncOptions(options);
-
+  static forRootAsync(options: CqrsModuleAsyncOptions): DynamicModule {
     return {
       module: CqrsModule,
-      providers: [
-        {
-          provide: CQRS_MODULE_OPTIONS,
-          useValue: asyncOptions,
-        },
-        ...(options.extraProviders || []),
-      ],
-      exports: [CQRS_MODULE_OPTIONS],
       global: true,
+      imports: options.imports || [],
+      providers: [...this.createAsyncProviders(options)],
+      exports: [CQRS_MODULE_OPTIONS],
     };
   }
 
-  private static async createAsyncOptions(
+  private static createAsyncProviders(
     options: CqrsModuleAsyncOptions,
-  ): Promise<CqrsModuleOptions> {
+  ): Provider[] {
+    if (options.useValue) {
+      return [
+        {
+          provide: CQRS_MODULE_OPTIONS,
+          useValue: options.useValue,
+        },
+      ];
+    }
+
     if (options.useFactory) {
-      return options.useFactory(...(options.inject || []));
+      return [
+        {
+          provide: CQRS_MODULE_OPTIONS,
+          useFactory: options.useFactory,
+          inject: options.inject || [],
+        },
+      ];
+    }
+
+    if (options.useClass) {
+      return [
+        {
+          provide: options.useClass,
+          useClass: options.useClass,
+        },
+        {
+          provide: CQRS_MODULE_OPTIONS,
+          useFactory: async (optionsFactory: CqrsModuleOptionsFactory) =>
+            optionsFactory.createCqrsOptions(),
+          inject: [options.useClass],
+        },
+      ];
+    }
+
+    if (options.useExisting) {
+      return [
+        {
+          provide: CQRS_MODULE_OPTIONS,
+          useFactory: async (optionsFactory: CqrsModuleOptionsFactory) =>
+            optionsFactory.createCqrsOptions(),
+          inject: [options.useExisting],
+        },
+      ];
     }
 
     throw new Error(
-      'Invalid CqrsModuleAsyncOptions configuration. Provide useFactory.',
+      'Invalid CqrsModuleAsyncOptions configuration. Provide useValue, useFactory, useClass, or useExisting.',
     );
   }
 
