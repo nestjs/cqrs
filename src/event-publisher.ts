@@ -14,7 +14,7 @@ export class EventPublisher<EventBase extends IEvent = IEvent> {
 
   /**
    * Merge the event publisher into the provided class.
-   * This is required to make `publish` and `publishAll` available on the `AgreggateRoot` class.
+   * This is required to make `publish` and `publishAll` available on the `AggregateRoot` class.
    * @param metatype The class to merge into.
    * @param asyncContext The async context (if scoped).
    */
@@ -36,7 +36,7 @@ export class EventPublisher<EventBase extends IEvent = IEvent> {
 
   /**
    * Merge the event publisher into the provided object.
-   * This is required to make `publish` and `publishAll` available on the `AgreggateRoot` class instance.
+   * This is required to make `publish` and `publishAll` available on the `AggregateRoot` class instance.
    * @param object The object to merge into.
    * @param asyncContext The async context (if scoped).
    */
