@@ -39,3 +39,21 @@ export interface CqrsModuleOptions {
    */
   rethrowUnhandled?: boolean;
 }
+
+import { Provider, Type } from '@nestjs/common';
+
+export interface CqrsModuleOptionsFactory {
+  createCqrsOptions(): Promise<CqrsModuleOptions> | CqrsModuleOptions;
+}
+
+export interface CqrsModuleAsyncOptions {
+  imports?: any[];
+  useExisting?: Type<CqrsModuleOptionsFactory>;
+  useClass?: Type<CqrsModuleOptionsFactory>;
+  useFactory?: (
+    ...args: any[]
+  ) => Promise<CqrsModuleOptions> | CqrsModuleOptions;
+  useValue?: CqrsModuleOptions;
+  inject?: any[];
+  extraProviders?: Provider[];
+}
