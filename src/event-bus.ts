@@ -8,8 +8,8 @@ import {
 } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
-import { Observable, Subscription, defer, of } from 'rxjs';
-import { catchError, filter, mergeMap } from 'rxjs/operators';
+import { Observable, Subscription, UnaryFunction, defer, of, pipe } from 'rxjs';
+import { catchError, filter, mergeMap, tap } from 'rxjs/operators';
 import { CommandBus } from './command-bus';
 import { CQRS_MODULE_OPTIONS } from './constants';
 import { EVENTS_HANDLER_METADATA, SAGA_METADATA } from './decorators/constants';
@@ -38,6 +38,11 @@ export type EventHandlerType<EventBase extends IEvent = IEvent> = Type<
   IEventHandler<EventBase>
 >;
 
+export type EventOperator<EventBase extends IEvent = IEvent> = UnaryFunction<
+  Observable<EventBase>,
+  Observable<any>
+>;
+
 @Injectable()
 export class EventBus<EventBase extends IEvent = IEvent>
   extends ObservableBus<EventBase>
@@ -45,6 +50,8 @@ export class EventBus<EventBase extends IEvent = IEvent>
 {
   protected eventIdProvider: EventIdProvider<EventBase>;
   protected readonly subscriptions: Subscription[];
+
+  public readonly eventOperators: EventOperator<EventBase>[] = [];
 
   private _publisher: IEventPublisher<EventBase>;
   private readonly _logger = new Logger(EventBus.name);
@@ -223,8 +230,6 @@ export class EventBus<EventBase extends IEvent = IEvent>
   }
 
   bind(handler: InstanceWrapper<IEventHandler<EventBase>>, id: string) {
-    const stream$ = id ? this.ofEventId(id) : this.subject$;
-
     const deferred = handler.isDependencyTreeStatic()
       ? (event: EventBase) => () => {
           return Promise.resolve(handler.instance.handle(event));
@@ -241,26 +246,28 @@ export class EventBus<EventBase extends IEvent = IEvent>
           return instance.handle(event);
         };
 
-    const subscription = stream$
-      .pipe(
-        mergeMap((event) =>
-          defer(deferred(event)).pipe(
-            catchError((error) => {
-              if (this.options?.rethrowUnhandled) {
-                throw error;
-              }
-              const unhandledError = this.mapToUnhandledErrorInfo(event, error);
-              this.unhandledExceptionBus.publish(unhandledError);
-              this._logger.error(
-                `"${handler.constructor.name}" has thrown an unhandled exception.`,
-                error,
-              );
-              return of();
-            }),
-          ),
+    const eventOperator = pipe(
+      this.filterEventWithId(id),
+      mergeMap((event) =>
+        defer(deferred(event)).pipe(
+          catchError((error) => {
+            if (this.options?.rethrowUnhandled) {
+              throw error;
+            }
+            const unhandledError = this.mapToUnhandledErrorInfo(event, error);
+            this.unhandledExceptionBus.publish(unhandledError);
+            this._logger.error(
+              `"${handler.constructor.name}" has thrown an unhandled exception.`,
+              error,
+            );
+            return of();
+          }),
         ),
-      )
-      .subscribe();
+      ),
+    );
+
+    this.eventOperators.push(eventOperator);
+    const subscription = this.subject$.pipe(eventOperator).subscribe();
     this.subscriptions.push(subscription);
   }
 
@@ -310,16 +317,17 @@ export class EventBus<EventBase extends IEvent = IEvent>
     });
   }
 
-  protected ofEventId(id: string) {
-    return this.subject$.pipe(
-      filter((event) => {
-        const { constructor } = Object.getPrototypeOf(event);
-        if (!constructor) {
-          return false;
-        }
-        return this.eventIdProvider.getEventId(constructor) === id;
-      }),
-    );
+  protected filterEventWithId(id: string | null) {
+    if (!id) {
+      return tap<EventBase>();
+    }
+    return filter<EventBase>((event) => {
+      const { constructor } = Object.getPrototypeOf(event);
+      if (!constructor) {
+        return false;
+      }
+      return this.eventIdProvider.getEventId(constructor) === id;
+    });
   }
 
   protected registerSaga(saga: ISaga<EventBase>) {
