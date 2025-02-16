@@ -1,7 +1,11 @@
 import { AsyncContext } from '../../scopes';
 import { IEvent } from './event.interface';
 
-export interface IEventPublisher<EventBase extends IEvent = IEvent> {
+export interface IEventPublisher<
+  EventBase extends IEvent = IEvent,
+  PublishResult = any,
+  PublishAllResult = any,
+> {
   /**
    * Publishes an event.
    * @param event The event to publish.
@@ -12,7 +16,7 @@ export interface IEventPublisher<EventBase extends IEvent = IEvent> {
     event: TEvent,
     dispatcherContext?: unknown,
     asyncContext?: AsyncContext,
-  ): any;
+  ): PublishResult;
 
   /**
    * Publishes multiple events.
@@ -24,5 +28,15 @@ export interface IEventPublisher<EventBase extends IEvent = IEvent> {
     events: TEvent[],
     dispatcherContext?: unknown,
     asyncContext?: AsyncContext,
-  ): any;
+  ): PublishAllResult;
 }
+
+export type PublisherPublishResult<P extends IEventPublisher> =
+  P extends IEventPublisher<any, infer PublishResult> ? PublishResult : never;
+
+export type PublisherPublishAllResult<P extends IEventPublisher> =
+  P extends IEventPublisher<any, infer PublishResult, infer PublishAllResult>
+    ? P['publishAll'] extends Function
+      ? PublishAllResult
+      : PublishResult[]
+    : never;
