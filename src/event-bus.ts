@@ -28,6 +28,8 @@ import {
   IEventHandler,
   IEventPublisher,
   ISaga,
+  PublisherPublishAllResult,
+  PublisherPublishResult,
   UnhandledExceptionInfo,
 } from './interfaces';
 import { AsyncContext } from './scopes';
@@ -47,7 +49,16 @@ export type EventOperator<EventBase extends IEvent = IEvent> = UnaryFunction<
  * @publicApi
  */
 @Injectable()
-export class EventBus<EventBase extends IEvent = IEvent>
+export class EventBus<
+    EventBase extends IEvent = IEvent,
+    Publisher extends IEventPublisher<
+      EventBase,
+      PublishResult,
+      PublishAllResult
+    > = IEventPublisher<EventBase, any, any>,
+    PublishResult = PublisherPublishResult<Publisher>,
+    PublishAllResult = PublisherPublishAllResult<Publisher>,
+  >
   extends ObservableBus<EventBase>
   implements IEventBus<EventBase>, OnModuleDestroy
 {
@@ -56,7 +67,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
 
   public readonly eventOperators: EventOperator<EventBase>[] = [];
 
-  private _publisher: IEventPublisher<EventBase>;
+  private _publisher: Publisher;
   private readonly _logger = new Logger(EventBus.name);
 
   constructor(
@@ -73,7 +84,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
       this.options?.eventIdProvider ?? defaultEventIdProvider;
 
     if (this.options?.eventPublisher) {
-      this._publisher = this.options.eventPublisher;
+      this._publisher = this.options.eventPublisher as Publisher;
     } else {
       this.useDefaultPublisher();
     }
@@ -83,7 +94,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
    * Returns the publisher.
    * Default publisher is `DefaultPubSub` (in memory).
    */
-  get publisher(): IEventPublisher<EventBase> {
+  get publisher(): Publisher {
     return this._publisher;
   }
 
@@ -92,7 +103,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
    * Default publisher is `DefaultPubSub` (in memory).
    * @param _publisher The publisher to set.
    */
-  set publisher(_publisher: IEventPublisher<EventBase>) {
+  set publisher(_publisher: Publisher) {
     this._publisher = _publisher;
   }
 
@@ -104,7 +115,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
    * Publishes an event.
    * @param event The event to publish.
    */
-  publish<TEvent extends EventBase>(event: TEvent): any;
+  publish<TEvent extends EventBase>(event: TEvent): PublishResult;
   /**
    * Publishes an event.
    * @param event The event to publish.
@@ -113,7 +124,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
   publish<TEvent extends EventBase>(
     event: TEvent,
     asyncContext: AsyncContext,
-  ): any;
+  ): PublishResult;
   /**
    * Publishes an event.
    * @param event The event to publish.
@@ -122,7 +133,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
   publish<TEvent extends EventBase, TContext = unknown>(
     event: TEvent,
     dispatcherContext: TContext,
-  ): any;
+  ): PublishResult;
   /**
    * Publishes an event.
    * @param event The event to publish.
@@ -133,7 +144,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
     event: TEvent,
     dispatcherContext: TContext,
     asyncContext: AsyncContext,
-  ): any;
+  ): PublishResult;
   /**
    * Publishes an event.
    * @param event The event to publish.
@@ -144,7 +155,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
     event: TEvent,
     dispatcherOrAsyncContext?: TContext | AsyncContext,
     asyncContext?: AsyncContext,
-  ) {
+  ): PublishResult {
     if (!asyncContext && dispatcherOrAsyncContext instanceof AsyncContext) {
       asyncContext = dispatcherOrAsyncContext;
       dispatcherOrAsyncContext = undefined;
@@ -165,7 +176,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
    * Publishes multiple events.
    * @param events The events to publish.
    */
-  publishAll<TEvent extends EventBase>(events: TEvent[]): any;
+  publishAll<TEvent extends EventBase>(events: TEvent[]): PublishAllResult;
   /**
    * Publishes multiple events.
    * @param events The events to publish.
@@ -174,7 +185,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
   publishAll<TEvent extends EventBase>(
     events: TEvent[],
     asyncContext: AsyncContext,
-  ): any;
+  ): PublishAllResult;
   /**
    * Publishes multiple events.
    * @param events The events to publish.
@@ -183,7 +194,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
   publishAll<TEvent extends EventBase, TContext = unknown>(
     events: TEvent[],
     dispatcherContext: TContext,
-  ): any;
+  ): PublishAllResult;
   /**
    * Publishes multiple events.
    * @param events The events to publish.
@@ -194,7 +205,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
     events: TEvent[],
     dispatcherContext: TContext,
     asyncContext: AsyncContext,
-  ): any;
+  ): PublishAllResult;
   /**
    * Publishes multiple events.
    * @param events The events to publish.
@@ -205,7 +216,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
     events: TEvent[],
     dispatcherOrAsyncContext?: TContext | AsyncContext,
     asyncContext?: AsyncContext,
-  ) {
+  ): PublishAllResult {
     if (!asyncContext && dispatcherOrAsyncContext instanceof AsyncContext) {
       asyncContext = dispatcherOrAsyncContext;
       dispatcherOrAsyncContext = undefined;
@@ -229,7 +240,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
     }
     return (events || []).map((event) =>
       this._publisher.publish(event, dispatcherOrAsyncContext, asyncContext),
-    );
+    ) as PublishAllResult;
   }
 
   bind(handler: InstanceWrapper<IEventHandler<EventBase>>, id: string) {
@@ -391,7 +402,9 @@ export class EventBus<EventBase extends IEvent = IEvent>
   }
 
   private useDefaultPublisher() {
-    this._publisher = new DefaultPubSub<EventBase>(this.subject$);
+    this._publisher = new DefaultPubSub<EventBase>(
+      this.subject$,
+    ) as unknown as Publisher;
   }
 
   private mapToUnhandledErrorInfo(
