@@ -3,11 +3,16 @@ import { Test, TestingModule } from '@nestjs/testing';
 import {
   Command,
   CommandBus,
+  EventBus,
   ICommandHandler,
+  IEvent,
+  IEventPublisher,
+  IQueryHandler,
   Query,
   QueryBus,
 } from '../../src';
 import { AppModule } from '../src/app.module';
+import { expectTypeOf } from 'expect-type';
 
 describe('Generics', () => {
   let moduleRef: TestingModule;
@@ -32,12 +37,9 @@ describe('Generics', () => {
 
         try {
           await commandBus.execute(command).then((value) => {
-            value as string;
-
-            // @ts-expect-error
-            value as number;
+            expectTypeOf(value).toBeString();
           });
-        } catch (err) {
+        } catch {
           // Do nothing
         } finally {
           expect(true).toBeTruthy();
@@ -53,10 +55,9 @@ describe('Generics', () => {
 
         try {
           await commandBus.execute(command).then((value) => {
-            value as string;
-            value as number;
+            expectTypeOf(value).toBeAny();
           });
-        } catch (err) {
+        } catch {
           // Do nothing
         } finally {
           expect(true).toBeTruthy();
@@ -70,12 +71,9 @@ describe('Generics', () => {
 
         try {
           await commandBus.execute<MyCommand, string>(command).then((value) => {
-            value as string;
-
-            // @ts-expect-error
-            value as number;
+            expectTypeOf(value).toBeString();
           });
-        } catch (err) {
+        } catch {
           // Do nothing
         } finally {
           expect(true).toBeTruthy();
@@ -91,12 +89,9 @@ describe('Generics', () => {
 
         try {
           await queryBus.execute(query).then((value) => {
-            value as string;
-
-            // @ts-expect-error
-            value as number;
+            expectTypeOf(value).toBeString();
           });
-        } catch (err) {
+        } catch {
           // Do nothing
         } finally {
           expect(true).toBeTruthy();
@@ -112,10 +107,9 @@ describe('Generics', () => {
 
         try {
           await queryBus.execute(query).then((value) => {
-            value as string;
-            value as number;
+            expectTypeOf(value).toBeAny();
           });
-        } catch (err) {
+        } catch {
           // Do nothing
         } finally {
           expect(true).toBeTruthy();
@@ -129,12 +123,9 @@ describe('Generics', () => {
 
         try {
           await queryBus.execute<MyQuery, string>(query).then((value) => {
-            value as string;
-
-            // @ts-expect-error
-            value as number;
+            expectTypeOf(value).toBeString();
           });
-        } catch (err) {
+        } catch {
           // Do nothing
         } finally {
           expect(true).toBeTruthy();
@@ -150,14 +141,14 @@ describe('Generics', () => {
       }> {}
 
       class ValidHandler implements ICommandHandler<Test> {
-        execute(command: Test): Promise<{ value: string }> {
+        execute(): Promise<{ value: string }> {
           throw new Error('Method not implemented.');
         }
       }
 
       class InvalidHandler implements ICommandHandler<Test> {
-        // @ts-expect-error
-        execute(command: Test): Promise<{ value: number }> {
+        // @ts-expect-error Expected return type is string
+        execute(): Promise<{ value: number }> {
           throw new Error('Method not implemented.');
         }
       }
@@ -179,16 +170,185 @@ describe('Generics', () => {
         );
 
         await commandBus.execute(new Test()).then((value) => {
-          value.value as string;
-
-          // @ts-expect-error
-          value as number;
+          expectTypeOf(value).toEqualTypeOf<{ value: string }>();
         });
-      } catch (err) {
+      } catch {
         // Do nothing
       } finally {
         expect(true).toBeTruthy();
       }
+    });
+  });
+
+  describe('Query handlers', () => {
+    it('should infer return type', async () => {
+      class Test extends Query<{
+        value: string;
+      }> {}
+
+      class ValidHandler implements IQueryHandler<Test> {
+        execute(): Promise<{ value: string }> {
+          throw new Error('Method not implemented.');
+        }
+      }
+
+      class InvalidHandler implements IQueryHandler<Test> {
+        // @ts-expect-error Expected return type is string
+        execute(): Promise<{ value: number }> {
+          throw new Error('Method not implemented.');
+        }
+      }
+
+      try {
+        queryBus.bind(
+          new InstanceWrapper({
+            metatype: ValidHandler,
+            instance: new ValidHandler(),
+          }),
+          'Test',
+        );
+        queryBus.bind(
+          new InstanceWrapper({
+            metatype: InvalidHandler,
+            instance: new InvalidHandler() as any,
+          }),
+          'Test2',
+        );
+
+        await queryBus.execute(new Test()).then((value) => {
+          expectTypeOf(value).toEqualTypeOf<{ value: string }>();
+        });
+      } catch {
+        // Do nothing
+      } finally {
+        expect(true).toBeTruthy();
+      }
+    });
+  });
+
+  describe('EventBus', () => {
+    describe('when custom event type is passed', () => {
+      class CustomEvent {
+        constructor(readonly foo: string) {}
+      }
+
+      class ExtendedCustomEvent extends CustomEvent {
+        constructor(
+          foo: string,
+          readonly bar: string,
+        ) {
+          super(foo);
+        }
+      }
+
+      let eventBus: EventBus<CustomEvent>;
+
+      beforeAll(() => {
+        eventBus = moduleRef.get(EventBus);
+      });
+
+      it('publish method should forbid other objects than CustomEvent', () => {
+        // @ts-expect-error publish requires a CustomEvent
+        eventBus.publish({ id: 'test' });
+      });
+
+      it('publish method should accept CustomEvent', () => {
+        eventBus.publish(new CustomEvent('foo'));
+      });
+
+      it('publish method should accept CustomEvent extensions', () => {
+        eventBus.publish(new ExtendedCustomEvent('foo', 'bar'));
+      });
+
+      it('publishAll method should forbid other objects than CustomEvent', () => {
+        // @ts-expect-error publish requires a CustomEvent
+        eventBus.publishAll([{ id: 'test' }]);
+      });
+
+      it('publishAll method should accept CustomEvent', () => {
+        eventBus.publishAll([new CustomEvent('foo')]);
+      });
+
+      it('publishAll method should accept CustomEvent extensions', () => {
+        eventBus.publishAll([new ExtendedCustomEvent('foo', 'bar')]);
+      });
+    });
+
+    describe('when default event publisher is used', () => {
+      let eventBus: EventBus;
+
+      beforeAll(() => {
+        eventBus = moduleRef.get(EventBus);
+      });
+
+      it('publish method should return any', () => {
+        const result = eventBus.publish({ id: 'test' });
+
+        expectTypeOf(result).toBeAny();
+      });
+
+      it('publishAll method should return array of any', () => {
+        const result = eventBus.publishAll([{ id: 'test' }]);
+
+        expectTypeOf(result).toBeArray();
+        expectTypeOf(result).items.toBeAny();
+      });
+    });
+
+    describe('when a custom event publisher is used', () => {
+      class Publisher implements IEventPublisher {
+        publish() {
+          return 'any string here';
+        }
+        publishAll() {
+          return true;
+        }
+      }
+
+      let eventBus: EventBus<IEvent, Publisher>;
+
+      beforeAll(() => {
+        eventBus = moduleRef.get(EventBus);
+      });
+
+      it('publish method should return string', () => {
+        const result = eventBus.publish({ id: 'test' });
+
+        expectTypeOf(result).toBeString();
+      });
+
+      it('publishAll method should return boolean', () => {
+        const result = eventBus.publishAll([{ id: 'test' }]);
+
+        expectTypeOf(result).toBeBoolean();
+      });
+    });
+
+    describe('when a custom event publisher is used, but does not implement publishAll', () => {
+      class Publisher implements IEventPublisher {
+        publish() {
+          return 'any string here';
+        }
+      }
+
+      let eventBus: EventBus<IEvent, Publisher>;
+
+      beforeAll(() => {
+        eventBus = moduleRef.get(EventBus);
+      });
+
+      it('publish method should return string', () => {
+        const result = eventBus.publish({ id: 'test' });
+
+        expectTypeOf(result).toBeString();
+      });
+
+      it('publishAll method should return boolean', () => {
+        const result = eventBus.publishAll([{ id: 'test' }]);
+
+        expectTypeOf(result).toBeArray();
+        expectTypeOf(result).items.toBeString();
+      });
     });
   });
 
