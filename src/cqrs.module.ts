@@ -19,6 +19,9 @@ import { ExplorerService } from './services/explorer.service';
 import { UnhandledExceptionBus } from './unhandled-exception-bus';
 import { AggregateRootStorage } from './storages/aggregate-root.storage';
 
+/**
+ * @publicApi
+ */
 @Module({
   providers: [
     CommandBus,

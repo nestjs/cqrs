@@ -3,6 +3,8 @@ import { IQuery } from './query.interface';
 
 /**
  * Represents a query handler.
+ *
+ * @publicApi
  */
 export type IQueryHandler<T extends IQuery = any, TRes = any> =
   T extends Query<infer InferredQueryResult>

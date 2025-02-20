@@ -8,6 +8,9 @@ export interface Constructor<T> {
   new (...args: any[]): T;
 }
 
+/**
+ * @publicApi
+ */
 @Injectable()
 export class EventPublisher<EventBase extends IEvent = IEvent> {
   constructor(private readonly eventBus: EventBus<EventBase>) {}

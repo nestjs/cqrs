@@ -14,6 +14,8 @@ import { COMMAND_HANDLER_METADATA, COMMAND_METADATA } from './constants';
  * @param options injectable options passed on to the "@Injectable" decorator.
  *
  * @see https://docs.nestjs.com/recipes/cqrs#commands
+ *
+ * @publicApi
  */
 export const CommandHandler = (
   command: ICommand | (new (...args: any[]) => ICommand),

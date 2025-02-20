@@ -26,6 +26,9 @@ export type CommandHandlerType<T extends ICommand = ICommand> = Type<
   ICommandHandler<T>
 >;
 
+/**
+ * @publicApi
+ */
 @Injectable()
 export class CommandBus<CommandBase extends ICommand = ICommand>
   extends ObservableBus<CommandBase>

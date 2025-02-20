@@ -1,3 +1,6 @@
+/**
+ * @publicApi
+ */
 export class InvalidCommandHandlerException extends Error {
   constructor() {
     super(
