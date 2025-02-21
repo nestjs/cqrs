@@ -25,6 +25,9 @@ export type QueryHandlerType<
   QueryResultBase extends IQueryResult = IQueryResult,
 > = Type<IQueryHandler<QueryBase, QueryResultBase>>;
 
+/**
+ * @publicApi
+ */
 @Injectable()
 export class QueryBus<QueryBase extends IQuery = IQuery>
   extends ObservableBus<QueryBase>

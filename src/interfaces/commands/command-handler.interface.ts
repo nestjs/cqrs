@@ -4,6 +4,8 @@ import { ICommand } from './command.interface';
 /**
  * Represents a command handler.
  * Command handlers are used to execute commands.
+ *
+ * @publicApi
  */
 export type ICommandHandler<TCommand extends ICommand = any, TResult = any> =
   TCommand extends Command<infer InferredCommandResult>

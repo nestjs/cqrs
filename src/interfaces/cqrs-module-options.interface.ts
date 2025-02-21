@@ -6,6 +6,8 @@ import { IQueryPublisher } from './queries/query-publisher.interface';
 
 /**
  * Options for the CqrsModule.
+ *
+ * @publicApi
  */
 export interface CqrsModuleOptions {
   /**
@@ -42,10 +44,20 @@ export interface CqrsModuleOptions {
 
 import { Provider, Type } from '@nestjs/common';
 
+/**
+ * Options for the CqrsModuleOptionsFactory.
+ *
+ * @publicApi
+ */
 export interface CqrsModuleOptionsFactory {
   createCqrsOptions(): Promise<CqrsModuleOptions> | CqrsModuleOptions;
 }
 
+/**
+ * Options for the CqrsModuleAsyncOptions.
+ *
+ * @publicApi
+ */
 export interface CqrsModuleAsyncOptions {
   imports?: any[];
   useExisting?: Type<CqrsModuleOptionsFactory>;

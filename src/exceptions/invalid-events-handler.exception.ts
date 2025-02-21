@@ -1,3 +1,6 @@
+/**
+ * @publicApi
+ */
 export class InvalidEventsHandlerException extends Error {
   constructor() {
     super(

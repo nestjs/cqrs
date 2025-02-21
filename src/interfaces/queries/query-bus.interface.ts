@@ -4,6 +4,8 @@ import { IQuery } from './query.interface';
 
 /**
  * Represents a query bus.
+ *
+ * @publicApi
  */
 export interface IQueryBus<QueryBase extends IQuery = IQuery> {
   /**

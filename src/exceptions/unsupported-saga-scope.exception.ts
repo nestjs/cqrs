@@ -1,3 +1,6 @@
+/**
+ * @publicApi
+ */
 export class UnsupportedSagaScopeException extends Error {
   constructor() {
     super(

@@ -38,6 +38,9 @@ export type EventHandlerType<EventBase extends IEvent = IEvent> = Type<
   IEventHandler<EventBase>
 >;
 
+/**
+ * @publicApi
+ */
 @Injectable()
 export class EventBus<EventBase extends IEvent = IEvent>
   extends ObservableBus<EventBase>

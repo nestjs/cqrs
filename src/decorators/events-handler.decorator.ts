@@ -14,6 +14,8 @@ import { EVENT_METADATA, EVENTS_HANDLER_METADATA } from './constants';
  * @param options injectable options passed on to the "@Injectable" decorator.
  *
  * @see https://docs.nestjs.com/recipes/cqrs#events
+ *
+ * @publicApi
  */
 export const EventsHandler = (
   ...events: (IEvent | (new (...args: any[]) => IEvent) | InjectableOptions)[]

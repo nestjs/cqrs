@@ -14,6 +14,8 @@ import { QUERY_HANDLER_METADATA, QUERY_METADATA } from './constants';
  * @param options injectable options passed on to the "@Injectable" decorator.
  *
  * @see https://docs.nestjs.com/recipes/cqrs#queries
+ *
+ * @publicApi
  */
 export const QueryHandler = (
   query: IQuery,

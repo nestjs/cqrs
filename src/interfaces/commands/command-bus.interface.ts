@@ -4,6 +4,8 @@ import { ICommand } from './command.interface';
 
 /**
  * Represents a command bus.
+ *
+ * @publicApi
  */
 export interface ICommandBus<CommandBase extends ICommand = ICommand> {
   /**
