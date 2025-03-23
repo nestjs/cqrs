@@ -22,7 +22,7 @@ export const EventsHandler = (
 ): ClassDecorator => {
   return (target: Function) => {
     const last = events[events.length - 1];
-    if (typeof last !== 'function' && 'scope' in last) {
+    if (last && typeof last !== 'function' && 'scope' in last) {
       Injectable(last)(target);
       events.pop();
     }
