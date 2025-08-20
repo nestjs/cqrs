@@ -160,7 +160,9 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
   protected registerHandler(
     handler: InstanceWrapper<ICommandHandler<CommandBase>>,
   ) {
-    const typeRef = handler.metatype as Type<ICommandHandler<CommandBase>>;
+    const typeRef = (
+      handler.inject ? handler.instance?.constructor : handler.metatype
+    ) as Type<ICommandHandler<CommandBase>>;
     const target = this.reflectCommandId(typeRef);
     if (!target) {
       throw new InvalidCommandHandlerException();

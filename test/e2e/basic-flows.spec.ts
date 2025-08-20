@@ -10,7 +10,7 @@ import { HeroFoundItemHandler } from '../src/heroes/events/handlers/hero-found-i
 import { HeroKilledDragonHandler } from '../src/heroes/events/handlers/hero-killed-dragon.handler';
 import { HeroFoundItemEvent } from '../src/heroes/events/impl/hero-found-item.event';
 import { HeroKilledDragonEvent } from '../src/heroes/events/impl/hero-killed-dragon.event';
-import { GetHeroesQuery } from '../src/heroes/queries/impl';
+import { GetHeroesQuery, GetHeroQuery } from '../src/heroes/queries/impl';
 import { HERO_ID } from '../src/heroes/repository/fixtures/user';
 import { ANCIENT_ITEM_ID } from '../src/heroes/sagas/heroes.sagas';
 import { NoopHandler } from '../src/noop/events/handlers/noop.handler';
@@ -97,6 +97,14 @@ describe('Basic flows', () => {
       const queryBus = moduleRef.get(QueryBus);
       const heroes = await queryBus.execute(new GetHeroesQuery());
       expect(heroes).toEqual([expect.objectContaining({ id: HERO_ID })]);
+    });
+  });
+
+  describe('when "GetHeroQuery" query is executed', () => {
+    it('should return a single hero', async () => {
+      const queryBus = moduleRef.get(QueryBus);
+      const hero = await queryBus.execute(new GetHeroQuery(1234));
+      expect(hero).toEqual(expect.objectContaining({ id: HERO_ID }));
     });
   });
 
