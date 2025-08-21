@@ -1,10 +1,9 @@
-import { Provider } from '@nestjs/common';
-import { EventPublisher, ICommandHandler } from '../../../../../src';
+import { EventPublisher } from '../../../../../src';
 import { HeroRepository } from '../../repository/hero.repository';
 import { DropAncientItemHandler } from './drop-ancient-item.handler';
 import { KillDragonHandler } from './kill-dragon.handler';
 
-export const CommandHandlers: Provider<ICommandHandler>[] = [
+export const CommandHandlers = [
   KillDragonHandler,
   {
     provide: DropAncientItemHandler,
