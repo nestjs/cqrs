@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { Type } from '@nestjs/common';
-import { IEvent, IEventHandler } from './interfaces';
+import type { Type } from '@nestjs/common';
+import type { IEvent, IEventHandler } from './interfaces';
 
 const INTERNAL_EVENTS = Symbol();
 const IS_AUTO_COMMIT_ENABLED = Symbol();
