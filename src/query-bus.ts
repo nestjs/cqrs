@@ -153,7 +153,9 @@ export class QueryBus<QueryBase extends IQuery = IQuery>
   protected registerHandler(
     handler: InstanceWrapper<IQueryHandler<QueryBase>>,
   ) {
-    const typeRef = handler.metatype as Type<IQueryHandler<QueryBase>>;
+    const typeRef = (
+      handler.inject ? handler.instance?.constructor : handler.metatype
+    ) as Type<IQueryHandler<QueryBase>>;
     const target = this.reflectQueryId(typeRef);
     if (!target) {
       throw new InvalidQueryHandlerException();
