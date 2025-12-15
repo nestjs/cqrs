@@ -1,3 +1,4 @@
+export * from './aggregate-root.interface';
 export * from './commands/command-bus.interface';
 export * from './commands/command-handler.interface';
 export * from './commands/command-publisher.interface';
