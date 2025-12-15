@@ -7,6 +7,14 @@ const IS_AUTO_COMMIT_ENABLED = Symbol();
 
 export type AbstractConstructor<T = {}> = abstract new (...args: any[]) => T;
 
+/**
+ * Adds the Aggregate Root functionality to a base class.
+ * An aggregate root is an entity that represents a meaningful concept in the domain.
+ * It is the root of an aggregate, which is a cluster of domain objects that can be treated as a single unit.
+ *
+ * @template EventBase The base type of the events.
+ * @template TBase The base class type.
+ */
 export function WithAggregateRoot<
   EventBase extends IEvent = IEvent,
   TBase extends AbstractConstructor = AbstractConstructor,

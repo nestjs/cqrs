@@ -1,6 +1,6 @@
 import { Type } from '@nestjs/common';
 import { IEvent, IEventHandler } from './interfaces';
-import { BaseAggregateRoot } from './utils/base-aggregate-root';
+import { WithAggregateRoot } from './mixins';
 
 /**
  * Represents an aggregate root.
@@ -11,7 +11,7 @@ import { BaseAggregateRoot } from './utils/base-aggregate-root';
  */
 export abstract class AggregateRoot<
   EventBase extends IEvent = IEvent,
-> extends BaseAggregateRoot<EventBase> {
+> extends WithAggregateRoot(class {})<EventBase> {
   // redeclaring protected methods to preserve typings (since this typescript version does not support the "declare" modifier on overrides)
 
   protected getEventHandler<T extends EventBase = EventBase>(
