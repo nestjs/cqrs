@@ -31,11 +31,34 @@ export abstract class AggregateRoot<EventBase extends IEvent = IEvent>
     );
   }
 
-  // generic overrides for the apply method to preserve typings
+  // Override the generic methods to make sure the EventBase type is preserved
+
+  /**
+   * Returns all uncommitted events.
+   * @returns All uncommitted events.
+   */
   getUncommittedEvents(): EventBase[] {
     return super.getUncommittedEvents() as EventBase[];
   }
 
+  /**
+   * Loads aggregate root state from event history.
+   * @param history The event history to load.
+   */
+  loadFromHistory(history: EventBase[]): void {
+    super.loadFromHistory(history);
+  }
+
+  /**
+   * Applies an event.
+   * If auto commit is enabled, the event will be published immediately (note: must be merged with the publisher context in order to work).
+   * Otherwise, the event will be stored in the internal events array, and will be published when the commit method is called.
+   * Also, the corresponding event handler will be called (if exists).
+   * For example, if the event is called UserCreatedEvent, the "onUserCreatedEvent" method will be called.
+   *
+   * @param event The event to apply.
+   * @param options The options.
+   */
   apply<T extends EventBase = EventBase>(
     event: T,
     isFromHistory?: boolean,
@@ -46,5 +69,25 @@ export abstract class AggregateRoot<EventBase extends IEvent = IEvent>
   ): void;
   apply(event: unknown, options?: unknown): void {
     return super.apply(event as IEvent, options as any);
+  }
+
+  /**
+   * Publishes a single event.
+   * @param event The event to publish.
+   */
+  publish<T extends EventBase = EventBase>(event: T): void;
+  publish<T extends EventBase = EventBase>(event: T): void;
+  publish<T extends EventBase = EventBase>(event: T): void {
+    super.publish(event);
+  }
+
+  /**
+   * Publishes multiple events.
+   * @param events The events to publish.
+   */
+  publishAll<T extends EventBase = EventBase>(events: T[]): void;
+  publishAll<T extends EventBase = EventBase>(events: T[]): void;
+  publishAll<T extends EventBase = EventBase>(events: T[]): void {
+    super.publishAll(events);
   }
 }
