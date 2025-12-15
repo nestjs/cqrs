@@ -98,5 +98,3 @@ export function WithAggregateRoot<
   type FinalAggregateRoot = IAggregateRoot<EventBase> & InstanceType<TBase>;
   return AggregateRoot as unknown as AbstractConstructor<FinalAggregateRoot>;
 }
-
-export const AggregateRootMixin = WithAggregateRoot;
