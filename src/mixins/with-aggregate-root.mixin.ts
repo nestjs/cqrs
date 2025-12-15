@@ -5,7 +5,7 @@ import type { IEvent, IEventHandler, IAggregateRoot } from '../interfaces';
 const INTERNAL_EVENTS = Symbol();
 const IS_AUTO_COMMIT_ENABLED = Symbol();
 
-type AbstractConstructor<T = {}> = abstract new (...args: any[]) => T;
+export type AbstractConstructor<T = {}> = abstract new (...args: any[]) => T;
 
 export function WithAggregateRoot<
   EventBase extends IEvent = IEvent,
@@ -95,6 +95,9 @@ export function WithAggregateRoot<
       return constructor.name as string;
     }
   }
-  type FinalAggregateRoot = IAggregateRoot<EventBase> & InstanceType<TBase>;
-  return AggregateRoot as unknown as AbstractConstructor<FinalAggregateRoot>;
+  return AggregateRoot as unknown as abstract new <
+    T extends IEvent = EventBase,
+  >(
+    ...args: any[]
+  ) => IAggregateRoot<T> & InstanceType<TBase>;
 }
