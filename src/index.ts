@@ -19,3 +19,4 @@ export * from './query-bus';
 export * from './scopes';
 export * from './unhandled-exception-bus';
 export * from './utils';
+export * from './mixins';
