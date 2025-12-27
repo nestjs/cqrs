@@ -4,11 +4,13 @@ import { EventHandlers } from './events/handlers';
 import { QueryHandlers } from './queries/handlers';
 import { HeroRepository } from './repository/hero.repository';
 import { HeroesGameSagas } from './sagas/heroes.sagas';
+import { EnemyRepository } from './repository/enemy.repository';
 
 @Module({
   controllers: [],
   providers: [
     HeroRepository,
+    EnemyRepository,
     ...CommandHandlers,
     ...EventHandlers,
     ...QueryHandlers,
