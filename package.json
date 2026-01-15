@@ -27,7 +27,7 @@
     "@nestjs/core": "11.1.12",
     "@nestjs/testing": "11.1.12",
     "@types/jest": "30.0.0",
-    "@types/node": "24.10.8",
+    "@types/node": "24.10.9",
     "eslint": "9.39.2",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.5",
