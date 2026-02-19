@@ -19,8 +19,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json --runInBand"
   },
   "devDependencies": {
-    "@commitlint/cli": "20.4.1",
-    "@commitlint/config-angular": "20.4.1",
+    "@commitlint/cli": "20.4.2",
+    "@commitlint/config-angular": "20.4.2",
     "@eslint/eslintrc": "3.3.3",
     "@eslint/js": "10.0.1",
     "@nestjs/common": "11.1.14",
