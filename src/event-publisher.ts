@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { AggregateRoot } from './aggregate-root';
 import { EventBus } from './event-bus';
-import { IEvent } from './interfaces';
+import { IAggregateRoot, IEvent } from './interfaces';
 import { AsyncContext } from './scopes';
 
 export interface Constructor<T> {
@@ -21,7 +20,7 @@ export class EventPublisher<EventBase extends IEvent = IEvent> {
    * @param metatype The class to merge into.
    * @param asyncContext The async context (if scoped).
    */
-  mergeClassContext<T extends Constructor<AggregateRoot<EventBase>>>(
+  mergeClassContext<T extends Constructor<IAggregateRoot<EventBase>>>(
     metatype: T,
     asyncContext?: AsyncContext,
   ): T {
@@ -39,11 +38,11 @@ export class EventPublisher<EventBase extends IEvent = IEvent> {
 
   /**
    * Merge the event publisher into the provided object.
-   * This is required to make `publish` and `publishAll` available on the `AggregateRoot` class instance.
+   * This is required to make `publish` and `publishAll` available on the `IAggregateRoot` class instance.
    * @param object The object to merge into.
    * @param asyncContext The async context (if scoped).
    */
-  mergeObjectContext<T extends AggregateRoot<EventBase>>(
+  mergeObjectContext<T extends IAggregateRoot<EventBase>>(
     object: T,
     asyncContext?: AsyncContext,
   ): T {
