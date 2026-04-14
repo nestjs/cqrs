@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { setTimeout } from 'timers/promises';
+import type { MockInstance } from 'vitest';
 import { CommandBus, QueryBus } from '../../src';
 import { AppModule } from '../src/app.module';
 import { DropAncientItemHandler } from '../src/heroes/commands/handlers/drop-ancient-item.handler';
@@ -28,9 +29,9 @@ describe('Basic flows', () => {
   });
 
   describe('when "KillDragonCommand" command is dispatched', () => {
-    let killDragonExecuteSpy: jest.SpyInstance;
-    let heroKilledDragonHandleSpy: jest.SpyInstance;
-    let noopEventHandleSpy: jest.SpyInstance;
+    let killDragonExecuteSpy: MockInstance;
+    let heroKilledDragonHandleSpy: MockInstance;
+    let noopEventHandleSpy: MockInstance;
     let command: KillDragonCommand;
 
     beforeAll(async () => {
@@ -38,9 +39,9 @@ describe('Basic flows', () => {
       const heroKilledDragonHandler = moduleRef.get(HeroKilledDragonHandler);
       const noopHandler = moduleRef.get(NoopHandler);
 
-      killDragonExecuteSpy = jest.spyOn(killDragonHandler, 'execute');
-      heroKilledDragonHandleSpy = jest.spyOn(heroKilledDragonHandler, 'handle');
-      noopEventHandleSpy = jest.spyOn(noopHandler, 'handle');
+      killDragonExecuteSpy = vi.spyOn(killDragonHandler, 'execute');
+      heroKilledDragonHandleSpy = vi.spyOn(heroKilledDragonHandler, 'handle');
+      noopEventHandleSpy = vi.spyOn(noopHandler, 'handle');
 
       const commandBus = moduleRef.get(CommandBus);
       const heroId = HERO_ID;
@@ -65,14 +66,14 @@ describe('Basic flows', () => {
     });
 
     describe('when saga triggered', () => {
-      let dropAncientExecuteSpy: jest.SpyInstance;
-      let heroFoundItemSpy: jest.SpyInstance;
+      let dropAncientExecuteSpy: MockInstance;
+      let heroFoundItemSpy: MockInstance;
 
       beforeAll(async () => {
         const dropAncientItemHandler = moduleRef.get(DropAncientItemHandler);
         const heroFoundItemHandler = moduleRef.get(HeroFoundItemHandler);
-        dropAncientExecuteSpy = jest.spyOn(dropAncientItemHandler, 'execute');
-        heroFoundItemSpy = jest.spyOn(heroFoundItemHandler, 'handle');
+        dropAncientExecuteSpy = vi.spyOn(dropAncientItemHandler, 'execute');
+        heroFoundItemSpy = vi.spyOn(heroFoundItemHandler, 'handle');
 
         // Wait 1 second for saga to be triggered
         await setTimeout(1000);

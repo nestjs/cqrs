@@ -1,6 +1,6 @@
 import { Subject } from 'rxjs';
-import { ofType } from './of-type';
 import { IEvent } from '../interfaces';
+import { ofType } from './of-type';
 
 describe('operators/ofType', () => {
   class A implements IEvent {
@@ -55,33 +55,37 @@ describe('operators/ofType', () => {
   });
 
   // TypeScript TSC test, if this compiles it passes
-  it('should infer return types of similar unions unions', (done) => {
-    stream.pipe(ofType(A, B)).subscribe((event) => {
-      event.keyAOrB;
-      // @ts-expect-error -- A | B cannot reference a B only key
-      event.keyBOnly;
-      done();
-    });
+  it('should infer return types of similar unions unions', async () => {
+    await new Promise<void>((resolve) => {
+      stream.pipe(ofType(A, B)).subscribe((event) => {
+        event.keyAOrB;
+        // @ts-expect-error -- A | B cannot reference a B only key
+        event.keyBOnly;
+        resolve();
+      });
 
-    stream.next(new A());
+      stream.next(new A());
+    });
   });
 
   // TypeScript TSC test, if this compiles it passes
-  it('should infer return types of disparate unions', (done) => {
-    stream.pipe(ofType(A, C)).subscribe((event) => {
-      // @ts-expect-error -- A | C cannot reference a key that is not on C
-      event.keyAOnly;
-
-      if (event instanceof A) {
+  it('should infer return types of disparate unions', async () => {
+    await new Promise<void>((resolve) => {
+      stream.pipe(ofType(A, C)).subscribe((event) => {
+        // @ts-expect-error -- A | C cannot reference a key that is not on C
         event.keyAOnly;
-      }
 
-      if (event instanceof C) {
-        event.keyCOptional;
-      }
-      done();
+        if (event instanceof A) {
+          event.keyAOnly;
+        }
+
+        if (event instanceof C) {
+          event.keyCOptional;
+        }
+        resolve();
+      });
+
+      stream.next(new A());
     });
-
-    stream.next(new A());
   });
 });
