@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { setTimeout } from 'timers/promises';
+import type { MockInstance } from 'vitest';
 import { AsyncContext, CommandBus, QueryBus } from '../../src';
 import { AppModule } from '../src/app.module';
 import { HERO_ID } from '../src/heroes/repository/fixtures/user';
@@ -29,8 +30,8 @@ describe('Request scope', () => {
   describe('when "ScopedKillDragonCommand" command is dispatched', () => {
     const asyncContext = new AsyncContext();
 
-    let killDragonExecuteSpy: jest.SpyInstance;
-    let heroKilledDragonHandleSpy: jest.SpyInstance;
+    let killDragonExecuteSpy: MockInstance;
+    let heroKilledDragonHandleSpy: MockInstance;
     let command: ScopedKillDragonCommand;
 
     beforeAll(async () => {
@@ -45,8 +46,8 @@ describe('Request scope', () => {
         asyncContext.id,
       );
 
-      killDragonExecuteSpy = jest.spyOn(killDragonHandler, 'execute');
-      heroKilledDragonHandleSpy = jest.spyOn(heroKilledDragonHandler, 'handle');
+      killDragonExecuteSpy = vi.spyOn(killDragonHandler, 'execute');
+      heroKilledDragonHandleSpy = vi.spyOn(heroKilledDragonHandler, 'handle');
 
       const commandBus = moduleRef.get(CommandBus);
       const heroId = HERO_ID;
@@ -70,8 +71,8 @@ describe('Request scope', () => {
     });
 
     describe('when saga triggered', () => {
-      let dropAncientExecuteSpy: jest.SpyInstance;
-      let heroFoundItemSpy: jest.SpyInstance;
+      let dropAncientExecuteSpy: MockInstance;
+      let heroFoundItemSpy: MockInstance;
 
       beforeAll(async () => {
         const dropAncientItemHandler = await moduleRef.resolve(
@@ -82,8 +83,8 @@ describe('Request scope', () => {
           ScopedHeroFoundItemHandler,
           asyncContext.id,
         );
-        dropAncientExecuteSpy = jest.spyOn(dropAncientItemHandler, 'execute');
-        heroFoundItemSpy = jest.spyOn(heroFoundItemHandler, 'handle');
+        dropAncientExecuteSpy = vi.spyOn(dropAncientItemHandler, 'execute');
+        heroFoundItemSpy = vi.spyOn(heroFoundItemHandler, 'handle');
 
         // Wait 1 second for saga to be triggered
         await setTimeout(1000);

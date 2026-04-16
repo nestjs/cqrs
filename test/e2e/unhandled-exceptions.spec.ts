@@ -36,34 +36,50 @@ describe('Unhandled exceptions', () => {
   });
 
   describe('when exception is thrown from event handler', () => {
-    it('should forward exception to UnhandledExceptionBus', (done) => {
+    it('should forward exception to UnhandledExceptionBus', async () => {
       const command = new UnhandledExceptionCommand('event');
       const commandBus = moduleRef.get(CommandBus);
 
-      unhandledExceptionBus.pipe(take(1)).subscribe((exceptionInfo) => {
-        expect(exceptionInfo.exception).toEqual(
-          new Error(`Unhandled exception in ${command.failAt}`),
-        );
-        expect(exceptionInfo.cause).toBeInstanceOf(UnhandledExceptionEvent);
-        done();
+      const exceptionPromise = new Promise<void>((resolve, reject) => {
+        unhandledExceptionBus.pipe(take(1)).subscribe((exceptionInfo) => {
+          try {
+            expect(exceptionInfo.exception).toEqual(
+              new Error(`Unhandled exception in ${command.failAt}`),
+            );
+            expect(exceptionInfo.cause).toBeInstanceOf(UnhandledExceptionEvent);
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        });
+        commandBus.execute(command).catch((err) => reject(err));
       });
-      commandBus.execute(command).catch((err) => done(err));
+
+      await exceptionPromise;
     });
   });
 
   describe('when exception is thrown from saga', () => {
-    it('should forward exception to UnhandledExceptionBus', (done) => {
+    it('should forward exception to UnhandledExceptionBus', async () => {
       const command = new UnhandledExceptionCommand('saga');
       const commandBus = moduleRef.get(CommandBus);
 
-      unhandledExceptionBus.pipe(take(1)).subscribe((exceptionInfo) => {
-        expect(exceptionInfo.exception).toEqual(
-          new Error(`Unhandled exception in ${command.failAt}`),
-        );
-        expect(exceptionInfo.cause).toEqual('onError');
-        done();
+      const exceptionPromise = new Promise<void>((resolve, reject) => {
+        unhandledExceptionBus.pipe(take(1)).subscribe((exceptionInfo) => {
+          try {
+            expect(exceptionInfo.exception).toEqual(
+              new Error(`Unhandled exception in ${command.failAt}`),
+            );
+            expect(exceptionInfo.cause).toEqual('onError');
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        });
+        commandBus.execute(command).catch((err) => reject(err));
       });
-      commandBus.execute(command).catch((err) => done(err));
+
+      await exceptionPromise;
     });
   });
 
