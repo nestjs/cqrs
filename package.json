@@ -19,7 +19,7 @@
     "test:e2e": "vitest run --config vitest.config.e2e.ts"
   },
   "devDependencies": {
-    "@commitlint/cli": "20.5.0",
+    "@commitlint/cli": "20.5.2",
     "@commitlint/config-angular": "20.5.0",
     "@nestjs/common": "11.1.19",
     "@nestjs/core": "11.1.19",
