@@ -13,8 +13,8 @@ import { HeroKilledDragonHandler } from '../src/heroes/events/handlers/hero-kill
 import { DragonDiedEvent } from '../src/heroes/events/impl/dragon-died.event';
 import { HeroFoundItemEvent } from '../src/heroes/events/impl/hero-found-item.event';
 import { HeroKilledDragonEvent } from '../src/heroes/events/impl/hero-killed-dragon.event';
-import { GetHeroesQuery } from '../src/heroes/queries/impl';
 import { DRAGON_ID } from '../src/heroes/repository/fixtures/dragon';
+import { GetHeroesQuery, GetHeroQuery } from '../src/heroes/queries/impl';
 import { HERO_ID } from '../src/heroes/repository/fixtures/user';
 import { ANCIENT_ITEM_ID } from '../src/heroes/sagas/heroes.sagas';
 import { NoopHandler } from '../src/noop/events/handlers/noop.handler';
@@ -43,7 +43,7 @@ describe('Basic flows', () => {
       const heroKilledDragonHandler = moduleRef.get(HeroKilledDragonHandler);
       const dragonDiedHandler = moduleRef.get(DragonDiedHandler);
       const noopHandler = moduleRef.get(NoopHandler);
-      
+
       killDragonExecuteSpy = vi.spyOn(killDragonHandler, 'execute');
       heroKilledDragonHandleSpy = vi.spyOn(heroKilledDragonHandler, 'handle');
       dragonDiedHandleSpy = vi.spyOn(dragonDiedHandler, 'handle');
@@ -109,6 +109,14 @@ describe('Basic flows', () => {
       const queryBus = moduleRef.get(QueryBus);
       const heroes = await queryBus.execute(new GetHeroesQuery());
       expect(heroes).toEqual([expect.objectContaining({ id: HERO_ID })]);
+    });
+  });
+
+  describe('when "GetHeroQuery" query is executed', () => {
+    it('should return a single hero', async () => {
+      const queryBus = moduleRef.get(QueryBus);
+      const hero = await queryBus.execute(new GetHeroQuery(1234));
+      expect(hero).toEqual(expect.objectContaining({ id: HERO_ID }));
     });
   });
 
