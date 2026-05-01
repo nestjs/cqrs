@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { CqrsModule } from '../../../src';
-import { EventHandlers } from './events/handlers';
+import { CqrsModule } from '../../../src/index.js';
+import { EventHandlers } from './events/handlers/index.js';
 
 @Module({
   imports: [CqrsModule.forRoot()],

@@ -1,26 +1,26 @@
 import { Inject, Injectable, Logger, Optional, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
-import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
+import { InstanceWrapper } from '@nestjs/core/internal';
 import 'reflect-metadata';
-import { Command } from './classes';
-import { CQRS_MODULE_OPTIONS } from './constants';
+import { Command } from './classes/index.js';
+import { CQRS_MODULE_OPTIONS } from './constants.js';
 import {
   COMMAND_HANDLER_METADATA,
   COMMAND_METADATA,
-} from './decorators/constants';
-import { CommandHandlerNotFoundException } from './exceptions/command-not-found.exception';
-import { DefaultCommandPubSub } from './helpers/default-command-pubsub';
-import { InvalidCommandHandlerException } from './index';
-import { CommandMetadata } from './interfaces/commands/command-metadata.interface';
+} from './decorators/constants.js';
+import { CommandHandlerNotFoundException } from './exceptions/command-not-found.exception.js';
+import { DefaultCommandPubSub } from './helpers/default-command-pubsub.js';
+import { InvalidCommandHandlerException } from './index.js';
+import { CommandMetadata } from './interfaces/commands/command-metadata.interface.js';
 import {
   CqrsModuleOptions,
   ICommand,
   ICommandBus,
   ICommandHandler,
   ICommandPublisher,
-} from './interfaces/index';
-import { AsyncContext } from './scopes/async.context';
-import { ObservableBus } from './utils/observable-bus';
+} from './interfaces/index.js';
+import { AsyncContext } from './scopes/async.context.js';
+import { ObservableBus } from './utils/observable-bus.js';
 
 export type CommandHandlerType<T extends ICommand = ICommand> = Type<
   ICommandHandler<T>

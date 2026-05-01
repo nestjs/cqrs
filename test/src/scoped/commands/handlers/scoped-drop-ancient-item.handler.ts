@@ -5,9 +5,9 @@ import {
   CommandHandler,
   EventPublisher,
   ICommandHandler,
-} from '../../../../../src';
-import { HeroRepository } from '../../repository/hero.repository';
-import { ScopedDropAncientItemCommand } from '../impl/scoped-drop-ancient-item.command';
+} from '../../../../../src/index.js';
+import { HeroRepository } from '../../repository/hero.repository.js';
+import { ScopedDropAncientItemCommand } from '../impl/scoped-drop-ancient-item.command.js';
 
 @CommandHandler(ScopedDropAncientItemCommand, {
   scope: Scope.REQUEST,

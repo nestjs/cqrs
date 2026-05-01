@@ -1,20 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
-import { Module } from '@nestjs/core/injector/module';
-import { ModulesContainer } from '@nestjs/core/injector/modules-container';
+import {
+  InstanceWrapper,
+  Module,
+} from '@nestjs/core/internal';
+import { ModulesContainer } from '@nestjs/core/injector/modules-container.js';
 import {
   COMMAND_HANDLER_METADATA,
   EVENTS_HANDLER_METADATA,
   QUERY_HANDLER_METADATA,
   SAGA_METADATA,
-} from '../decorators/constants';
+} from '../decorators/constants.js';
 import {
   ICommandHandler,
   IEvent,
   IEventHandler,
   IQueryHandler,
-} from '../interfaces';
-import { ProvidersIntrospectionResult } from '../interfaces/providers-introspection-result.interface';
+} from '../interfaces/index.js';
+import { ProvidersIntrospectionResult } from '../interfaces/providers-introspection-result.interface.js';
 
 @Injectable()
 export class ExplorerService<EventBase extends IEvent = IEvent> {

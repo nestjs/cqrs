@@ -5,9 +5,9 @@ import {
   CommandHandler,
   EventPublisher,
   ICommandHandler,
-} from '../../../../../src';
-import { HeroRepository } from '../../repository/hero.repository';
-import { ScopedKillDragonCommand } from '../impl/scoped-kill-dragon.command';
+} from '../../../../../src/index.js';
+import { HeroRepository } from '../../repository/hero.repository.js';
+import { ScopedKillDragonCommand } from '../impl/scoped-kill-dragon.command.js';
 
 @CommandHandler(ScopedKillDragonCommand, {
   scope: Scope.REQUEST,

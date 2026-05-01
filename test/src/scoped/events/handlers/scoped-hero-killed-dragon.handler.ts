@@ -1,7 +1,7 @@
 import { Inject, Logger, Scope } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
-import { AsyncContext, EventsHandler, IEventHandler } from '../../../../../src';
-import { ScopedHeroKilledDragonEvent } from '../impl/hero-killed-dragon.event';
+import { AsyncContext, EventsHandler, IEventHandler } from '../../../../../src/index.js';
+import { ScopedHeroKilledDragonEvent } from '../impl/hero-killed-dragon.event.js';
 
 @EventsHandler(ScopedHeroKilledDragonEvent, {
   scope: Scope.REQUEST,

@@ -7,18 +7,21 @@ import {
   Type,
 } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
-import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
+import { InstanceWrapper } from '@nestjs/core/internal';
 import { Observable, Subscription, UnaryFunction, defer, of, pipe } from 'rxjs';
 import { catchError, filter, mergeMap, tap } from 'rxjs/operators';
-import { CommandBus } from './command-bus';
-import { CQRS_MODULE_OPTIONS } from './constants';
-import { EVENTS_HANDLER_METADATA, SAGA_METADATA } from './decorators/constants';
+import { CommandBus } from './command-bus.js';
+import { CQRS_MODULE_OPTIONS } from './constants.js';
+import {
+  EVENTS_HANDLER_METADATA,
+  SAGA_METADATA,
+} from './decorators/constants.js';
 import {
   InvalidSagaException,
   UnsupportedSagaScopeException,
-} from './exceptions';
-import { defaultEventIdProvider } from './helpers/default-event-id-provider';
-import { DefaultPubSub } from './helpers/default-pubsub';
+} from './exceptions/index.js';
+import { defaultEventIdProvider } from './helpers/default-event-id-provider.js';
+import { DefaultPubSub } from './helpers/default-pubsub.js';
 import {
   CqrsModuleOptions,
   EventIdProvider,
@@ -29,10 +32,10 @@ import {
   IEventPublisher,
   ISaga,
   UnhandledExceptionInfo,
-} from './interfaces';
-import { AsyncContext } from './scopes';
-import { UnhandledExceptionBus } from './unhandled-exception-bus';
-import { ObservableBus } from './utils';
+} from './interfaces/index.js';
+import { AsyncContext } from './scopes/index.js';
+import { UnhandledExceptionBus } from './unhandled-exception-bus.js';
+import { ObservableBus } from './utils/index.js';
 
 export type EventHandlerType<EventBase extends IEvent = IEvent> = Type<
   IEventHandler<EventBase>

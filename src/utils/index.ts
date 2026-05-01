@@ -1,1 +1,1 @@
-export * from './observable-bus';
+export * from './observable-bus.js';
