@@ -1,10 +1,13 @@
 import { Inject, Injectable, Logger, Optional, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
-import { InstanceWrapper } from '@nestjs/core/internal';
+import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper.js';
 import 'reflect-metadata';
 import { Query } from './classes/query.js';
 import { CQRS_MODULE_OPTIONS } from './constants.js';
-import { QUERY_HANDLER_METADATA, QUERY_METADATA } from './decorators/constants.js';
+import {
+  QUERY_HANDLER_METADATA,
+  QUERY_METADATA,
+} from './decorators/constants.js';
 import { QueryHandlerNotFoundException } from './exceptions/index.js';
 import { InvalidQueryHandlerException } from './exceptions/invalid-query-handler.exception.js';
 import { DefaultQueryPubSub } from './helpers/default-query-pubsub.js';

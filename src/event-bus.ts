@@ -7,7 +7,7 @@ import {
   Type,
 } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
-import { InstanceWrapper } from '@nestjs/core/internal';
+import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper.js';
 import { Observable, Subscription, UnaryFunction, defer, of, pipe } from 'rxjs';
 import { catchError, filter, mergeMap, tap } from 'rxjs/operators';
 import { CommandBus } from './command-bus.js';

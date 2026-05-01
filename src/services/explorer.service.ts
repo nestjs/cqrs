@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import {
-  InstanceWrapper,
-  Module,
-} from '@nestjs/core/internal';
+import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper.js';
+import { Module } from '@nestjs/core/injector/module.js';
 import { ModulesContainer } from '@nestjs/core/injector/modules-container.js';
 import {
   COMMAND_HANDLER_METADATA,
