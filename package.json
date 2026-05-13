@@ -21,9 +21,9 @@
   "devDependencies": {
     "@commitlint/cli": "21.0.1",
     "@commitlint/config-angular": "21.0.1",
-    "@nestjs/common": "11.1.19",
-    "@nestjs/core": "11.1.19",
-    "@nestjs/testing": "11.1.19",
+    "@nestjs/common": "11.1.20",
+    "@nestjs/core": "11.1.20",
+    "@nestjs/testing": "11.1.20",
     "@types/node": "24.12.4",
     "husky": "9.1.7",
     "lint-staged": "17.0.4",
