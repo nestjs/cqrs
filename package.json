@@ -24,7 +24,7 @@
     "@nestjs/common": "11.1.24",
     "@nestjs/core": "11.1.24",
     "@nestjs/testing": "11.1.24",
-    "@types/node": "24.13.0",
+    "@types/node": "24.13.1",
     "husky": "9.1.7",
     "lint-staged": "17.0.7",
     "oxlint": "1.68.0",
