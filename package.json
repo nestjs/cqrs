@@ -27,7 +27,7 @@
     "@types/node": "24.13.2",
     "husky": "9.1.7",
     "lint-staged": "17.0.8",
-    "oxlint": "1.70.0",
+    "oxlint": "1.71.0",
     "prettier": "3.8.4",
     "reflect-metadata": "0.2.2",
     "release-it": "20.2.0",
