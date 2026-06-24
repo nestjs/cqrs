@@ -1,16 +1,16 @@
 import { Inject, Injectable, Optional, Type } from '@nestjs/common';
 import 'reflect-metadata';
 import { Observable, filter } from 'rxjs';
-import { CQRS_MODULE_OPTIONS } from './constants';
-import { DefaultUnhandledExceptionPubSub } from './helpers/default-unhandled-exception-pubsub';
+import { CQRS_MODULE_OPTIONS } from './constants.js';
+import { DefaultUnhandledExceptionPubSub } from './helpers/default-unhandled-exception-pubsub.js';
 import {
   CqrsModuleOptions,
   ICommand,
   IEvent,
   IUnhandledExceptionPublisher,
   UnhandledExceptionInfo,
-} from './interfaces';
-import { ObservableBus } from './utils/observable-bus';
+} from './interfaces/index.js';
+import { ObservableBus } from './utils/observable-bus.js';
 
 /**
  * A bus that publishes unhandled exceptions.

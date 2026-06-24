@@ -1,5 +1,5 @@
 import { Subject } from 'rxjs';
-import { ICommand, ICommandPublisher } from '../interfaces';
+import { ICommand, ICommandPublisher } from '../interfaces/index.js';
 
 export class DefaultCommandPubSub<CommandBase extends ICommand>
   implements ICommandPublisher<CommandBase>

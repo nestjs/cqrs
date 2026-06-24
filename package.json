@@ -2,6 +2,15 @@
   "name": "@nestjs/cqrs",
   "version": "11.0.3",
   "description": "A lightweight CQRS module for Nest framework (node.js)",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
   "license": "MIT",
   "url": "https://github.com/nestjs/cqrs#readme",
   "scripts": {

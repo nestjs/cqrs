@@ -1,4 +1,4 @@
-import type { IEvent } from './events/event.interface';
+import type { IEvent } from './events/event.interface.js';
 
 /**
  * Represents the aggregate root interface with event sourcing capabilities.

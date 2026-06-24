@@ -1,7 +1,7 @@
 import { Module, OnModuleInit } from '@nestjs/common';
-import { CqrsModule, EventBus, IEvent } from '../../../src';
-import { EventHandlers } from './events/handlers';
-import { SyncPublisher } from './sync-publisher';
+import { CqrsModule, EventBus, IEvent } from '../../../src/index.js';
+import { EventHandlers } from './events/handlers/index.js';
+import { SyncPublisher } from './sync-publisher.js';
 
 @Module({
   imports: [

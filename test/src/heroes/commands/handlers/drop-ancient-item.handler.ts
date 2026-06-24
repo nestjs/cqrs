@@ -3,9 +3,9 @@ import {
   CommandHandler,
   EventPublisher,
   ICommandHandler,
-} from '../../../../../src';
-import { HeroRepository } from '../../repository/hero.repository';
-import { DropAncientItemCommand } from '../impl/drop-ancient-item.command';
+} from '../../../../../src/index.js';
+import { HeroRepository } from '../../repository/hero.repository.js';
+import { DropAncientItemCommand } from '../impl/drop-ancient-item.command.js';
 
 @CommandHandler(DropAncientItemCommand)
 export class DropAncientItemHandler

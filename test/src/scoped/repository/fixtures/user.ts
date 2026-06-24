@@ -1,4 +1,4 @@
-import { Hero } from '../../models/hero.model';
+import { Hero } from '../../models/hero.model.js';
 
 export const HERO_ID = '1234';
 

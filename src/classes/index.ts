@@ -1,2 +1,2 @@
-export * from './command';
-export * from './query';
+export * from './command.js';
+export * from './query.js';

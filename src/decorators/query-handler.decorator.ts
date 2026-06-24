@@ -1,8 +1,8 @@
 import { Injectable, InjectableOptions } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import 'reflect-metadata';
-import { IQuery } from '../interfaces';
-import { QUERY_HANDLER_METADATA, QUERY_METADATA } from './constants';
+import { IQuery } from '../interfaces/index.js';
+import { QUERY_HANDLER_METADATA, QUERY_METADATA } from './constants.js';
 
 /**
  * Decorator that marks a class as a Nest query handler. A query handler

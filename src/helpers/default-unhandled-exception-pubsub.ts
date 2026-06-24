@@ -4,7 +4,7 @@ import {
   IEvent,
   IUnhandledExceptionPublisher,
   UnhandledExceptionInfo,
-} from '../interfaces';
+} from '../interfaces/index.js';
 
 /**
  * Default implementation of the `IUnhandledExceptionPublisher` interface.

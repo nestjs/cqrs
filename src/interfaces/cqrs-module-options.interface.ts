@@ -1,8 +1,8 @@
-import { ICommandPublisher } from './commands/command-publisher.interface';
-import { EventIdProvider } from './events/event-id-provider.interface';
-import { IEventPublisher } from './events/event-publisher.interface';
-import { IUnhandledExceptionPublisher } from './exceptions/unhandled-exception-publisher.interface';
-import { IQueryPublisher } from './queries/query-publisher.interface';
+import { ICommandPublisher } from './commands/command-publisher.interface.js';
+import { EventIdProvider } from './events/event-id-provider.interface.js';
+import { IEventPublisher } from './events/event-publisher.interface.js';
+import { IUnhandledExceptionPublisher } from './exceptions/unhandled-exception-publisher.interface.js';
+import { IQueryPublisher } from './queries/query-publisher.interface.js';
 
 /**
  * Options for the CqrsModule.

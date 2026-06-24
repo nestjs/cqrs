@@ -1,6 +1,6 @@
 import { Type } from '@nestjs/common';
-import { EVENT_METADATA } from '../decorators/constants';
-import { EventIdProvider, IEvent } from '../interfaces';
+import { EVENT_METADATA } from '../decorators/constants.js';
+import { EventIdProvider, IEvent } from '../interfaces/index.js';
 
 class DefaultEventIdProvider<EventBase extends IEvent = IEvent>
   implements EventIdProvider<EventBase>
