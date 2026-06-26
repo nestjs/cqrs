@@ -30,7 +30,7 @@
     "oxlint": "1.71.0",
     "prettier": "3.8.5",
     "reflect-metadata": "0.2.2",
-    "release-it": "20.2.0",
+    "release-it": "20.2.1",
     "rxjs": "7.8.2",
     "typescript": "6.0.3",
     "vite": "8.1.0",
