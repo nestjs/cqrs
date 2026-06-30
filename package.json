@@ -28,7 +28,7 @@
     "husky": "9.1.7",
     "lint-staged": "17.0.8",
     "oxlint": "1.72.0",
-    "prettier": "3.9.3",
+    "prettier": "3.9.4",
     "reflect-metadata": "0.2.2",
     "release-it": "20.2.1",
     "rxjs": "7.8.2",
