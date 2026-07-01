@@ -1,6 +1,6 @@
-import { HeroRepository } from '../../repository/hero.repository';
-import { GetHeroHandler } from './get-hero.handler';
-import { GetHeroesHandler } from './get-heroes.handler';
+import { HeroRepository } from '../../repository/hero.repository.js';
+import { GetHeroHandler } from './get-hero.handler.js';
+import { GetHeroesHandler } from './get-heroes.handler.js';
 
 export const QueryHandlers = [
   GetHeroesHandler,

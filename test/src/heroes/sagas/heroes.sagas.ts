@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { delay, map } from 'rxjs/operators';
-import { ICommand, ofType, Saga } from '../../../../src';
-import { DropAncientItemCommand } from '../commands/impl/drop-ancient-item.command';
-import { HeroKilledDragonEvent } from '../events/impl/hero-killed-dragon.event';
+import { ICommand, ofType, Saga } from '../../../../src/index.js';
+import { DropAncientItemCommand } from '../commands/impl/drop-ancient-item.command.js';
+import { HeroKilledDragonEvent } from '../events/impl/hero-killed-dragon.event.js';
 
 export const ANCIENT_ITEM_ID = '12456789';
 

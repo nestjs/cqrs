@@ -1,4 +1,4 @@
-import { IQuery } from './query.interface';
+import { IQuery } from './query.interface.js';
 
 /**
  * Represents a query publisher.

@@ -1,5 +1,5 @@
 import { Type } from '@nestjs/common';
-import { AggregateRootStorage } from '../storages/aggregate-root.storage';
+import { AggregateRootStorage } from '../storages/aggregate-root.storage.js';
 
 /**
  * Merges event publisher with the decorated class.

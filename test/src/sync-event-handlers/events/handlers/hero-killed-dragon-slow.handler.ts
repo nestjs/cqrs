@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
-import { EventsHandler, IEventHandler } from '../../../../../src';
-import { waitImmediate } from '../../../../utils/wait-immediate';
-import { HeroKilledDragonEvent } from '../../../heroes/events/impl/hero-killed-dragon.event';
+import { EventsHandler, IEventHandler } from '../../../../../src/index.js';
+import { waitImmediate } from '../../../../utils/wait-immediate.js';
+import { HeroKilledDragonEvent } from '../../../heroes/events/impl/hero-killed-dragon.event.js';
 
 @EventsHandler(HeroKilledDragonEvent)
 export class HeroKilledDragonSlowHandler

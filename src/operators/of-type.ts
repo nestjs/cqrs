@@ -1,7 +1,7 @@
 import { Type } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { IEvent } from '../interfaces';
+import { IEvent } from '../interfaces/index.js';
 
 /**
  * Filter values depending on their instance type (comparison is made

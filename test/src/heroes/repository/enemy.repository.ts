@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Enemy } from '../models/enemy.model';
-import { dragonMonster } from './fixtures/dragon';
+import { Enemy } from '../models/enemy.model.js';
+import { dragonMonster } from './fixtures/dragon.js';
 
 @Injectable()
 export class EnemyRepository {
