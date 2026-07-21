@@ -5,18 +5,18 @@
  * MIT Licensed
  */
 
-export * from './aggregate-root';
-export * from './classes';
-export * from './command-bus';
-export * from './cqrs.module';
-export * from './decorators';
-export * from './event-bus';
-export * from './event-publisher';
-export * from './exceptions';
-export * from './interfaces';
-export * from './operators';
-export * from './query-bus';
-export * from './scopes';
-export * from './unhandled-exception-bus';
-export * from './utils';
-export * from './mixins';
+export * from './aggregate-root.js';
+export * from './classes/index.js';
+export * from './command-bus.js';
+export * from './cqrs.module.js';
+export * from './decorators/index.js';
+export * from './event-bus.js';
+export * from './event-publisher.js';
+export * from './exceptions/index.js';
+export * from './interfaces/index.js';
+export * from './operators/index.js';
+export * from './query-bus.js';
+export * from './scopes/index.js';
+export * from './unhandled-exception-bus.js';
+export * from './utils/index.js';
+export * from './mixins/index.js';

@@ -1,2 +1,2 @@
-export * from './get-hero.query';
-export * from './get-heroes.query';
+export * from './get-hero.query.js';
+export * from './get-heroes.query.js';

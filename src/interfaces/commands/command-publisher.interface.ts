@@ -1,4 +1,4 @@
-import { ICommand } from './command.interface';
+import { ICommand } from './command.interface.js';
 
 /**
  * Represents a command publisher.

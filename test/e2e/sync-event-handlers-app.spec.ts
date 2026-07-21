@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MockInstance, vi } from 'vitest';
-import { AsyncHandlersAppModule } from '../src/sync-event-handlers/async-handlers-app.module';
-import { EventBus } from '../../src/event-bus';
-import { HeroKilledDragon2SlowHandler } from '../src/sync-event-handlers/events/handlers/hero-killed-dragon2-slow.handler';
-import { HeroKilledDragonSlowHandler } from '../src/sync-event-handlers/events/handlers/hero-killed-dragon-slow.handler';
-import { HeroFoundItemSlowHandler } from '../src/sync-event-handlers/events/handlers/hero-found-item-slow.handler';
-import { SyncHandlersAppModule } from '../src/sync-event-handlers/sync-handlers-app.module';
-import { HeroFoundItemEvent } from '../src/heroes/events/impl/hero-found-item.event';
-import { HeroKilledDragonEvent } from '../src/heroes/events/impl/hero-killed-dragon.event';
+import { AsyncHandlersAppModule } from '../src/sync-event-handlers/async-handlers-app.module.js';
+import { EventBus } from '../../src/event-bus.js';
+import { HeroKilledDragon2SlowHandler } from '../src/sync-event-handlers/events/handlers/hero-killed-dragon2-slow.handler.js';
+import { HeroKilledDragonSlowHandler } from '../src/sync-event-handlers/events/handlers/hero-killed-dragon-slow.handler.js';
+import { HeroFoundItemSlowHandler } from '../src/sync-event-handlers/events/handlers/hero-found-item-slow.handler.js';
+import { SyncHandlersAppModule } from '../src/sync-event-handlers/sync-handlers-app.module.js';
+import { HeroFoundItemEvent } from '../src/heroes/events/impl/hero-found-item.event.js';
+import { HeroKilledDragonEvent } from '../src/heroes/events/impl/hero-killed-dragon.event.js';
 
 describe('Sync event handlers', () => {
   let moduleRef: TestingModule;

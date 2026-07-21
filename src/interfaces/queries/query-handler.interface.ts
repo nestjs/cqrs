@@ -1,5 +1,5 @@
-import { Query } from '../../classes';
-import { IQuery } from './query.interface';
+import { Query } from '../../classes/index.js';
+import { IQuery } from './query.interface.js';
 
 /**
  * Represents a query handler.

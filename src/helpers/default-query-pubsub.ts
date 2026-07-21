@@ -1,5 +1,5 @@
 import { Subject } from 'rxjs';
-import { IQuery, IQueryPublisher } from '../interfaces';
+import { IQuery, IQueryPublisher } from '../interfaces/index.js';
 
 export class DefaultQueryPubSub<QueryBase extends IQuery>
   implements IQueryPublisher<QueryBase>

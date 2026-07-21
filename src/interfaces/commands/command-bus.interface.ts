@@ -1,6 +1,6 @@
-import { Command } from '../../classes';
-import { AsyncContext } from '../../scopes/async.context';
-import { ICommand } from './command.interface';
+import { Command } from '../../classes/index.js';
+import { AsyncContext } from '../../scopes/async.context.js';
+import { ICommand } from './command.interface.js';
 
 /**
  * Represents a command bus.

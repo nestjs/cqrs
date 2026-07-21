@@ -1,5 +1,5 @@
 import { Type } from '@nestjs/common';
-import { IEvent } from './event.interface';
+import { IEvent } from './event.interface.js';
 
 export interface EventIdProvider<EventBase extends IEvent = IEvent> {
   /**

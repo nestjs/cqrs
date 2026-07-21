@@ -1,4 +1,4 @@
-import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
+import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper.js';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
   Command,
@@ -6,8 +6,8 @@ import {
   ICommandHandler,
   Query,
   QueryBus,
-} from '../../src';
-import { AppModule } from '../src/app.module';
+} from '../../src/index.js';
+import { AppModule } from '../src/app.module.js';
 
 describe('Generics', () => {
   let moduleRef: TestingModule;

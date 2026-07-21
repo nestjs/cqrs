@@ -1,20 +1,20 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { setTimeout } from 'timers/promises';
 import type { MockInstance } from 'vitest';
-import { AsyncContext, CommandBus, QueryBus } from '../../src';
-import { AppModule } from '../src/app.module';
-import { HERO_ID } from '../src/heroes/repository/fixtures/user';
-import { ANCIENT_ITEM_ID } from '../src/heroes/sagas/heroes.sagas';
-import { ScopedDropAncientItemHandler } from '../src/scoped/commands/handlers/scoped-drop-ancient-item.handler';
-import { ScopedKillDragonHandler } from '../src/scoped/commands/handlers/scoped-kill-dragon.handler';
-import { ScopedDropAncientItemCommand } from '../src/scoped/commands/impl/scoped-drop-ancient-item.command';
-import { ScopedKillDragonCommand } from '../src/scoped/commands/impl/scoped-kill-dragon.command';
-import { ScopedHeroFoundItemHandler } from '../src/scoped/events/handlers/scoped-hero-found-item.handler';
-import { ScopedHeroKilledDragonHandler } from '../src/scoped/events/handlers/scoped-hero-killed-dragon.handler';
-import { ScopedHeroFoundItemEvent } from '../src/scoped/events/impl/hero-found-item.event';
-import { ScopedHeroKilledDragonEvent } from '../src/scoped/events/impl/hero-killed-dragon.event';
-import { ScopedGetHeroesQuery } from '../src/scoped/queries/impl';
-import { waitImmediate } from '../utils/wait-immediate';
+import { AsyncContext, CommandBus, QueryBus } from '../../src/index.js';
+import { AppModule } from '../src/app.module.js';
+import { HERO_ID } from '../src/heroes/repository/fixtures/user.js';
+import { ANCIENT_ITEM_ID } from '../src/heroes/sagas/heroes.sagas.js';
+import { ScopedDropAncientItemHandler } from '../src/scoped/commands/handlers/scoped-drop-ancient-item.handler.js';
+import { ScopedKillDragonHandler } from '../src/scoped/commands/handlers/scoped-kill-dragon.handler.js';
+import { ScopedDropAncientItemCommand } from '../src/scoped/commands/impl/scoped-drop-ancient-item.command.js';
+import { ScopedKillDragonCommand } from '../src/scoped/commands/impl/scoped-kill-dragon.command.js';
+import { ScopedHeroFoundItemHandler } from '../src/scoped/events/handlers/scoped-hero-found-item.handler.js';
+import { ScopedHeroKilledDragonHandler } from '../src/scoped/events/handlers/scoped-hero-killed-dragon.handler.js';
+import { ScopedHeroFoundItemEvent } from '../src/scoped/events/impl/hero-found-item.event.js';
+import { ScopedHeroKilledDragonEvent } from '../src/scoped/events/impl/hero-killed-dragon.event.js';
+import { ScopedGetHeroesQuery } from '../src/scoped/queries/impl/index.js';
+import { waitImmediate } from '../utils/wait-immediate.js';
 
 describe('Request scope', () => {
   let moduleRef: TestingModule;
