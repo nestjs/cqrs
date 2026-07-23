@@ -26,7 +26,7 @@
     "@nestjs/testing": "11.1.28",
     "@types/node": "24.13.3",
     "husky": "9.1.7",
-    "lint-staged": "17.1.1",
+    "lint-staged": "17.2.0",
     "oxlint": "1.75.0",
     "prettier": "3.9.6",
     "reflect-metadata": "0.2.2",
