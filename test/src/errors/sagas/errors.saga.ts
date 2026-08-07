@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Observable, of } from 'rxjs';
 import { delay, mergeMap } from 'rxjs/operators';
-import { ofType, Saga } from '../../../../src';
-import { UnhandledExceptionEvent } from '../events/unhandled-exception.event';
+import { ofType, Saga } from '../../../../src/index.js';
+import { UnhandledExceptionEvent } from '../events/unhandled-exception.event.js';
 
 @Injectable()
 export class ErrorsSagas {

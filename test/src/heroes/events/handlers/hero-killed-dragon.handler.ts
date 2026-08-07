@@ -3,10 +3,10 @@ import {
   EventPublisher,
   EventsHandler,
   IEventHandler,
-} from '../../../../../src';
-import { HeroKilledDragonEvent } from '../impl/hero-killed-dragon.event';
-import { EnemyRepository } from '../../repository/enemy.repository';
-import { Dragon } from '../../models/dragon.model';
+} from '../../../../../src/index.js';
+import { HeroKilledDragonEvent } from '../impl/hero-killed-dragon.event.js';
+import { EnemyRepository } from '../../repository/enemy.repository.js';
+import { Dragon } from '../../models/dragon.model.js';
 
 @EventsHandler(HeroKilledDragonEvent)
 export class HeroKilledDragonHandler

@@ -4,20 +4,20 @@ import {
   OnApplicationBootstrap,
   Provider,
 } from '@nestjs/common';
-import { CommandBus } from './command-bus';
-import { CQRS_MODULE_OPTIONS } from './constants';
-import { EventBus } from './event-bus';
-import { EventPublisher } from './event-publisher';
+import { CommandBus } from './command-bus.js';
+import { CQRS_MODULE_OPTIONS } from './constants.js';
+import { EventBus } from './event-bus.js';
+import { EventPublisher } from './event-publisher.js';
 import {
   CqrsModuleAsyncOptions,
   CqrsModuleOptions,
   CqrsModuleOptionsFactory,
   IEvent,
-} from './interfaces';
-import { QueryBus } from './query-bus';
-import { ExplorerService } from './services/explorer.service';
-import { UnhandledExceptionBus } from './unhandled-exception-bus';
-import { AggregateRootStorage } from './storages/aggregate-root.storage';
+} from './interfaces/index.js';
+import { QueryBus } from './query-bus.js';
+import { ExplorerService } from './services/explorer.service.js';
+import { UnhandledExceptionBus } from './unhandled-exception-bus.js';
+import { AggregateRootStorage } from './storages/aggregate-root.storage.js';
 
 /**
  * @publicApi

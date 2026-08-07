@@ -1,6 +1,6 @@
-import { AggregateRoot } from '../../../../src';
-import { ScopedHeroFoundItemEvent } from '../events/impl/hero-found-item.event';
-import { ScopedHeroKilledDragonEvent } from '../events/impl/hero-killed-dragon.event';
+import { AggregateRoot } from '../../../../src/index.js';
+import { ScopedHeroFoundItemEvent } from '../events/impl/hero-found-item.event.js';
+import { ScopedHeroKilledDragonEvent } from '../events/impl/hero-killed-dragon.event.js';
 
 export class Hero extends AggregateRoot {
   constructor(private readonly id: string) {

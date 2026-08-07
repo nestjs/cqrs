@@ -1,1 +1,1 @@
-export * from './with-aggregate-root.mixin';
+export * from './with-aggregate-root.mixin.js';

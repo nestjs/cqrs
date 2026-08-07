@@ -1,5 +1,5 @@
-import { AsyncContext } from '../../scopes/async.context';
-import { IEvent } from './event.interface';
+import { AsyncContext } from '../../scopes/async.context.js';
+import { IEvent } from './event.interface.js';
 
 /**
  * Represents an event bus.

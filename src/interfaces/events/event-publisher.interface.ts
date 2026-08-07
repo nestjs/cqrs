@@ -1,5 +1,5 @@
-import { AsyncContext } from '../../scopes';
-import { IEvent } from './event.interface';
+import { AsyncContext } from '../../scopes/index.js';
+import { IEvent } from './event.interface.js';
 
 export interface IEventPublisher<EventBase extends IEvent = IEvent> {
   /**

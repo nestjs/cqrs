@@ -1,6 +1,6 @@
 import { lastValueFrom, map, merge, of } from 'rxjs';
-import { IEvent, IEventPublisher } from '../../../src/interfaces';
-import { EventOperator } from '../../../src/event-bus';
+import { IEvent, IEventPublisher } from '../../../src/interfaces/index.js';
+import { EventOperator } from '../../../src/event-bus.js';
 
 export class SyncPublisher<EventBase extends IEvent>
   implements IEventPublisher<EventBase>

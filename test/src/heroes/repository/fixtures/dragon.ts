@@ -1,4 +1,4 @@
-import { Dragon } from '../../models/dragon.model';
+import { Dragon } from '../../models/dragon.model.js';
 
 export const DRAGON_ID = '4567';
 

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { EventBus } from './event-bus';
-import { IAggregateRoot, IEvent } from './interfaces';
-import { AsyncContext } from './scopes';
+import { EventBus } from './event-bus.js';
+import { IAggregateRoot, IEvent } from './interfaces/index.js';
+import { AsyncContext } from './scopes/index.js';
 
 export interface Constructor<T> {
   new (...args: any[]): T;

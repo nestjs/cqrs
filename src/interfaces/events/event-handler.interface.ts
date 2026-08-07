@@ -1,4 +1,4 @@
-import { IEvent } from './event.interface';
+import { IEvent } from './event.interface.js';
 
 /**
  * Represents an event handler.

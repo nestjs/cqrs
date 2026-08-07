@@ -1,6 +1,6 @@
 import { Type } from '@nestjs/common';
-import { IEvent, IEventHandler } from './interfaces';
-import { WithAggregateRoot } from './mixins';
+import { IEvent, IEventHandler } from './interfaces/index.js';
+import { WithAggregateRoot } from './mixins/index.js';
 
 /**
  * Represents an aggregate root.

@@ -3,9 +3,9 @@ import {
   CommandHandler,
   EventPublisher,
   ICommandHandler,
-} from '../../../../../src';
-import { HeroRepository } from '../../repository/hero.repository';
-import { KillDragonCommand } from '../impl/kill-dragon.command';
+} from '../../../../../src/index.js';
+import { HeroRepository } from '../../repository/hero.repository.js';
+import { KillDragonCommand } from '../impl/kill-dragon.command.js';
 
 @CommandHandler(KillDragonCommand)
 export class KillDragonHandler implements ICommandHandler<KillDragonCommand> {

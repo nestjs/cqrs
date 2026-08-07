@@ -1,7 +1,7 @@
-import { EventPublisher } from '../../../../../src';
-import { HeroRepository } from '../../repository/hero.repository';
-import { DropAncientItemHandler } from './drop-ancient-item.handler';
-import { KillDragonHandler } from './kill-dragon.handler';
+import { EventPublisher } from '../../../../../src/index.js';
+import { HeroRepository } from '../../repository/hero.repository.js';
+import { DropAncientItemHandler } from './drop-ancient-item.handler.js';
+import { KillDragonHandler } from './kill-dragon.handler.js';
 
 export const CommandHandlers = [
   KillDragonHandler,

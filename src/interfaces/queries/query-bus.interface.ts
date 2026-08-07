@@ -1,6 +1,6 @@
-import { Query } from '../../classes/query';
-import { AsyncContext } from '../../scopes/async.context';
-import { IQuery } from './query.interface';
+import { Query } from '../../classes/query.js';
+import { AsyncContext } from '../../scopes/async.context.js';
+import { IQuery } from './query.interface.js';
 
 /**
  * Represents a query bus.
