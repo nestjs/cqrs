@@ -1,7 +1,10 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "rootDir": "../"
+    "rootDir": "../",
+    // The root config uses "node10" for the published CommonJS build, which
+    // cannot resolve the ESM-only type exports of Vitest 4 / Vite 8.
+    "moduleResolution": "bundler"
   },
   "include": [
     "src/**/*.ts",
