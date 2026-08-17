@@ -8,8 +8,14 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    }
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
   },
   "license": "MIT",
   "url": "https://github.com/nestjs/cqrs#readme",
@@ -46,8 +52,8 @@
     "vitest": "4.1.5"
   },
   "peerDependencies": {
-    "@nestjs/common": "^10.0.0 || ^11.0.0",
-    "@nestjs/core": "^10.0.0 || ^11.0.0",
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/core": "^11.0.0",
     "reflect-metadata": "^0.1.13 || ^0.2.0",
     "rxjs": "^7.2.0"
   },
