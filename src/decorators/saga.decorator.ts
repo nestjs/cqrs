@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { SAGA_METADATA } from './constants';
+import { SAGA_METADATA } from './constants.js';
 
 /**
  * Decorator that marks a class as a Nest saga. Sagas may listen and react to 1..N events.

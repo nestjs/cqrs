@@ -1,1 +1,1 @@
-export * from './of-type';
+export * from './of-type.js';

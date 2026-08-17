@@ -1,7 +1,7 @@
 import { Type } from '@nestjs/common';
-import { IAggregateRoot } from '../interfaces';
-import { EventBus } from '../event-bus';
-import { IEvent } from '../interfaces';
+import { IAggregateRoot } from '../interfaces/index.js';
+import { EventBus } from '../event-bus.js';
+import { IEvent } from '../interfaces/index.js';
 
 export class AggregateRootStorage {
   private static storage: Array<Type<IAggregateRoot>> = [];

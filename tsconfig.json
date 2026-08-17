@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "moduleResolution": "node10",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "ignoreDeprecations": "6.0",
     "strict": false,
     "declaration": true,

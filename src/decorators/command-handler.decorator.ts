@@ -1,8 +1,8 @@
 import { Injectable, InjectableOptions } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import 'reflect-metadata';
-import { ICommand } from '../index';
-import { COMMAND_HANDLER_METADATA, COMMAND_METADATA } from './constants';
+import { ICommand } from '../index.js';
+import { COMMAND_HANDLER_METADATA, COMMAND_METADATA } from './constants.js';
 
 /**
  * Decorator that marks a class as a Nest command handler. A command handler

@@ -1,5 +1,5 @@
-import { Command } from '../../classes';
-import { ICommand } from './command.interface';
+import { Command } from '../../classes/index.js';
+import { ICommand } from './command.interface.js';
 
 /**
  * Represents a command handler.

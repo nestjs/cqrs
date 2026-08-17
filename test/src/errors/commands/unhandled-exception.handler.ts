@@ -1,6 +1,6 @@
-import { CommandHandler, EventBus, ICommandHandler } from '../../../../src';
-import { UnhandledExceptionEvent } from '../events/unhandled-exception.event';
-import { UnhandledExceptionCommand } from './unhandled-exception.command';
+import { CommandHandler, EventBus, ICommandHandler } from '../../../../src/index.js';
+import { UnhandledExceptionEvent } from '../events/unhandled-exception.event.js';
+import { UnhandledExceptionCommand } from './unhandled-exception.command.js';
 
 @CommandHandler(UnhandledExceptionCommand)
 export class UnhandledExceptionCommandHandler

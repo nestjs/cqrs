@@ -1,6 +1,6 @@
 import { Subject } from 'rxjs';
-import { IEvent } from '../interfaces';
-import { ofType } from './of-type';
+import { IEvent } from '../interfaces/index.js';
+import { ofType } from './of-type.js';
 
 describe('operators/ofType', () => {
   class A implements IEvent {

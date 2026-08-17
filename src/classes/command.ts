@@ -1,5 +1,5 @@
-import { ICommand } from '../interfaces';
-import { RESULT_TYPE_SYMBOL } from './constants';
+import { ICommand } from '../interfaces/index.js';
+import { RESULT_TYPE_SYMBOL } from './constants.js';
 
 /**
  * Utility type to extract the result type of a command.

@@ -1,6 +1,6 @@
-import { ICommand } from '../commands/command.interface';
-import { IEvent } from '../events/event.interface';
-import { UnhandledExceptionInfo } from './unhandled-exception-info.interface';
+import { ICommand } from '../commands/command.interface.js';
+import { IEvent } from '../events/event.interface.js';
+import { UnhandledExceptionInfo } from './unhandled-exception-info.interface.js';
 
 export interface IUnhandledExceptionPublisher<
   CauseBase = IEvent | ICommand,

@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { take } from 'rxjs';
-import { CommandBus, UnhandledExceptionBus } from '../../src';
-import { AppModule } from '../src/app.module';
-import { UnhandledExceptionCommand } from '../src/errors/commands/unhandled-exception.command';
-import { UnhandledExceptionEvent } from '../src/errors/events/unhandled-exception.event';
+import { CommandBus, UnhandledExceptionBus } from '../../src/index.js';
+import { AppModule } from '../src/app.module.js';
+import { UnhandledExceptionCommand } from '../src/errors/commands/unhandled-exception.command.js';
+import { UnhandledExceptionEvent } from '../src/errors/events/unhandled-exception.event.js';
 
 describe('Unhandled exceptions', () => {
   let moduleRef: TestingModule;

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Hero } from '../models/hero.model';
-import { userHero } from './fixtures/user';
+import { Hero } from '../models/hero.model.js';
+import { userHero } from './fixtures/user.js';
 
 @Injectable()
 export class HeroRepository {

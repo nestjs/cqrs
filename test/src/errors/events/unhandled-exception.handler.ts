@@ -1,5 +1,5 @@
-import { EventsHandler, IEventHandler } from '../../../../src';
-import { UnhandledExceptionEvent } from './unhandled-exception.event';
+import { EventsHandler, IEventHandler } from '../../../../src/index.js';
+import { UnhandledExceptionEvent } from './unhandled-exception.event.js';
 
 @EventsHandler(UnhandledExceptionEvent)
 export class UnhandledExceptionEventHandler
