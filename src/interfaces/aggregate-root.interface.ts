@@ -12,19 +12,35 @@ export interface IAggregateRoot<EventBase extends IEvent = IEvent> {
   /**
    * Publishes a single event.
    * @param event The event to publish.
+   * @param dispatcherContext Dispatcher context passed to the event publisher, such as
+   * `{ transaction }`. Defaults to the aggregate (merged with `EventPublisher`) or none (`@Publishable()`).
+   * @returns What the event bus returns (the event publisher's result).
    */
-  publish<T extends EventBase = EventBase>(event: T): void;
+  publish<T extends EventBase = EventBase>(
+    event: T,
+    dispatcherContext?: unknown,
+  ): any;
 
   /**
    * Publishes multiple events.
    * @param events The events to publish.
+   * @param dispatcherContext Dispatcher context passed to the event publisher, such as
+   * `{ transaction }`. Defaults to the aggregate (merged with `EventPublisher`) or none (`@Publishable()`).
+   * @returns What the event bus returns (the event publisher's result).
    */
-  publishAll<T extends EventBase = EventBase>(events: T[]): void;
+  publishAll<T extends EventBase = EventBase>(
+    events: T[],
+    dispatcherContext?: unknown,
+  ): any;
 
   /**
    * Commits all uncommitted events.
+   * The events are cleared once they are handed to the event bus, before an asynchronous publisher settles.
+   * @param dispatcherContext Dispatcher context passed to the event publisher, such as
+   * `{ transaction }`. Defaults to the aggregate (merged with `EventPublisher`) or none (`@Publishable()`).
+   * @returns What `publishAll()` returns: await it to wait for (and catch the errors of) an asynchronous publisher.
    */
-  commit(): void;
+  commit(dispatcherContext?: unknown): any;
 
   /**
    * Uncommits all events.

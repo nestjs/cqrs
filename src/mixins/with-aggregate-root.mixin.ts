@@ -38,13 +38,28 @@ export function WithAggregateRoot<
       return this[IS_AUTO_COMMIT_ENABLED];
     }
 
-    publish<T extends EventBase = EventBase>(event: T) {}
+    publish<T extends EventBase = EventBase>(
+      event: T,
+      dispatcherContext?: unknown,
+    ): any {}
 
-    publishAll<T extends EventBase = EventBase>(events: T[]) {}
+    publishAll<T extends EventBase = EventBase>(
+      events: T[],
+      dispatcherContext?: unknown,
+    ): any {}
 
-    commit() {
-      this.publishAll(this[INTERNAL_EVENTS]);
-      this[INTERNAL_EVENTS].length = 0;
+    commit(dispatcherContext?: unknown): any {
+      const events = this[INTERNAL_EVENTS];
+      // With a dispatcher context, the caller awaits the publisher, which may read
+      // the events after it returns: hand it a copy, as the events are cleared below.
+      const result =
+        dispatcherContext === undefined
+          ? this.publishAll(events)
+          : this.publishAll([...events], dispatcherContext);
+      // Cleared once the publisher has been called, not once it settles (as before):
+      // a caller that doesn't await must not publish the same events twice.
+      events.length = 0;
+      return result;
     }
 
     uncommit() {
