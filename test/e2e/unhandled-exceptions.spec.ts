@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { take } from 'rxjs';
 import { CommandBus, UnhandledExceptionBus } from '../../src/index.js';
@@ -56,6 +57,24 @@ describe('Unhandled exceptions', () => {
       });
 
       await exceptionPromise;
+    });
+
+    it('should log the event handler class name', async () => {
+      const loggerSpy = vi.spyOn(Logger.prototype, 'error');
+      const command = new UnhandledExceptionCommand('event');
+      const commandBus = moduleRef.get(CommandBus);
+
+      const exceptionPromise = new Promise<void>((resolve) => {
+        unhandledExceptionBus.pipe(take(1)).subscribe(() => resolve());
+      });
+      await commandBus.execute(command);
+      await exceptionPromise;
+
+      expect(loggerSpy).toHaveBeenCalledWith(
+        '"UnhandledExceptionEventHandler" has thrown an unhandled exception.',
+        new Error(`Unhandled exception in ${command.failAt}`),
+      );
+      loggerSpy.mockRestore();
     });
   });
 

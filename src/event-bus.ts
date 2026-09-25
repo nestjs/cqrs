@@ -263,7 +263,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
             const unhandledError = this.mapToUnhandledErrorInfo(event, error);
             this.unhandledExceptionBus.publish(unhandledError);
             this._logger.error(
-              `"${handler.constructor.name}" has thrown an unhandled exception.`,
+              `"${handler.instance?.constructor.name ?? handler.name}" has thrown an unhandled exception.`,
               error,
             );
             return of();
