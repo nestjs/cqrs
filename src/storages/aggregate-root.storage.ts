@@ -12,12 +12,22 @@ export class AggregateRootStorage {
 
   static mergeContext(eventBus: EventBus): void {
     for (const item of this.storage) {
-      item.prototype.publish = function (event: IEvent) {
-        eventBus.publish(event);
+      item.prototype.publish = function (
+        event: IEvent,
+        dispatcherContext?: unknown,
+      ) {
+        return dispatcherContext === undefined
+          ? eventBus.publish(event)
+          : eventBus.publish(event, dispatcherContext);
       };
 
-      item.prototype.publishAll = function (events: IEvent[]) {
-        eventBus.publishAll(events);
+      item.prototype.publishAll = function (
+        events: IEvent[],
+        dispatcherContext?: unknown,
+      ) {
+        return dispatcherContext === undefined
+          ? eventBus.publishAll(events)
+          : eventBus.publishAll(events, dispatcherContext);
       };
     }
     this.storage = [];
