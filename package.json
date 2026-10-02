@@ -39,7 +39,7 @@
     "@nestjs/common": "12.1.1",
     "@nestjs/core": "12.1.1",
     "@nestjs/testing": "12.1.1",
-    "@types/node": "24.19.0",
+    "@types/node": "24.19.1",
     "husky": "9.1.7",
     "lint-staged": "17.6.0",
     "oxlint": "1.86.0",
