@@ -348,7 +348,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
     const subscription = stream$
       .pipe(
         filter((e) => !!e),
-        catchError((error) => {
+        catchError((error, caught) => {
           if (this.options?.rethrowUnhandled) {
             throw error;
           }
@@ -359,7 +359,7 @@ export class EventBus<EventBase extends IEvent = IEvent>
             `Saga "${saga.name}" has thrown an unhandled exception.`,
             error,
           );
-          return of();
+          return caught;
         }),
         mergeMap((command) =>
           defer(() => this.commandBus.execute(command)).pipe(

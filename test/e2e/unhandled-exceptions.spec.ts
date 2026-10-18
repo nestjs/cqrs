@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { take } from 'rxjs';
+import { filter, firstValueFrom, map, of, take, timeout } from 'rxjs';
 import { CommandBus, UnhandledExceptionBus } from '../../src/index.js';
 import { AppModule } from '../src/app.module.js';
 import { UnhandledExceptionCommand } from '../src/errors/commands/unhandled-exception.command.js';
@@ -99,6 +99,25 @@ describe('Unhandled exceptions', () => {
       });
 
       await exceptionPromise;
+    });
+
+    it('should keep reacting to events after the saga has thrown', async () => {
+      const commandBus = moduleRef.get(CommandBus);
+      const sagaThrows = async () => {
+        const forwarded = firstValueFrom(
+          unhandledExceptionBus.pipe(
+            filter((exceptionInfo) => exceptionInfo.cause === 'onError'),
+            map(() => true),
+            timeout({ first: 1500, with: () => of(false) }),
+          ),
+        );
+        await commandBus.execute(new UnhandledExceptionCommand('saga'));
+        return forwarded;
+      };
+
+      expect(await sagaThrows()).toBe(true);
+      expect(await sagaThrows()).toBe(true);
+      expect(await sagaThrows()).toBe(true);
     });
   });
 
