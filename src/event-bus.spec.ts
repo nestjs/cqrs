@@ -154,6 +154,76 @@ describe('EventBus', () => {
         expect(executedCommands).toHaveLength(0);
       });
 
+      it('should keep growing the delay for errors less than a minute apart', async () => {
+        const subscribedAt: number[] = [];
+        registerSaga((events$) =>
+          defer(() => {
+            subscribedAt.push(performance.now());
+            return events$;
+          }).pipe(throwOnInvalid),
+        );
+
+        for (let i = 0; i < 5; i++) {
+          eventBus.publish(new OrderEvent(false));
+          await vi.advanceTimersByTimeAsync(10_000);
+        }
+
+        const delays = subscribedAt
+          .slice(1)
+          .map((time, i) => time - 10_000 * i - subscribedAt[0]);
+        expect(delays).toEqual([100, 200, 400, 800, 1600]);
+      });
+
+      it('should start again from 100 ms only once a full minute has passed', async () => {
+        const subscribedAt: number[] = [];
+        const failedAt: number[] = [];
+        registerSaga((events$) =>
+          defer(() => {
+            subscribedAt.push(performance.now());
+            return events$;
+          }).pipe(throwOnInvalid),
+        );
+
+        for (const gap of [59_999, 60_000, 0]) {
+          failedAt.push(performance.now());
+          eventBus.publish(new OrderEvent(false));
+          await vi.advanceTimersByTimeAsync(gap || 1000);
+        }
+
+        const delays = failedAt.map((time, i) => subscribedAt[i + 1] - time);
+        expect(delays).toEqual([100, 200, 100]);
+      });
+
+      it('should start again from 100 ms after a minute without errors', async () => {
+        const day = 24 * 60 * 60 * 1000;
+        const subscribedAt: number[] = [];
+        const failedAt: number[] = [];
+        registerSaga((events$) =>
+          defer(() => {
+            subscribedAt.push(performance.now());
+            return events$;
+          }).pipe(throwOnInvalid),
+        );
+
+        for (let i = 0; i < 10; i++) {
+          failedAt.push(performance.now());
+          eventBus.publish(new OrderEvent(false));
+          await vi.advanceTimersByTimeAsync(day);
+        }
+        failedAt.push(performance.now());
+        eventBus.publish(new OrderEvent(false));
+        await vi.advanceTimersByTimeAsync(5000);
+        for (let i = 0; i < 20; i++) {
+          eventBus.publish(new OrderEvent(true));
+          await vi.advanceTimersByTimeAsync(1000);
+        }
+
+        const delays = failedAt.map((time, i) => subscribedAt[i + 1] - time);
+        expect(delays).toEqual(Array(11).fill(100));
+        expect(errors).toBe(11);
+        expect(executedCommands).toHaveLength(20);
+      });
+
       it('should not reset the delay after a successful event', async () => {
         const subscribedAt: number[] = [];
         registerSaga((events$) =>

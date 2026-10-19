@@ -49,6 +49,9 @@ import { ObservableBus } from './utils/index.js';
 // costs little, and the cap keeps a stream that fails on every resubscription to two errors a minute.
 const SAGA_RETRY_BASE_DELAY_MS = 100;
 const SAGA_RETRY_MAX_DELAY_MS = 30_000;
+// An error after this long without one starts again from the base delay; above the cap, so a stream
+// that fails on every resubscription keeps backing off.
+const SAGA_RETRY_QUIET_PERIOD_MS = 60_000;
 
 export type EventHandlerType<EventBase extends IEvent = IEvent> = Type<
   IEventHandler<EventBase>
@@ -371,14 +374,24 @@ export class EventBus<EventBase extends IEvent = IEvent>
       );
     };
 
+    // Counted here rather than with rxjs's `retryCount`, which can only reset on success (`resetOnSuccess`),
+    // and a `shareReplay` that replays a valid event would then reset it on every resubscription.
+    let attempt = 0;
+    let lastErrorAt = -Infinity;
     const recoverFromError =
       this.options?.sagaErrorStrategy === 'resubscribe'
         ? retry<ICommand>({
-            delay: (error, retryCount) => {
+            delay: (error) => {
               reportError(error);
+              const now = performance.now();
+              attempt =
+                now - lastErrorAt < SAGA_RETRY_QUIET_PERIOD_MS
+                  ? attempt + 1
+                  : 1;
+              lastErrorAt = now;
               return timer(
                 Math.min(
-                  SAGA_RETRY_BASE_DELAY_MS * 2 ** (retryCount - 1),
+                  SAGA_RETRY_BASE_DELAY_MS * 2 ** (attempt - 1),
                   SAGA_RETRY_MAX_DELAY_MS,
                 ),
               );
