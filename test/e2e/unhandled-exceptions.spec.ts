@@ -1,10 +1,16 @@
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { filter, firstValueFrom, map, of, take, timeout } from 'rxjs';
-import { CommandBus, UnhandledExceptionBus } from '../../src/index.js';
+import { filter, firstValueFrom, take } from 'rxjs';
+import {
+  CommandBus,
+  CqrsModule,
+  UnhandledExceptionBus,
+} from '../../src/index.js';
 import { AppModule } from '../src/app.module.js';
 import { UnhandledExceptionCommand } from '../src/errors/commands/unhandled-exception.command.js';
+import { UnhandledExceptionCommandHandler } from '../src/errors/commands/unhandled-exception.handler.js';
 import { UnhandledExceptionEvent } from '../src/errors/events/unhandled-exception.event.js';
+import { ErrorsSagas } from '../src/errors/sagas/errors.saga.js';
 
 describe('Unhandled exceptions', () => {
   let moduleRef: TestingModule;
@@ -100,26 +106,46 @@ describe('Unhandled exceptions', () => {
 
       await exceptionPromise;
     });
-
-    it('should keep reacting to events after the saga has thrown', async () => {
-      const commandBus = moduleRef.get(CommandBus);
-      const sagaThrows = async () => {
-        const forwarded = firstValueFrom(
-          unhandledExceptionBus.pipe(
-            filter((exceptionInfo) => exceptionInfo.cause === 'onError'),
-            map(() => true),
-            timeout({ first: 1500, with: () => of(false) }),
-          ),
-        );
-        await commandBus.execute(new UnhandledExceptionCommand('saga'));
-        return forwarded;
-      };
-
-      expect(await sagaThrows()).toBe(true);
-      expect(await sagaThrows()).toBe(true);
-      expect(await sagaThrows()).toBe(true);
-    });
   });
+
+  afterAll(async () => {
+    await moduleRef.close();
+  });
+});
+
+describe('Unhandled exceptions with sagaErrorStrategy set to "resubscribe"', () => {
+  let moduleRef: TestingModule;
+
+  beforeAll(async () => {
+    moduleRef = await Test.createTestingModule({
+      imports: [CqrsModule.forRoot({ sagaErrorStrategy: 'resubscribe' })],
+      providers: [UnhandledExceptionCommandHandler, ErrorsSagas],
+    }).compile();
+
+    await moduleRef.init();
+  });
+
+  // The saga waits 1 s before it throws and resubscribes 100 ms, then 200 ms, after each error;
+  // waiting 1 s between rounds keeps the next event clear of those delays.
+  it('should keep reacting to events after the saga has thrown', async () => {
+    const commandBus = moduleRef.get(CommandBus);
+    const unhandledExceptionBus = moduleRef.get(UnhandledExceptionBus);
+    const sagaThrows = async () => {
+      const forwarded = firstValueFrom(
+        unhandledExceptionBus.pipe(
+          filter((exceptionInfo) => exceptionInfo.cause === 'onError'),
+        ),
+      );
+      await commandBus.execute(new UnhandledExceptionCommand('saga'));
+      await forwarded;
+    };
+
+    await sagaThrows();
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await sagaThrows();
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await sagaThrows();
+  }, 20_000);
 
   afterAll(async () => {
     await moduleRef.close();

@@ -40,6 +40,15 @@ export interface CqrsModuleOptions {
    * @default false
    */
   rethrowUnhandled?: boolean;
+  /**
+   * What a saga does after its stream throws, when `rethrowUnhandled` is not set (the error is then published and logged).
+   * `'complete'` stops the saga. `'resubscribe'` subscribes to the stream again after 100 ms,
+   * doubling with each error up to 30 s and never reset; events published meanwhile are missed,
+   * and operators such as `startWith` run again. Events in flight inside the saga (in `delay` or an
+   * async `mergeMap`) are dropped either way; catch errors per event in the inner `mergeMap` instead.
+   * @default 'complete'
+   */
+  sagaErrorStrategy?: 'complete' | 'resubscribe';
 }
 
 import { Provider, Type } from '@nestjs/common';
