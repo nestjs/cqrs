@@ -37,6 +37,13 @@ import { AsyncContext } from './scopes/index.js';
 import { UnhandledExceptionBus } from './unhandled-exception-bus.js';
 import { ObservableBus } from './utils/index.js';
 
+// A saga resubscribes after an error, so a stream that keeps failing on its own
+// (replayed or rejected sources) would loop forever; the saga stops once it has
+// thrown MAX_SAGA_ERROR_BURST times, each less than SAGA_ERROR_BURST_INTERVAL_MS
+// after the previous one. Successful events in between do not reset the count.
+const MAX_SAGA_ERROR_BURST = 10;
+const SAGA_ERROR_BURST_INTERVAL_MS = 1000;
+
 export type EventHandlerType<EventBase extends IEvent = IEvent> = Type<
   IEventHandler<EventBase>
 >;
@@ -345,6 +352,9 @@ export class EventBus<EventBase extends IEvent = IEvent>
       throw new InvalidSagaException();
     }
 
+    let errorsInBurst = 0;
+    let lastErrorAt = 0;
+
     const subscription = stream$
       .pipe(
         filter((e) => !!e),
@@ -359,6 +369,19 @@ export class EventBus<EventBase extends IEvent = IEvent>
             `Saga "${saga.name}" has thrown an unhandled exception.`,
             error,
           );
+
+          const now = Date.now();
+          errorsInBurst =
+            now - lastErrorAt < SAGA_ERROR_BURST_INTERVAL_MS
+              ? errorsInBurst + 1
+              : 1;
+          lastErrorAt = now;
+          if (errorsInBurst >= MAX_SAGA_ERROR_BURST) {
+            this._logger.error(
+              `Saga "${saga.name}" has been stopped after ${MAX_SAGA_ERROR_BURST} unhandled exceptions less than ${SAGA_ERROR_BURST_INTERVAL_MS} ms apart.`,
+            );
+            return of();
+          }
           return caught;
         }),
         mergeMap((command) =>
