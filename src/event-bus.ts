@@ -8,8 +8,16 @@ import {
 } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper.js';
-import { Observable, Subscription, UnaryFunction, defer, of, pipe } from 'rxjs';
-import { catchError, filter, mergeMap, tap } from 'rxjs/operators';
+import {
+  Observable,
+  Subscription,
+  UnaryFunction,
+  defer,
+  of,
+  pipe,
+  timer,
+} from 'rxjs';
+import { catchError, filter, mergeMap, retry, tap } from 'rxjs/operators';
 import { CommandBus } from './command-bus.js';
 import { CQRS_MODULE_OPTIONS } from './constants.js';
 import {
@@ -36,6 +44,14 @@ import {
 import { AsyncContext } from './scopes/index.js';
 import { UnhandledExceptionBus } from './unhandled-exception-bus.js';
 import { ObservableBus } from './utils/index.js';
+
+// With `sagaErrorStrategy: 'resubscribe'`, the first retry comes quickly so a single bad event
+// costs little, and the cap keeps a stream that fails on every resubscription to two errors a minute.
+const SAGA_RETRY_BASE_DELAY_MS = 100;
+const SAGA_RETRY_MAX_DELAY_MS = 30_000;
+// An error after this long without one starts again from the base delay; above the cap, so a stream
+// that fails on every resubscription keeps backing off.
+const SAGA_RETRY_QUIET_PERIOD_MS = 60_000;
 
 export type EventHandlerType<EventBase extends IEvent = IEvent> = Type<
   IEventHandler<EventBase>
@@ -345,22 +361,51 @@ export class EventBus<EventBase extends IEvent = IEvent>
       throw new InvalidSagaException();
     }
 
+    const reportError = (error: unknown) => {
+      if (this.options?.rethrowUnhandled) {
+        throw error;
+      }
+
+      const unhandledError = this.mapToUnhandledErrorInfo(saga.name, error);
+      this.unhandledExceptionBus.publish(unhandledError);
+      this._logger.error(
+        `Saga "${saga.name}" has thrown an unhandled exception.`,
+        error,
+      );
+    };
+
+    // Counted here rather than with rxjs's `retryCount`, which can only reset on success (`resetOnSuccess`),
+    // and a `shareReplay` that replays a valid event would then reset it on every resubscription.
+    let attempt = 0;
+    let lastErrorAt = -Infinity;
+    const recoverFromError =
+      this.options?.sagaErrorStrategy === 'resubscribe'
+        ? retry<ICommand>({
+            delay: (error) => {
+              reportError(error);
+              const now = performance.now();
+              attempt =
+                now - lastErrorAt < SAGA_RETRY_QUIET_PERIOD_MS
+                  ? attempt + 1
+                  : 1;
+              lastErrorAt = now;
+              return timer(
+                Math.min(
+                  SAGA_RETRY_BASE_DELAY_MS * 2 ** (attempt - 1),
+                  SAGA_RETRY_MAX_DELAY_MS,
+                ),
+              );
+            },
+          })
+        : catchError<ICommand, Observable<never>>((error) => {
+            reportError(error);
+            return of();
+          });
+
     const subscription = stream$
       .pipe(
         filter((e) => !!e),
-        catchError((error) => {
-          if (this.options?.rethrowUnhandled) {
-            throw error;
-          }
-
-          const unhandledError = this.mapToUnhandledErrorInfo(saga.name, error);
-          this.unhandledExceptionBus.publish(unhandledError);
-          this._logger.error(
-            `Saga "${saga.name}" has thrown an unhandled exception.`,
-            error,
-          );
-          return of();
-        }),
+        recoverFromError,
         mergeMap((command) =>
           defer(() => this.commandBus.execute(command)).pipe(
             catchError((error) => {
