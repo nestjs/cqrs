@@ -258,6 +258,11 @@ export class EventBus<EventBase extends IEvent = IEvent>
         }
       : (event: EventBase) => async () => {
           const asyncContext = AsyncContext.of(event) ?? new AsyncContext();
+
+          this.moduleRef.registerRequestByContextId(
+            asyncContext,
+            asyncContext.id,
+          );
           const instance = await this.moduleRef.resolve(
             handler.metatype!,
             asyncContext.id,

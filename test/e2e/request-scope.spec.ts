@@ -1,7 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { setTimeout } from 'timers/promises';
 import type { MockInstance } from 'vitest';
-import { AsyncContext, CommandBus, QueryBus } from '../../src/index.js';
+import {
+  AsyncContext,
+  CommandBus,
+  EventBus,
+  QueryBus,
+} from '../../src/index.js';
 import { AppModule } from '../src/app.module.js';
 import { HERO_ID } from '../src/heroes/repository/fixtures/user.js';
 import { ANCIENT_ITEM_ID } from '../src/heroes/sagas/heroes.sagas.js';
@@ -113,6 +118,25 @@ describe('Request scope', () => {
       const commandBus = moduleRef.get(CommandBus);
       const result = await commandBus.execute(command);
       expect(result).toEqual({ heroId, dragonId });
+    });
+  });
+
+  describe('when "ScopedHeroFoundItemEvent" event is published with an async context', () => {
+    it('should inject that async context as REQUEST into the event handler', async () => {
+      const asyncContext = new AsyncContext();
+      const eventBus = moduleRef.get(EventBus);
+
+      eventBus.publish(
+        new ScopedHeroFoundItemEvent(HERO_ID, ANCIENT_ITEM_ID),
+        asyncContext,
+      );
+      await waitImmediate();
+
+      const handler = await moduleRef.resolve(
+        ScopedHeroFoundItemHandler,
+        asyncContext.id,
+      );
+      expect(handler.context).toBe(asyncContext);
     });
   });
 
