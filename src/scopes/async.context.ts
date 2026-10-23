@@ -30,14 +30,15 @@ export class AsyncContext {
 
   /**
    * Merges the context of an asynchronous operation from a given command, query, or event to another object.
-   * @param from A command, query, or event.
+   * @param from A command, query, or event, or an "AsyncContext" instance.
    * @param to A command, query, or event to merge the context to.
    */
-  static merge(from: object, to: object) {
+  static merge(from: object | undefined, to: object) {
     if (!from || !to) {
       return;
     }
-    const fromContext = from[ASYNC_CONTEXT_ATTRIBUTE];
+    const fromContext =
+      from instanceof AsyncContext ? from : from[ASYNC_CONTEXT_ATTRIBUTE];
     if (!fromContext) {
       return;
     }
