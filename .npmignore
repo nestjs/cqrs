@@ -10,3 +10,6 @@ tsconfig.json
 .release-it.json
 .eslintignore
 .eslintrc.js
+
+# Claude Code
+.claude/
