@@ -1,6 +1,6 @@
 {
   "name": "@nestjs/cqrs",
-  "version": "12.1.1",
+  "version": "12.1.2",
   "description": "A lightweight CQRS module for Nest framework (node.js)",
   "type": "module",
   "main": "./dist/index.js",
