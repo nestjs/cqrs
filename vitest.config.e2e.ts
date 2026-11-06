@@ -9,5 +9,7 @@ export default defineConfig({
     environment: 'node',
     include: ['test/e2e/**/*.spec.ts'],
     fileParallelism: false,
+    // Type-checks the *.spec-d.ts files.
+    typecheck: { enabled: true },
   },
 });
