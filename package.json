@@ -1,7 +1,18 @@
 {
   "name": "@nestjs/cqrs",
   "version": "12.1.2",
-  "description": "A lightweight CQRS module for Nest framework (node.js)",
+  "description": "CQRS for NestJS: command, query and event buses with handlers as providers, and sagas for reacting to events.",
+  "keywords": [
+    "nestjs",
+    "nest",
+    "cqrs",
+    "command-bus",
+    "query-bus",
+    "event-bus",
+    "event-sourcing",
+    "saga",
+    "ddd"
+  ],
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
