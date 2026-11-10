@@ -48,6 +48,9 @@ export class ExplorerService<EventBase extends IEvent = IEvent> {
   }
 
   filterByMetadataKey(wrapper: InstanceWrapper, metadataKey: string) {
+    if (wrapper.isAlias) {
+      return;
+    }
     const clsRef = wrapper.instance?.constructor ?? wrapper.metatype;
     if (!clsRef) {
       return;
