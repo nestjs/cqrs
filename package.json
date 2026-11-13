@@ -1,6 +1,6 @@
 {
   "name": "@nestjs/cqrs",
-  "version": "12.1.2",
+  "version": "12.1.3",
   "description": "CQRS for NestJS: command, query and event buses with handlers as providers, and sagas for reacting to events.",
   "keywords": [
     "nestjs",
