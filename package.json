@@ -53,7 +53,7 @@
     "@types/node": "26.6.6",
     "husky": "9.1.7",
     "lint-staged": "17.6.2",
-    "oxlint": "1.94.0",
+    "oxlint": "1.95.0",
     "prettier": "3.10.1",
     "reflect-metadata": "0.2.2",
     "release-it": "21.1.3",
