@@ -134,11 +134,11 @@ export class CommandBus<CommandBase extends ICommand = ICommand>
     this.handlers.set(id, async (command: T, context?: AsyncContext) => {
       context ??= AsyncContext.of(command) ?? new AsyncContext();
 
-      if (!AsyncContext.isAttached(context)) {
-        // Commands returned by sagas may already have an async context set
-        // and a corresponding request provider registered.
-        this.moduleRef.registerRequestByContextId(context, context.id);
+      this.moduleRef.registerRequestByContextId(context, context.id);
 
+      // Commands returned by sagas, or executed before, may already carry an
+      // async context, and it can't be redefined.
+      if (!AsyncContext.isAttached(command)) {
         context.attachTo(command);
       }
 
