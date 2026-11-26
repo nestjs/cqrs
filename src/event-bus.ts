@@ -169,7 +169,9 @@ export class EventBus<EventBase extends IEvent = IEvent>
       dispatcherOrAsyncContext = undefined;
     }
 
-    if (asyncContext) {
+    // An event published before, or created with a context, keeps it: it
+    // can't be redefined.
+    if (asyncContext && !AsyncContext.isAttached(event)) {
       asyncContext.attachTo(event);
     }
 
