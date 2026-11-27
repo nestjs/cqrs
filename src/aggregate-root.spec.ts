@@ -301,6 +301,20 @@ describe('AggregateRoot', () => {
           undefined,
         );
       });
+
+      it('does not publish the events it replays from history', () => {
+        order.autoCommit = true;
+
+        order.loadFromHistory([new OrderPlacedEvent('order-1')]);
+        order.apply(new OrderShippedEvent('order-1'), { fromHistory: true });
+
+        expect(publisher.publish).not.toHaveBeenCalled();
+        expect(order.getUncommittedEvents()).toEqual([]);
+
+        order.ship();
+
+        expect(publisher.publish).toHaveBeenCalledTimes(1);
+      });
     });
 
     describe.runIf(path.supportsAsyncContext)('with an async context', () => {
