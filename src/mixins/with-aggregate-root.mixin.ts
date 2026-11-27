@@ -98,11 +98,14 @@ export function WithAggregateRoot<
           ? false
           : optionsOrIsFromHistory.skipHandler;
 
-      if (!isFromHistory && !this.autoCommit) {
-        this[INTERNAL_EVENTS].push(event);
+      // An event replayed from history was published when it first happened.
+      if (!isFromHistory) {
+        if (this.autoCommit) {
+          this.publish(event);
+        } else {
+          this[INTERNAL_EVENTS].push(event);
+        }
       }
-
-      this.autoCommit && this.publish(event);
 
       if (!skipHandler) {
         const handler = this.getEventHandler(event);
